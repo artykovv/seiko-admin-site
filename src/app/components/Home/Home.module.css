@@ -37,7 +37,7 @@
 }
 
 
-tbody tr:hover {
+.homeTbody tr:hover {
     background-color: #ededed;
     transition: .2s;
 }

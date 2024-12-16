@@ -74,7 +74,7 @@ function Home() {
                                     <th scope="col">За текущий месяц</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody className={styles.homeTbody}>
                                 {data.packages.paket_counts && data.packages.paket_counts.length > 0 && ( // Изменение: обращение к массиву внутри объекта
                                     data.packages.paket_counts.map((item) => ( // Изменение: используем paket_counts
                                         <tr key={item.id}>
@@ -99,7 +99,7 @@ function Home() {
                                     <th scope="col">За текущий месяц</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody className={styles.homeTbody}>
                                 {data.statuses.status_counts && data.statuses.status_counts.length > 0 && (
                                     data.statuses.status_counts.map((item) => (
                                         <tr key={item.id}>
@@ -124,7 +124,7 @@ function Home() {
                                 <th scope="col">За текущий месяц</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody className={styles.homeTbody}>
                             {data.total.length > 0 && data.total.map((item) => (
                                 <tr key={item.branch_id}>
                                     <td scope="row">{item.total_amount}</td>
@@ -148,7 +148,7 @@ function Home() {
                                         <th scope="col">За текущий месяц</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody className={styles.homeTbody}>
                                     {data.turnovers.length > 0 && data.turnovers.map((item) => (
                                         <tr key={item.branch_id}>
                                             <td scope="row">{item.branch_name}</td>
@@ -171,7 +171,7 @@ function Home() {
                                         <th scope="col">За текущий месяц</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody className={styles.homeTbody}>
                                     {data.ref.length > 0 && data.ref.map((item) => (
                                         <tr key={item.branch_id}>
                                             <td scope="row">{item.branch_name}</td>
@@ -194,7 +194,7 @@ function Home() {
                                         <th scope="col">За текущий месяц</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody className={styles.homeTbody}>
                                     {data.statusTotal.length > 0 && data.statusTotal.map((item) => (
                                         <tr key={item.branch_id}>
                                             <td scope="row">{item.branch_name}</td>
@@ -219,7 +219,7 @@ function Home() {
                                         <th scope="col">За текущий месяц</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody className={styles.homeTbody}>
                                     {data.binar.length > 0 && data.binar.map((item) => (
                                         <tr key={item.branch_id}>
                                             <td scope="row">{item.branch_name}</td>
@@ -242,7 +242,7 @@ function Home() {
                                         <th scope="col">За текущий месяц</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody className={styles.homeTbody}>
                                     <tr>
                                         <td scope="row"> Бишкек</td>
                                         <td>0</td>
@@ -263,7 +263,7 @@ function Home() {
                                         <th scope="col">За текущий месяц</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody className={styles.homeTbody}>
                                     {data.sponsor.length > 0 && data.sponsor.map((item) => (
                                         <tr key={item.branch_id}>
                                             <td scope="row">{item.branch_name}</td>
