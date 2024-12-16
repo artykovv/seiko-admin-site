@@ -1,8 +1,8 @@
 import React from 'react';
 import styles from './Employees.module.css';
 
-import edit from './assets/edit.svg';
-import add from './assets/add.svg';
+import edit from '@/assets/edit.webp';
+import add from '@/assets/add.webp';
 
 import Link from 'next/link';
 import Image from 'next/image';

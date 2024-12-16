@@ -2,7 +2,7 @@
 import Image from 'next/image';
 import styles from './Header.module.css';
 
-import logo from '@/components/assets/logo.svg'
+import logo from '@/assets/logo.svg'
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation'
 import axios from 'axios';
@@ -61,7 +61,7 @@ function Header() {
 
     return (
         <header className={styles.header}>
-            <Image width={130} src={logo} alt='logo' />
+            <Image width={130} src={logo} alt='logo' priority />
             <span>{lastname} {userName} {patronymic}</span>
         </header>
     );

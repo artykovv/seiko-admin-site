@@ -15,22 +15,7 @@ export default function Page() {
   useEffect(() => {
     const token = localStorage.getItem('authToken');
     if (token) {
-      const validateToken = async () => {
-        try {
-          const response = await axios.post(`${API_URL}/auth/validate-token`, null, {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          });
-          console.log(response);
-          if (response.status === 200) {
-            router.push('/home');
-          }
-        } catch (error) {
-          localStorage.removeItem('authToken');
-        }
-      };
-      validateToken();
+      router.push('/home');
     }
   }, [router]);
 
@@ -70,13 +55,21 @@ export default function Page() {
         case 422:
           setMessage('Неверный логин или пароль');
           break;
+
         default:
           setMessage('Ошибка сети');
           break;
       }
     } catch (error) {
-      console.error(error);
-      setMessage('Неверный логин или пароль');
+      switch (error.status) {
+        case 502:
+          setMessage('Сайт временно не работает');
+          break;
+        default:
+          console.error(error);
+          setMessage('Неверный логин или пароль');
+          break;
+      }
     }
   };
 
@@ -86,15 +79,18 @@ export default function Page() {
         <h1>Авторизация</h1>
         <div className={styles.form_container}>
           <input
-            type="text"
-            placeholder="Username"
+            type="email"
+            placeholder="Почта"
             value={username}
+            autoComplete='username'
             onChange={(e) => setUsername(e.target.value)}
             className={styles.input}
           />
           <input
             type="password"
-            placeholder="Password"
+            name="password"
+            autoComplete="new-password"
+            placeholder="Пароль"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className={styles.input}

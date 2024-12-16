@@ -75,13 +75,15 @@ function Home() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {data.packages.length > 0 && data.packages.map((item) => (
-                                    <tr key={item.name}>
-                                        <td scope="row">{item.name}</td>
-                                        <td>{item.total}</td>
-                                        <td>{item.current_month}</td>
-                                    </tr>
-                                ))}
+                                {data.packages.paket_counts && data.packages.paket_counts.length > 0 && ( // Изменение: обращение к массиву внутри объекта
+                                    data.packages.paket_counts.map((item) => ( // Изменение: используем paket_counts
+                                        <tr key={item.id}>
+                                            <td scope="row">{item.name}</td>
+                                            <td>{item.total}</td>
+                                            <td>{item.current_month}</td>
+                                        </tr>
+                                    ))
+                                )}
                             </tbody>
                         </table>
                     </div>
@@ -98,13 +100,15 @@ function Home() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {data.statuses.length > 0 && data.statuses.map((item) => (
-                                    <tr key={item.name}>
-                                        <td scope="row">{item.name}</td>
-                                        <td>{item.total}</td>
-                                        <td>{item.current_month}</td>
-                                    </tr>
-                                ))}
+                                {data.statuses.status_counts && data.statuses.status_counts.length > 0 && (
+                                    data.statuses.status_counts.map((item) => (
+                                        <tr key={item.id}>
+                                            <td scope="row">{item.name}</td>
+                                            <td>{item.total}</td>
+                                            <td>{item.current_month}</td>
+                                        </tr>
+                                    ))
+                                )}
                             </tbody>
                         </table>
                     </div>

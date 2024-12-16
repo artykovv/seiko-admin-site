@@ -2,9 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { API_URL } from '@/api/api';
-import styles from '../Participants.module.css';
+import styles from '../../Participants/Participants.module.css';
 
-export default function ParticipantEdit({ participantId, setActiveComponent }) {
+export default function RegistrationsEdit({ participantId, setActiveComponent }) {
     const token = localStorage.getItem('authToken');
 
     const [participant, setParticipant] = useState({
@@ -201,7 +201,7 @@ export default function ParticipantEdit({ participantId, setActiveComponent }) {
             );
 
             if (response.status === 200) {
-                handleBack('participants');
+                handleBack('registrations');
             }
         } catch (error) {
             console.error('Ошибка при обновлении участника:', error.response?.data || error);
@@ -303,10 +303,10 @@ export default function ParticipantEdit({ participantId, setActiveComponent }) {
                     <div className={styles.formRow}>
                         <label htmlFor="password">Пароль</label>
                         <input
+                            autoComplete="new-password"
                             type="password"
                             id="password"
                             name="password"
-                            autoComplete="new-password"
                             onChange={(e) => handleChange('password', e.target.value)}
                         />
                     </div>
@@ -314,10 +314,10 @@ export default function ParticipantEdit({ participantId, setActiveComponent }) {
                     <div className={styles.formRow}>
                         <label htmlFor="repeatPassword">Повторить пароль</label>
                         <input
+                            autoComplete="new-password"
                             type="password"
                             id="repeatPassword"
                             name="password"
-                            autoComplete="new-password"
                             onChange={(e) => handleChange('password_confirmation', e.target.value)}
                         />
                     </div>
@@ -478,7 +478,7 @@ export default function ParticipantEdit({ participantId, setActiveComponent }) {
                     </div>
                 </div>
                 <footer className={styles.formButtons}>
-                    <button type="button" onClick={() => handleBack('participants')}>
+                    <button type="button" onClick={() => handleBack('registrations')}>
                         Назад
                     </button>
                     <button type="submit">

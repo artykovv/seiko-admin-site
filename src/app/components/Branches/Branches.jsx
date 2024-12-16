@@ -1,9 +1,9 @@
 import React from 'react';
 import styles from './Branches.module.css';
 
-import edit from './assets/edit.svg';
 import Link from 'next/link';
-import add from './assets/add.svg';
+import edit from '@/assets/edit.webp';
+import add from '@/assets/add.webp';
 
 import Image from 'next/image';
 function Branches() {

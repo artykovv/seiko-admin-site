@@ -12,13 +12,20 @@ import Gifts from '../components/Gifts/Gifts';
 
 import { useRouter } from 'next/navigation'
 
-
 import { motion, AnimatePresence } from 'framer-motion';
 
 import styles from './page.module.css';
 import axios from 'axios';
 import { API_URL } from '@/api/api';
 import ParticipantEdit from '../components/Participants/components/ParticipantEdit';
+import ParticipantBonuses from '../components/Participants/components/ParticipantBonuses';
+import ParticipantInvite from '../components/Participants/components/ParticipantInvite';
+import ParticipantStructure from '../components/Participants/components/ParticipantStructure';
+import Register from '../components/Registrations/components/Register';
+import AddStructure from '../components/Registrations/components/AddStructure';
+import RegistrationsBonuses from '../components/Registrations/components/RegistrationsBonuses';
+import RegistrationsInvite from '../components/Registrations/components/RegistrationsInvite';
+import RegistrationsEdit from '../components/Registrations/components/RegistrationsEdit';
 
 function Page() {
     const router = useRouter()
@@ -28,14 +35,6 @@ function Page() {
         const savedPermissions = localStorage.getItem('permissions');
         return savedPermissions ? JSON.parse(savedPermissions) : [];
     });
-
-    useEffect(() => {
-        if (!token) {
-            router.push('/');
-        } else {
-            router.push('/home');
-        }
-    }, []);
 
     const getUser = useCallback(async () => {
         if (permissions.length > 0) {
@@ -47,6 +46,7 @@ function Page() {
                 'Authorization': `Bearer ${token}`
             }
         });
+        console.log(response);
 
         const fetchedPermissions = response.data.permissions;
         setPermissions(fetchedPermissions);
@@ -58,7 +58,6 @@ function Page() {
     }, [getUser]);
 
     const [activeComponent, setActiveComponent] = useState({ name: 'home', id: null });
-    console.log(activeComponent);
 
     const renderComponent = () => {
         switch (activeComponent.name) {
@@ -67,7 +66,7 @@ function Page() {
             case 'participants':
                 return <Participants setActiveComponent={setActiveComponent} />;
             case 'registrations':
-                return <Registrations />;
+                return <Registrations participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
             case 'employees':
                 return <Employees />;
             case 'branches':
@@ -77,11 +76,48 @@ function Page() {
             case 'gift':
                 return <Gifts />;
             case 'participantEdit':
-                return <ParticipantEdit participantId={activeComponent.id} />;
+                return <ParticipantEdit participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
+            case 'ParticipantInvite':
+                return <ParticipantInvite participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
+            case 'participantBonuses':
+                return <ParticipantBonuses participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
+            case 'participantStructure':
+                return <ParticipantStructure participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
+            case 'registerStructure':
+                return <Register participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
+            case 'participantStructureAdd':
+                return <AddStructure participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
+            case 'RegistrationsInvite':
+                return <RegistrationsInvite participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
+            case 'RegistrationsBonuses':
+                return <RegistrationsBonuses participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
+            case 'RegistrationsEdit':
+                return <RegistrationsEdit participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
             default:
                 return <Home />;
         }
     };
+
+    useEffect(() => {
+        const validateToken = async () => {
+            try {
+                await axios.get(`${API_URL}/auth/validate-token`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+            } catch (error) {
+                localStorage.removeItem('authToken');
+                router.push('/');
+            }
+        };
+
+        if (!token) {
+            router.push('/');
+        } else {
+            validateToken();
+        }
+    }, [token, activeComponent, router]);
 
     return (
         <div className='container'>
@@ -104,7 +140,6 @@ function Page() {
                                         'branches': 'Филиалы',
                                         'bonuses': 'Бонусы',
                                         'gift': 'Подарочные',
-                                        'participantEdit': 'Редактирование участника'
                                     };
                                     return permissionLabels[permission.permission_name] || permission.permission_name;
                                 })()}
