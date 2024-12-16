@@ -28,36 +28,42 @@ import RegistrationsInvite from '../components/Registrations/components/Registra
 import RegistrationsEdit from '../components/Registrations/components/RegistrationsEdit';
 
 function Page() {
-    const router = useRouter()
-    const token = localStorage.getItem('authToken');
+    const router = useRouter();
+    const [token, setToken] = useState(null);
+    const [permissions, setPermissions] = useState([]);
+    const [activeComponent, setActiveComponent] = useState({ name: 'home', id: null });
 
-    const [permissions, setPermissions] = useState(() => {
+    useEffect(() => {
+        const savedToken = localStorage.getItem('authToken');
         const savedPermissions = localStorage.getItem('permissions');
-        return savedPermissions ? JSON.parse(savedPermissions) : [];
-    });
+
+        setToken(savedToken);
+        if (savedPermissions) {
+            setPermissions(JSON.parse(savedPermissions));
+        }
+    }, []);
 
     const getUser = useCallback(async () => {
-        if (permissions.length > 0) {
-            return;
+        if (!token || permissions.length > 0) return;
+
+        try {
+            const response = await axios.get(`${API_URL}/users/me`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+            const fetchedPermissions = response.data.permissions;
+            setPermissions(fetchedPermissions);
+            localStorage.setItem('permissions', JSON.stringify(fetchedPermissions));
+        } catch (error) {
+            console.error('Failed to fetch user permissions:', error);
         }
-
-        const response = await axios.get(`${API_URL}/users/me`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-        console.log(response);
-
-        const fetchedPermissions = response.data.permissions;
-        setPermissions(fetchedPermissions);
-        localStorage.setItem('permissions', JSON.stringify(fetchedPermissions));
     }, [token, permissions]);
 
     useEffect(() => {
         getUser();
     }, [getUser]);
 
-    const [activeComponent, setActiveComponent] = useState({ name: 'home', id: null });
 
     const renderComponent = () => {
         switch (activeComponent.name) {
