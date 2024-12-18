@@ -10,14 +10,13 @@ import axios from 'axios';
 import { API_URL } from '@/api/api';
 
 function Header() {
-
     const [userName, setUserName] = useState('')
     const [lastname, setLastname] = useState('')
     const [patronymic, setPatronymic] = useState('')
     const router = useRouter()
-    const token = localStorage.getItem('authToken');
 
     useEffect(() => {
+        const token = localStorage.getItem('authToken');
         if (!token) {
             router.push('/');
         } else {
@@ -26,6 +25,7 @@ function Header() {
     }, []);
 
     const getUserName = async () => {
+        const token = localStorage.getItem('authToken');
         try {
             const response = await axios.get(`${API_URL}/users/me`, {
                 headers: {

@@ -56,7 +56,6 @@ export default function Page() {
         case 422:
           setMessage('Неверный логин или пароль');
           break;
-
         default:
           setMessage('Ошибка сети');
           break;

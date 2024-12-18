@@ -1,5 +1,12 @@
-'use client'
+'use client';
 import { useEffect, useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation'
+import { motion, AnimatePresence } from 'framer-motion';
+import axios from 'axios';
+
+import styles from './page.module.css';
+import { API_URL } from '@/api/api';
+
 import Home from '../components/Home/Home';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -10,13 +17,8 @@ import Branches from '../components/Branches/Branches';
 import Bonuses from '../components/Bonuses/Bonuses';
 import Gifts from '../components/Gifts/Gifts';
 
-import { useRouter } from 'next/navigation'
 
-import { motion, AnimatePresence } from 'framer-motion';
 
-import styles from './page.module.css';
-import axios from 'axios';
-import { API_URL } from '@/api/api';
 import ParticipantEdit from '../components/Participants/components/ParticipantEdit';
 import ParticipantBonuses from '../components/Participants/components/ParticipantBonuses';
 import ParticipantInvite from '../components/Participants/components/ParticipantInvite';
@@ -26,6 +28,7 @@ import AddStructure from '../components/Registrations/components/AddStructure';
 import RegistrationsBonuses from '../components/Registrations/components/RegistrationsBonuses';
 import RegistrationsInvite from '../components/Registrations/components/RegistrationsInvite';
 import RegistrationsEdit from '../components/Registrations/components/RegistrationsEdit';
+
 
 function Page() {
     const router = useRouter()
@@ -41,6 +44,7 @@ function Page() {
 
     useEffect(() => {
         const token = localStorage.getItem('authToken');
+
         const validateToken = async () => {
             try {
                 await axios.get(`${API_URL}/auth/validate-token`, {
@@ -60,7 +64,6 @@ function Page() {
             validateToken();
             router.push('/home');
         }
-
     }, [activeComponent, router]);
 
     const getUser = useCallback(async () => {
