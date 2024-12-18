@@ -202,7 +202,7 @@ export default function ParticipantEdit({ participantId, setActiveComponent }) {
             );
 
             if (response.status === 200) {
-                handleBack('participants');
+                handleBack('Участники');
             }
         } catch (error) {
             console.error('Ошибка при обновлении участника:', error.response?.data || error);

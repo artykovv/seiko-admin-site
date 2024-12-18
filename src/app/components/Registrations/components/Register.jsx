@@ -220,7 +220,7 @@ export default function Register({ setActiveComponent }) {
             );
 
             if (response.status === 200) {
-                handleBack('registrations');
+                handleBack('Регистрации');
             }
         } catch (error) {
             console.error('Ошибка при создании участника:', error.response?.data || error);
@@ -527,7 +527,7 @@ export default function Register({ setActiveComponent }) {
 
                     <footer className={styles.formButtons}>
                         <span>{errorMessage}</span>
-                        <button type="button" onClick={() => handleBack('registrations', null)}>Назад</button>
+                        <button type="button" onClick={() => handleBack('Регистрации', null)}>Назад</button>
                         <button type="submit">
                             Добавить
                         </button>

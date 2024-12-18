@@ -23,8 +23,6 @@
     margin-bottom: 5px;
 }
 
-
-
 .table {
     width: 100%;
 }
@@ -37,6 +35,11 @@
 
 .table tr {
     height: 30px;
+}
+
+.table tbody tr:hover {
+    background-color: #ededed;
+    transition: .2s;
 }
 
 .search {

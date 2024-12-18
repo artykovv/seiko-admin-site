@@ -84,7 +84,7 @@ export default function RegistrationsInvite({ participantId, setActiveComponent 
                     </div>}
                     <div className={styles.tableWrapper}>
                         <footer className={styles.formButtons}>
-                            <button type="button" onClick={() => handleBack('registrations')}>
+                            <button type="button" onClick={() => handleBack('Регистрации')}>
                                 Назад
                             </button>
                         </footer>

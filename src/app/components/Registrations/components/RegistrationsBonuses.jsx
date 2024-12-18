@@ -104,7 +104,7 @@ export default function RegistrationsBonuses({ participantId, setActiveComponent
                                 <button onClick={getBonusHistory}>
                                     История бонусов
                                 </button>
-                                <button type="button" onClick={() => handleBack('registrations')}>
+                                <button type="button" onClick={() => handleBack('Регистрации')}>
                                     Назад
                                 </button>
                             </div>

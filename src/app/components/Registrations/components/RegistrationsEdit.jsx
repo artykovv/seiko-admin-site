@@ -201,7 +201,7 @@ export default function RegistrationsEdit({ participantId, setActiveComponent })
             );
 
             if (response.status === 200) {
-                handleBack('registrations');
+                handleBack('Регистрации');
             }
         } catch (error) {
             console.error('Ошибка при обновлении участника:', error.response?.data || error);
@@ -478,7 +478,7 @@ export default function RegistrationsEdit({ participantId, setActiveComponent })
                     </div>
                 </div>
                 <footer className={styles.formButtons}>
-                    <button type="button" onClick={() => handleBack('registrations')}>
+                    <button type="button" onClick={() => handleBack('Регистрации')}>
                         Назад
                     </button>
                     <button type="submit">

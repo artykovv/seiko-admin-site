@@ -74,7 +74,7 @@ export default function AddStructure({ setActiveComponent, participantId }) {
             });
             console.log(response);
 
-            setActiveComponent({ name: 'registrations', id: null });
+            setActiveComponent({ name: 'Регистрации', id: null });
         } catch (error) {
             console.error('Ошибка при создании участника:', error.response?.data || error);
             setErrorMessage('Данные уже существуют или не все поля заполнены корректно.')
@@ -161,7 +161,7 @@ export default function AddStructure({ setActiveComponent, participantId }) {
                     </div>
                     <footer className={styles.formButtons}>
                         <span>{errorMessage}</span>
-                        <button type="button" onClick={() => handleBack('registrations', null)}>Назад</button>
+                        <button type="button" onClick={() => handleBack('Регистрации', null)}>Назад</button>
                         <button type="submit">
                             Добавить в структуру
                         </button>

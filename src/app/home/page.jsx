@@ -17,8 +17,6 @@ import Branches from '../components/Branches/Branches';
 import Bonuses from '../components/Bonuses/Bonuses';
 import Gifts from '../components/Gifts/Gifts';
 
-
-
 import ParticipantEdit from '../components/Participants/components/ParticipantEdit';
 import ParticipantBonuses from '../components/Participants/components/ParticipantBonuses';
 import ParticipantInvite from '../components/Participants/components/ParticipantInvite';
