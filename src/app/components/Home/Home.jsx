@@ -6,8 +6,6 @@ import { API_URL } from '@/api/api';
 
 
 function Home() {
-    const token = localStorage.getItem('authToken');
-
     const [data, setData] = useState({
         packages: [],
         statuses: [],
@@ -20,6 +18,8 @@ function Home() {
     });
 
     const fetchData = async (endpoint, key) => {
+        const token = localStorage.getItem('authToken');
+
         const response = await axios.get(`${API_URL}/api/v1/${endpoint}`, {
             headers: {
                 'Authorization': `Bearer ${token}`

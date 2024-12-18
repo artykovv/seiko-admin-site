@@ -16,7 +16,6 @@ function Registrations({ setActiveComponent }) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState('Фильтр');
 
-  const token = localStorage.getItem('authToken')
 
   const handleSelectChange = (option) => {
     setSelectedOption(option);
@@ -28,6 +27,7 @@ function Registrations({ setActiveComponent }) {
   const [pageSize, setPageSize] = useState(20);
 
   const getParticipants = async () => {
+    const token = localStorage.getItem('authToken')
     const response = await axios.get(`${API_URL}/api/v1/participants/none/structure?page=${page}&page_size=${pageSize}`, {
       headers: {
         'Authorization': `Bearer ${token}`
@@ -41,6 +41,7 @@ function Registrations({ setActiveComponent }) {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   const handleOpenDetail = async (personalNumber) => {
+    const token = localStorage.getItem('authToken')
     const cachedDetail = localStorage.getItem(`participant_${personalNumber}`);
     if (cachedDetail) {
       setParticipantDetail(JSON.parse(cachedDetail));
@@ -68,14 +69,12 @@ function Registrations({ setActiveComponent }) {
 
 
   const handleDelete = async (id) => {
+    const token = localStorage.getItem('authToken')
     try {
-      const response = axios.delete(`${API_URL}/api/v1/participants/${id}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      }
-      )
-      getParticipants()
+      await axios.delete(`${API_URL}/api/v1/participants/${id}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      getParticipants();
     } catch (error) {
       console.log(error);
     }
@@ -85,7 +84,6 @@ function Registrations({ setActiveComponent }) {
     <div className={styles.registrationsContainer}>
       <div className={styles.tableSection}>
         <div className={styles.tableIn}>
-          {/* Детали участника */}
           {isDetailOpen && <div className={styles.detailModal} onClick={() => setIsDetailOpen(false)}>
             <div className={styles.detailModalContent} onClick={(e) => e.stopPropagation()}>
               <div className={styles.detailModalHeader}>

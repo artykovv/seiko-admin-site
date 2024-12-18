@@ -12,22 +12,23 @@ import Image from 'next/image';
 import axios from 'axios';
 import { API_URL } from '@/api/api';
 
-
-
 function Participants({ setActiveComponent }) {
-  const token = localStorage.getItem('authToken');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState('Фильтр');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const searchInputRef = useRef('');
-
+  const [participants, setParticipants] = useState([])
   const [pageCount, setPageCount] = useState(20)
 
-  const [participants, setParticipants] = useState(() => {
+  useEffect(() => {
     const cachedParticipants = localStorage.getItem('participants');
-    return cachedParticipants ? JSON.parse(cachedParticipants) : [];
-  });
+    if (cachedParticipants) {
+      setParticipants(JSON.parse(cachedParticipants));
+    } else {
+      setParticipants([]);
+    }
+  }, []);
 
   const handleSelectChange = (option) => {
     setSelectedOption(option);
@@ -56,12 +57,13 @@ function Participants({ setActiveComponent }) {
   };
 
   const getParticipants = async (option) => {
+    const token = localStorage.getItem('authToken');
     const url = option === 'Все' || option === 'Фильтр'
       ? `${API_URL}/api/v1/participants/in/structure?page=${currentPage}&page_size=${pageCount}`
       : `${API_URL}/api/v1/participants/in/structure?page=${currentPage}&page_size=${pageCount}&paket_names=${option}`;
 
+    const searchUrl = `${API_URL}/api/v1/search/participants?query=${searchInputRef.current}&page=${currentPage}&page_size=${pageCount}`;
     if (searchInputRef.current) {
-      const searchUrl = `${API_URL}/api/v1/search/participants?query=${searchInputRef.current}&page=${currentPage}&page_size=${pageCount}`;
       const response = await axios.get(searchUrl, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -91,6 +93,7 @@ function Participants({ setActiveComponent }) {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   const handleOpenDetail = async (personalNumber) => {
+    const token = localStorage.getItem('authToken');
     const cachedDetail = localStorage.getItem(`participant_${personalNumber}`);
     if (cachedDetail) {
       setParticipantDetail(JSON.parse(cachedDetail));

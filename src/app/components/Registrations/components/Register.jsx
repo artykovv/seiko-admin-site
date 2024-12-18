@@ -5,7 +5,6 @@ import axios from 'axios';
 import { API_URL } from '@/api/api';
 
 export default function Register({ setActiveComponent }) {
-    const token = localStorage.getItem('authToken');
     const [personalNumber, setPersonalNumber] = useState('')
     const [errorMessage, setErrorMessage] = useState('')
     const [branches, setBranches] = useState([]);
@@ -78,6 +77,7 @@ export default function Register({ setActiveComponent }) {
     };
 
     const getBranches = async () => {
+        const token = localStorage.getItem('authToken');
         try {
             const response = await axios.get(`${API_URL}/api/v1/branches`, {
                 headers: {
@@ -91,6 +91,7 @@ export default function Register({ setActiveComponent }) {
     };
 
     const getPakets = async () => {
+        const token = localStorage.getItem('authToken');
         try {
             const response = await axios.get(`${API_URL}/api/v1/pakets`, {
                 headers: {
@@ -104,6 +105,7 @@ export default function Register({ setActiveComponent }) {
     };
 
     const getParticipant = async () => {
+        const token = localStorage.getItem('authToken');
         try {
             const response = await axios.get(`${API_URL}/api/v1/participants`, {
                 headers: {
@@ -117,6 +119,7 @@ export default function Register({ setActiveComponent }) {
     };
 
     const getParticipantNumber = async () => {
+        const token = localStorage.getItem('authToken');
         try {
             const response = await axios.get(`${API_URL}/api/v1/participant/personal_number`, {
                 headers: {
@@ -162,7 +165,7 @@ export default function Register({ setActiveComponent }) {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-
+        const token = localStorage.getItem('authToken');
         if (!validateForm()) return;
 
         try {

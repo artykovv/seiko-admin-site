@@ -9,9 +9,9 @@ export default function ParticipantInvite({ participantId, setActiveComponent })
     const [isDetailOpen, setIsDetailOpen] = useState(false);
     const [participantDetail, setParticipantDetail] = useState(null);
     const [sponsored, setSponsored] = useState([]);
-    const token = localStorage.getItem('authToken');
 
     const getSponsored = async () => {
+        const token = localStorage.getItem('authToken');
         const cachedSponsored = localStorage.getItem(`participantSponsored_${participantId}`);
         if (cachedSponsored) {
             setSponsored(JSON.parse(cachedSponsored));
@@ -31,6 +31,7 @@ export default function ParticipantInvite({ participantId, setActiveComponent })
     };
 
     const handleOpenDetail = async (personalNumber) => {
+        const token = localStorage.getItem('authToken');
         const cachedDetail = localStorage.getItem(`participantInvite_${personalNumber}`);
         if (cachedDetail) {
             setParticipantDetail(JSON.parse(cachedDetail));
@@ -83,7 +84,7 @@ export default function ParticipantInvite({ participantId, setActiveComponent })
                     </div>}
                     <div className={styles.tableWrapper}>
                         <footer className={styles.formButtons}>
-                            <button type="button" onClick={() => handleBack('participants')}>
+                            <button type="button" onClick={() => handleBack('Участники')}>
                                 Назад
                             </button>
                         </footer>

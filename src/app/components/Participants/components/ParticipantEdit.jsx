@@ -5,8 +5,6 @@ import { API_URL } from '@/api/api';
 import styles from '../Participants.module.css';
 
 export default function ParticipantEdit({ participantId, setActiveComponent }) {
-    const token = localStorage.getItem('authToken');
-
     const [participant, setParticipant] = useState({
         name: '',
         lastname: '',
@@ -67,6 +65,7 @@ export default function ParticipantEdit({ participantId, setActiveComponent }) {
     };
 
     const handleEditParticipant = async () => {
+        const token = localStorage.getItem('authToken');
         try {
             const response = await axios.get(`${API_URL}/api/v1/participants/${participantId}`, {
                 headers: {
@@ -81,6 +80,7 @@ export default function ParticipantEdit({ participantId, setActiveComponent }) {
 
 
     const getBranches = async () => {
+        const token = localStorage.getItem('authToken');
         try {
             const response = await axios.get(`${API_URL}/api/v1/branches`, {
                 headers: {
@@ -95,6 +95,7 @@ export default function ParticipantEdit({ participantId, setActiveComponent }) {
 
 
     const getPakets = async () => {
+        const token = localStorage.getItem('authToken');
         try {
             const response = await axios.get(`${API_URL}/api/v1/pakets`, {
                 headers: {
@@ -145,7 +146,7 @@ export default function ParticipantEdit({ participantId, setActiveComponent }) {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-
+        const token = localStorage.getItem('authToken');
         if (!validateForm()) return;
 
         try {
@@ -478,7 +479,7 @@ export default function ParticipantEdit({ participantId, setActiveComponent }) {
                     </div>
                 </div>
                 <footer className={styles.formButtons}>
-                    <button type="button" onClick={() => handleBack('participants')}>
+                    <button type="button" onClick={() => handleBack('Участники')}>
                         Назад
                     </button>
                     <button type="submit">

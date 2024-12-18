@@ -5,7 +5,6 @@ import axios from 'axios';
 import { API_URL } from '@/api/api';
 
 export default function AddStructure({ setActiveComponent, participantId }) {
-    const token = localStorage.getItem('authToken');
     const [errorMessage, setErrorMessage] = useState('')
     const [pakets, setPakets] = useState([]);
     const [freePositions, setFreePositions] = useState([]);
@@ -48,6 +47,7 @@ export default function AddStructure({ setActiveComponent, participantId }) {
     };
 
     const getFreePositions = async () => {
+        const token = localStorage.getItem('authToken');
         try {
             const response = await axios.get(`${API_URL}/api/v1/participants/find_free_positions/${participantId}`, {
                 headers: {
@@ -64,6 +64,7 @@ export default function AddStructure({ setActiveComponent, participantId }) {
     };
 
     const handleSubmit = async (event) => {
+        const token = localStorage.getItem('authToken');
         event.preventDefault();
         try {
             const response = await axios.put(`${API_URL}/api/v1/participant/add/structure`, data, {
@@ -85,6 +86,7 @@ export default function AddStructure({ setActiveComponent, participantId }) {
     };
 
     const getPakets = async () => {
+        const token = localStorage.getItem('authToken');
         try {
             const response = await axios.get(`${API_URL}/api/v1/pakets`, {
                 headers: {
@@ -101,9 +103,6 @@ export default function AddStructure({ setActiveComponent, participantId }) {
         getPakets();
         getFreePositions();
     }, []);
-
-    console.log(data);
-
 
     return (
         <div>

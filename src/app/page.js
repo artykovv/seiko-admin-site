@@ -12,12 +12,13 @@ export default function Page() {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
 
+
   useEffect(() => {
     const token = localStorage.getItem('authToken');
     if (token) {
       router.push('/home');
     }
-  }, [router]);
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

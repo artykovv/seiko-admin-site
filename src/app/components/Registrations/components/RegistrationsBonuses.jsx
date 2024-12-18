@@ -7,9 +7,9 @@ import styles from '../../Participants/Participants.module.css';
 export default function RegistrationsBonuses({ participantId, setActiveComponent }) {
     const [bonuses, setBonuses] = useState(null);
     const [bonusHistory, setBonusHistory] = useState([]);
-    const token = localStorage.getItem('authToken');
 
     const getBonuses = async () => {
+        const token = localStorage.getItem('authToken');
         const cachedBonuses = localStorage.getItem(`bonuses_${participantId}`);
         if (cachedBonuses) {
             setBonuses(JSON.parse(cachedBonuses));
@@ -26,6 +26,7 @@ export default function RegistrationsBonuses({ participantId, setActiveComponent
     };
 
     const getBonusHistory = async () => {
+        const token = localStorage.getItem('authToken');
         const cachedHistory = localStorage.getItem(`bonusHistory_${participantId}`);
         if (cachedHistory) {
             setBonusHistory(JSON.parse(cachedHistory));

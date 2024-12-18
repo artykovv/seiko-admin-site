@@ -5,8 +5,6 @@ import { API_URL } from '@/api/api';
 import styles from '../../Participants/Participants.module.css';
 
 export default function RegistrationsEdit({ participantId, setActiveComponent }) {
-    const token = localStorage.getItem('authToken');
-
     const [participant, setParticipant] = useState({
         name: '',
         lastname: '',
@@ -67,6 +65,7 @@ export default function RegistrationsEdit({ participantId, setActiveComponent })
     };
 
     const handleEditParticipant = async () => {
+        const token = localStorage.getItem('authToken');
         try {
             const response = await axios.get(`${API_URL}/api/v1/participants/${participantId}`, {
                 headers: {
@@ -81,6 +80,7 @@ export default function RegistrationsEdit({ participantId, setActiveComponent })
 
 
     const getBranches = async () => {
+        const token = localStorage.getItem('authToken');
         try {
             const response = await axios.get(`${API_URL}/api/v1/branches`, {
                 headers: {
@@ -95,6 +95,7 @@ export default function RegistrationsEdit({ participantId, setActiveComponent })
 
 
     const getPakets = async () => {
+        const token = localStorage.getItem('authToken');
         try {
             const response = await axios.get(`${API_URL}/api/v1/pakets`, {
                 headers: {
@@ -145,6 +146,7 @@ export default function RegistrationsEdit({ participantId, setActiveComponent })
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+        const token = localStorage.getItem('authToken');
 
         if (!validateForm()) return;
 
@@ -175,7 +177,6 @@ export default function RegistrationsEdit({ participantId, setActiveComponent })
                 passport_issuer: participant.passport_issuer,
                 passport_issue_date: formatDate(participant.passport_issue_date),
                 bank: participant.bank || null,
-                // Преобразуем в строгие булевы зачения
                 ip_inn: booleanValue(participant.ip_inn),
                 pensioner: booleanValue(participant.pensioner),
                 paket_id: parseInt(participant.paket?.id),
@@ -183,7 +184,6 @@ export default function RegistrationsEdit({ participantId, setActiveComponent })
                 code: participant.code || null
             };
 
-            // Добавляем пароль только если он был введен
             if (participant.password) {
                 submitData.password = participant.password;
                 submitData.password_confirmation = participant.password_confirmation;

@@ -10,16 +10,12 @@ export default function ParticipantStructure({ participantId, setActiveComponent
     const [leftChild, setLeftChildren] = useState([]);
     const [rightChild, setRightChildren] = useState([]);
 
-    console.log(firstChild);
+    console.log(firstChild.color);
     console.log(leftChild);
     console.log(rightChild);
 
-
-    const token = localStorage.getItem('authToken');
-
-
-
     const getStructure = async () => {
+        const token = localStorage.getItem('authToken');
         try {
             const response = await axios.get(`${API_URL}/api/v1/participants/${participantId}/children`, {
                 headers: {
@@ -41,7 +37,6 @@ export default function ParticipantStructure({ participantId, setActiveComponent
             setFirstChild(firstChild); // Устанавливаем основного участника
             setLeftChildren(firstChild.left_child); // Левого ребенка, если нужно
             setRightChildren(firstChild.right_child); // Правого ребенка, если нужно
-            console.log('Динамический массив детей:', children);
 
         } catch (error) {
             console.error('Ошибка при загрузке участников:', error);
@@ -52,12 +47,11 @@ export default function ParticipantStructure({ participantId, setActiveComponent
         getStructure();
     }, []);
 
-
     const [participantDetail, setParticipantDetail] = useState(null);
     const [isDetailOpen, setIsDetailOpen] = useState(false);
 
-
     const handleOpenDetail = async (detailStructureId) => {
+        const token = localStorage.getItem('authToken');
         try {
             const cachedDetail = localStorage.getItem(`strucutreFirstChild${detailStructureId}`);
             if (cachedDetail) {
@@ -109,7 +103,7 @@ export default function ParticipantStructure({ participantId, setActiveComponent
                         </div>
                     </div>}
                     <footer className={styles.formButtons}>
-                        <button type="button" onClick={() => handleBack('participants')}>
+                        <button type="button" onClick={() => handleBack('Участники')}>
                             Назад
                         </button>
                     </footer>
