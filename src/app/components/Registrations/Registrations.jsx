@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import styles from './Registrations.module.css';
 import Image from 'next/image';
 import { API_URL } from '@/api/api';
@@ -17,24 +17,56 @@ function Registrations({ setActiveComponent }) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState('Фильтр');
   const [participants, setParticipants] = useState([]);
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
+  const [pageCount, setPageCount] = useState(20)
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const searchInputRef = useRef('');
+
 
   const handleSelectChange = (option) => {
     setSelectedOption(option);
     setIsFilterOpen(false);
+    setCurrentPage(1);
+    getRegistrations(option);
+  };
+
+  const handleSearchChange = (event) => {
+    searchInputRef.current = event.target.value;
+    if (searchInputRef.current == '') {
+      getRegistrations(selectedOption)
+    } else if (searchInputRef.current.length > 0) {
+      setCurrentPage(1);
+      getRegistrations(searchInputRef);
+    }
   };
 
 
-  const getParticipants = useCallback(async () => {
+  const getRegistrations = useCallback(async (option) => {
     const token = localStorage.getItem('authToken');
-    const response = await axios.get(`${API_URL}/api/v1/participants/none/structure?page=${page}&page_size=${pageSize}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-    setParticipants(response.data.participants || []);
-  }, [page, pageSize]);
+    const url = option === 'Все' || option === 'Фильтр'
+      ? `${API_URL}/api/v1/participants/none/structure?page=${currentPage}&page_size=${pageCount}`
+      : `${API_URL}/api/v1/participants/none/structure?page=${currentPage}&page_size=${pageCount}&paket_names=${option}`;
+
+    const searchUrl = `${API_URL}/api/v1/search/none/participants?query=${searchInputRef.current}&page=${currentPage}&page_size=${pageCount}`;
+    if (searchInputRef.current) {
+      const response = await axios.get(searchUrl, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      setParticipants(response.data.participants || []);
+      setTotalPages(response.data.total_pages);
+    } else {
+      const response = await axios.get(url, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      setParticipants(response.data.participants || []);
+      setTotalPages(response.data.total_pages);
+      localStorage.setItem('registrations', JSON.stringify(response.data || []));
+    }
+  }, []);
 
 
   const [participantDetail, setParticipantDetail] = useState(null);
@@ -64,8 +96,8 @@ function Registrations({ setActiveComponent }) {
   };
 
   useEffect(() => {
-    getParticipants();
-  }, [getParticipants]);
+    getRegistrations(selectedOption);
+  }, [selectedOption]);
 
 
   const handleDelete = async (id) => {
@@ -109,7 +141,13 @@ function Registrations({ setActiveComponent }) {
           </div>}
           <div className={styles.tableWrapper}>
             <div className={styles.search}>
-              <input className={styles.searchInput} type="text" placeholder="Поиск" />
+              <input
+                className={styles.searchInput}
+                type="text"
+                placeholder="Поиск"
+                defaultValue={searchInputRef.current}
+                onChange={handleSearchChange}
+              />
               <div className={styles.btnsWrapper}>
                 <button className={styles.filterBtn} onClick={() => setIsFilterOpen(!isFilterOpen)}>
                   {selectedOption}

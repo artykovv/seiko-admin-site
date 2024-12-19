@@ -86,7 +86,7 @@ function Participants({ setActiveComponent }) {
 
   useEffect(() => {
     getParticipants(selectedOption);
-  }, [pageCount]);
+  }, [selectedOption]);
 
 
   //! Модальное окно
