@@ -1,9 +1,9 @@
 .tableSection {
-    margin-top: 20px;
     display: flex;
     justify-content: space-between;
     gap: 20px;
 }
+
 
 .tableWrapper {
     flex: 1 auto;
@@ -15,6 +15,7 @@
     padding: 15px 20px;
     width: 100%;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: #F4F8FC;
 }
 
 .tableWrapper h3 {
@@ -31,6 +32,7 @@
 .table td {
     text-align: start;
     padding: 5px;
+    font-size: 14px;
 }
 
 .table tr {
@@ -167,11 +169,47 @@
     cursor: pointer;
 }
 
-.btn img {
+.btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    border-radius: 8px;
+    padding: 5px;
+}
+
+
+.btn:nth-child(1) {
+    background-color: #007bff;
+}
+
+.btn:nth-child(2) {
+    background-color: #0eaa4a;
+}
+
+.btn:nth-child(3) {
+    background-color: #0056b3;
+}
+
+.btn:nth-child(4) {
+    background-color: #6C757D;
+}
+
+.btn:nth-child(5) {
+    background-color: #FFC107;
+}
+
+.btn:nth-child(6) {
+    background-color: #ff0000;
+}
+
+.btn img,
+.openDetailBtn img {
     width: 18px;
     height: 18px;
 }
-
 
 .openDetailBtn {
     border: none;
@@ -250,31 +288,8 @@
     background-color: #5a6268;
 }
 
-.tableSection {
-    margin-top: 20px;
-    display: flex;
-    justify-content: space-between;
-    gap: 20px;
-}
-
-.tableWrapper {
-    flex: 1 auto;
-}
-
-.tableIn {
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    padding: 15px 20px;
-    width: 100%;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
 
 
-.tableWrapper h3 {
-    font-weight: 300;
-    font-size: 20px;
-    margin-bottom: 5px;
-}
 
 .table {
     width: 100%;
@@ -290,113 +305,6 @@
     height: 30px;
 }
 
-.search {
-    display: flex;
-    justify-content: space-between;
-    padding-block: 10px;
-    position: relative;
-}
-
-.searchInput {
-    padding: 10px 10px 10px 10px;
-    border-radius: 8px;
-    outline: none;
-    border: 1px solid #dee2e6;
-    width: 30%;
-}
-
-.searchInput:focus {
-    outline: none;
-}
-
-.filterBtn {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    justify-content: center;
-    padding: 10px 10px 10px 10px;
-    border-radius: 8px;
-    border: 1px solid #dee2e6;
-    outline: none;
-    width: 100px;
-}
-
-.filterBtn:hover {
-    background-color: #e2e2e2;
-    transition: .2s;
-}
-
-.filterBtn:active {
-    background-color: #9f9f9f;
-}
-
-.filterBtn img {
-    width: 16px;
-    height: 16px;
-    transition: .2s;
-}
-
-.filterMenu {
-    position: absolute;
-    width: 100px;
-    background-color: #fff;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    flex-direction: column;
-    gap: 5px;
-    transition: .2s;
-    padding: 5px;
-}
-
-.selectFilter {
-    padding: 5px;
-    margin: 5px;
-    border-radius: 8px;
-    border: 1px solid #dee2e6;
-    outline: none;
-}
-
-.selectFilter:hover {
-    background-color: #e2e2e2;
-    transition: .2s;
-}
-
-.actions {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.detailLink {
-    text-decoration: none;
-    color: #007BFF;
-}
-
-.btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: transparent;
-    border: none;
-    outline: none;
-    cursor: pointer;
-}
-
-.btn img {
-    width: 18px;
-    height: 18px;
-}
-
-
-.openDetailBtn {
-    border: none;
-    outline: none;
-    background-color: transparent;
-    color: #007BFF;
-    cursor: pointer;
-}
-
-
 .detailModal {
     position: fixed;
     top: 50%;
@@ -464,9 +372,6 @@
 .closeDetailBtn:hover {
     background-color: #5a6268;
 }
-
-
-
 
 .formSection {
     display: flex;

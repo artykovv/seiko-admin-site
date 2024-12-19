@@ -3,10 +3,11 @@ import { useEffect, useState, useRef } from 'react';
 import styles from './Participants.module.css';
 
 import arrowFilter from '@/assets/arrowdown.webp';
-import invite from '@/assets/invite.webp';
-import bonus from '@/assets/bonus.webp';
-import structure from '@/assets/structure.webp';
-import edit from '@/assets/edit.webp';
+import invite from '@/assets/invite.svg';
+import bonus from '@/assets/currency.svg';
+import structure from '@/assets/structure.svg';
+import edit from '@/assets/edit.svg';
+import agreement from '@/assets/agreement.svg';
 
 import Image from 'next/image';
 import axios from 'axios';
@@ -183,7 +184,9 @@ function Participants({ setActiveComponent }) {
                     <td>{item.paket.name}</td>
                     <td>{item.register_at ? new Date(item.register_at).toLocaleDateString() : 'Не указано'}</td>
                     <td className={styles.actions}>
-                      <button onClick={() => handleOpenDetail(item.id)} className={styles.openDetailBtn}>Договор</button>
+                      <button onClick={() => handleOpenDetail(item.id)} className={styles.btn}>
+                        <Image src={agreement} alt='agreement' />
+                      </button>
                       <button className={styles.btn} onClick={() => handleParticipantPage('ParticipantInvite', item.id)}>
                         <Image src={invite} alt="invite" />
                       </button>

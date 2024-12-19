@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import styles from './Registrations.module.css';
 import Image from 'next/image';
 import { API_URL } from '@/api/api';
@@ -7,34 +7,34 @@ import axios from 'axios';
 
 import deletePng from "@/assets/delete.svg";
 import add from '@/assets/add.webp';
-import invite from '@/assets/invite.webp';
-import bonus from '@/assets/bonus.webp';
-import edit from '@/assets/edit.webp';
+import invite from '@/assets/invite.svg';
+import bonus from '@/assets/currency.svg';
+import edit from '@/assets/edit.svg';
 import arrowFilter from '@/assets/arrowdown.webp';
+import agreement from '@/assets/agreement.svg';
 
 function Registrations({ setActiveComponent }) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState('Фильтр');
-
+  const [participants, setParticipants] = useState([]);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
 
   const handleSelectChange = (option) => {
     setSelectedOption(option);
     setIsFilterOpen(false);
   };
 
-  const [participants, setParticipants] = useState([]);
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
 
-  const getParticipants = async () => {
-    const token = localStorage.getItem('authToken')
+  const getParticipants = useCallback(async () => {
+    const token = localStorage.getItem('authToken');
     const response = await axios.get(`${API_URL}/api/v1/participants/none/structure?page=${page}&page_size=${pageSize}`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
     });
     setParticipants(response.data.participants || []);
-  };
+  }, [page, pageSize]);
 
 
   const [participantDetail, setParticipantDetail] = useState(null);
@@ -65,7 +65,7 @@ function Registrations({ setActiveComponent }) {
 
   useEffect(() => {
     getParticipants();
-  }, [page, pageSize]);
+  }, [getParticipants]);
 
 
   const handleDelete = async (id) => {
@@ -149,8 +149,10 @@ function Registrations({ setActiveComponent }) {
                     <td>{item.paket.name}</td>
                     <td>{item.register_at ? new Date(item.register_at).toLocaleDateString() : 'Не указано'}</td>
                     <td className={styles.actions}>
-                      <button onClick={() => handleOpenDetail(item.id)} className={styles.openDetailBtn}>Договор</button>
-                      <button className={styles.btn} style={{ backgroundColor: '#198754', borderRadius: '2px' }} onClick={() => handleParticipantPage('participantStructureAdd', item.sponsor_id)}>
+                      <button onClick={() => handleOpenDetail(item.id)} className={styles.btn}>
+                        <Image src={agreement} alt='agreement' />
+                      </button>
+                      <button className={styles.btn} onClick={() => handleParticipantPage('participantStructureAdd', item.sponsor_id)}>
                         <Image src={add} alt="add" />
                       </button>
                       <button className={styles.btn} onClick={() => handleParticipantPage('RegistrationsInvite', item.id)}>

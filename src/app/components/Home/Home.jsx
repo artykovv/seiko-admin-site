@@ -63,7 +63,7 @@ function Home() {
                 <h1>Главная</h1>
             </div>
             <div className={styles.tableSection}>
-                <div className={styles.tableWrapper} style={{ width: '40%' }}>
+                <div className={styles.tableWrapper} style={{ width: '40%', display: 'flex', flexDirection: 'column', gap: '15px' }}>
                     <div className={styles.tableIn}>
                         <h3>Пакеты</h3>
                         <table className={styles.table}>
@@ -84,6 +84,27 @@ function Home() {
                                         </tr>
                                     ))
                                 )}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div className={styles.tableIn}>
+                        <h3>Товарооборот</h3>
+                        <table className={styles.table}>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Товарооборот</th>
+                                    <th scope="col">За все время</th>
+                                    <th scope="col">За текущий месяц</th>
+                                </tr>
+                            </thead>
+                            <tbody className={styles.homeTbody}>
+                                {data.turnovers.length > 0 && data.turnovers.map((item) => (
+                                    <tr key={item.branch_id}>
+                                        <td scope="row">{item.branch_name}</td>
+                                        <td>{item.total_amount}</td>
+                                        <td>{item.current_month_amount}</td>
+                                    </tr>
+                                ))}
                             </tbody>
                         </table>
                     </div>
@@ -117,7 +138,7 @@ function Home() {
             <div className={styles.singleTableWrapper}>
                 <div className={styles.tableIn}>
                     <h3>Итого</h3>
-                    <table className={styles.table}>
+                    <table className={styles.table} style={{ marginBottom: '50px' }}>
                         <thead>
                             <tr>
                                 <th scope="col">За все время</th>
@@ -133,148 +154,99 @@ function Home() {
                             ))}
                         </tbody>
                     </table>
-                </div>
-            </div>
-            <div className={styles.tableSection}>
-                <div className={styles.tableWrapper_main}>
-                    <div className={styles.tableWrapper}>
-                        <div className={styles.tableIn}>
-                            <h3>Товарооборот</h3>
-                            <table className={styles.table}>
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Товарооборот</th>
-                                        <th scope="col">За все время</th>
-                                        <th scope="col">За текущий месяц</th>
-                                    </tr>
-                                </thead>
-                                <tbody className={styles.homeTbody}>
-                                    {data.turnovers.length > 0 && data.turnovers.map((item) => (
-                                        <tr key={item.branch_id}>
-                                            <td scope="row">{item.branch_name}</td>
-                                            <td>{item.total_amount}</td>
-                                            <td>{item.current_month_amount}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div className={styles.tableWrapper}>
-                        <div className={styles.tableIn}>
-                            <h3>Реферальные бонусы</h3>
-                            <table className={styles.table}>
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Реферальные бонусы</th>
-                                        <th scope="col">За все время</th>
-                                        <th scope="col">За текущий месяц</th>
-                                    </tr>
-                                </thead>
-                                <tbody className={styles.homeTbody}>
-                                    {data.ref.length > 0 && data.ref.map((item) => (
-                                        <tr key={item.branch_id}>
-                                            <td scope="row">{item.branch_name}</td>
-                                            <td>{item.total_amount}</td>
-                                            <td>{item.current_month_amount}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div className={styles.tableWrapper}>
-                        <div className={styles.tableIn}>
-                            <h3>Статусные бонусы</h3>
-                            <table className={styles.table}>
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Статусные бонусы</th>
-                                        <th scope="col">За все время</th>
-                                        <th scope="col">За текущий месяц</th>
-                                    </tr>
-                                </thead>
-                                <tbody className={styles.homeTbody}>
-                                    {data.statusTotal.length > 0 && data.statusTotal.map((item) => (
-                                        <tr key={item.branch_id}>
-                                            <td scope="row">{item.branch_name}</td>
-                                            <td>{item.total_amount}</td>
-                                            <td>{item.current_month_amount}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                <div className={styles.tableWrapper_main}>
-                    <div className={styles.tableWrapper}>
-                        <div className={styles.tableIn}>
-                            <h3>Бинар</h3>
-                            <table className={styles.table}>
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Бинар</th>
-                                        <th scope="col">За все время</th>
-                                        <th scope="col">За текущий месяц</th>
-                                    </tr>
-                                </thead>
-                                <tbody className={styles.homeTbody}>
-                                    {data.binar.length > 0 && data.binar.map((item) => (
-                                        <tr key={item.branch_id}>
-                                            <td scope="row">{item.branch_name}</td>
-                                            <td>{item.total_amount}</td>
-                                            <td>{item.current_month_amount}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div className={styles.tableWrapper}>
-                        <div className={styles.tableIn}>
-                            <h3>Чек от чека</h3>
-                            <table className={styles.table}>
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Чек от чека</th>
-                                        <th scope="col">За все время</th>
-                                        <th scope="col">За текущий месяц</th>
-                                    </tr>
-                                </thead>
-                                <tbody className={styles.homeTbody}>
-                                    <tr>
-                                        <td scope="row"> Бишкек</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div className={styles.tableWrapper}>
-                        <div className={styles.tableIn}>
-                            <h3>Спонсоркие бонусы</h3>
-                            <table className={styles.table}>
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Спонсоркие бонусы</th>
-                                        <th scope="col">За все время</th>
-                                        <th scope="col">За текущий месяц</th>
-                                    </tr>
-                                </thead>
-                                <tbody className={styles.homeTbody}>
-                                    {data.sponsor.length > 0 && data.sponsor.map((item) => (
-                                        <tr key={item.branch_id}>
-                                            <td scope="row">{item.branch_name}</td>
-                                            <td>{item.total_amount}</td>
-                                            <td>{item.current_month_amount}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                    <h3>Реферальные бонусы</h3>
+                    <table className={styles.table} style={{ marginBottom: '50px' }}>
+                        <thead>
+                            <tr>
+                                <th scope="col">Реферальные бонусы</th>
+                                <th scope="col">За все время</th>
+                                <th scope="col">За текущий месяц</th>
+                            </tr>
+                        </thead>
+                        <tbody className={styles.homeTbody}>
+                            {data.ref.length > 0 && data.ref.map((item) => (
+                                <tr key={item.branch_id}>
+                                    <td scope="row">{item.branch_name}</td>
+                                    <td>{item.total_amount}</td>
+                                    <td>{item.current_month_amount}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                    <h3>Статусные бонусы</h3>
+                    <table className={styles.table} style={{ marginBottom: '50px' }}>
+                        <thead>
+                            <tr>
+                                <th scope="col">Статусные бонусы</th>
+                                <th scope="col">За все время</th>
+                                <th scope="col">За текущий месяц</th>
+                            </tr>
+                        </thead>
+                        <tbody className={styles.homeTbody}>
+                            {data.statusTotal.length > 0 && data.statusTotal.map((item) => (
+                                <tr key={item.branch_id}>
+                                    <td scope="row">{item.branch_name}</td>
+                                    <td>{item.total_amount}</td>
+                                    <td>{item.current_month_amount}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                    <h3>Бинар</h3>
+                    <table className={styles.table} style={{ marginBottom: '50px' }}>
+                        <thead>
+                            <tr>
+                                <th scope="col">Бинар</th>
+                                <th scope="col">За все время</th>
+                                <th scope="col">За текущий месяц</th>
+                            </tr>
+                        </thead>
+                        <tbody className={styles.homeTbody}>
+                            {data.binar.length > 0 && data.binar.map((item) => (
+                                <tr key={item.branch_id}>
+                                    <td scope="row">{item.branch_name}</td>
+                                    <td>{item.total_amount}</td>
+                                    <td>{item.current_month_amount}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                    <h3>Чек от чека</h3>
+                    <table className={styles.table} style={{ marginBottom: '50px' }}>
+                        <thead>
+                            <tr>
+                                <th scope="col">Чек от чека</th>
+                                <th scope="col">За все время</th>
+                                <th scope="col">За текущий месяц</th>
+                            </tr>
+                        </thead>
+                        <tbody className={styles.homeTbody}>
+                            <tr>
+                                <td scope="row"> Бишкек</td>
+                                <td>0</td>
+                                <td>0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>Спонсоркие бонусы</h3>
+                    <table className={styles.table} style={{ marginBottom: '50px' }}>
+                        <thead>
+                            <tr>
+                                <th scope="col">Спонсоркие бонусы</th>
+                                <th scope="col">За все время</th>
+                                <th scope="col">За текущий месяц</th>
+                            </tr>
+                        </thead>
+                        <tbody className={styles.homeTbody}>
+                            {data.sponsor.length > 0 && data.sponsor.map((item) => (
+                                <tr key={item.branch_id}>
+                                    <td scope="row">{item.branch_name}</td>
+                                    <td>{item.total_amount}</td>
+                                    <td>{item.current_month_amount}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

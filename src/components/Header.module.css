@@ -5,12 +5,19 @@
     padding-block: 10px;
     border-bottom: 1px solid #dee2e6;
     padding-inline: 30px;
+    background-color: #000080;
+    border-bottom-left-radius: 14px;
+    border-bottom-right-radius: 14px;
+    color: white;
 }
-
 
 .header h1 {
     font-size: 24px;
     font-weight: 400;
+}
+
+.header img {
+    fill: white;
 }
 
 .footer {

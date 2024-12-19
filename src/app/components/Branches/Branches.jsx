@@ -2,7 +2,7 @@ import React from 'react';
 import styles from './Branches.module.css';
 
 import Link from 'next/link';
-import edit from '@/assets/edit.webp';
+import edit from '@/assets/edit.svg';
 import add from '@/assets/add.webp';
 
 import Image from 'next/image';
