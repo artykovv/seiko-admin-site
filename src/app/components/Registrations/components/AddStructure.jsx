@@ -1,4 +1,3 @@
-'use client'
 import React, { useState, useEffect } from 'react'
 import styles from '../Registrations.module.css'
 import axios from 'axios';

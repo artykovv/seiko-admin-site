@@ -26,6 +26,8 @@ import AddStructure from '../components/Registrations/components/AddStructure';
 import RegistrationsBonuses from '../components/Registrations/components/RegistrationsBonuses';
 import RegistrationsInvite from '../components/Registrations/components/RegistrationsInvite';
 import RegistrationsEdit from '../components/Registrations/components/RegistrationsEdit';
+import BranchesEdit from '../components/Branches/components/BranchesEdit';
+import BranchesAdd from '../components/Branches/components/BranchesAdd';
 
 
 function Page() {
@@ -95,7 +97,7 @@ function Page() {
             case "Сотрудники":
                 return <Employees />;
             case "Филиалы":
-                return <Branches />;
+                return <Branches participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
             case "Бонусы":
                 return <Bonuses />;
             case "Подарочные":
@@ -118,8 +120,10 @@ function Page() {
                 return <RegistrationsBonuses participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
             case 'RegistrationsEdit':
                 return <RegistrationsEdit participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
-            case 'AddBranches':
-                return <RegistrationsEdit participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
+            case 'BranchesEdit':
+                return <BranchesEdit participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
+            case 'BranchesAdd':
+                return <BranchesAdd participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
             default:
                 return <Home />;
         }

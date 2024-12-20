@@ -23,16 +23,6 @@
     margin-bottom: 5px;
 }
 
-.table {
-    width: 100%;
-}
-
-.table th,
-.table td {
-    text-align: start;
-    padding: 5px;
-}
-
 .table tr {
     height: 30px;
 }
@@ -40,6 +30,12 @@
 .table tbody tr:hover {
     background-color: #ededed;
     transition: .2s;
+}
+
+.table th,
+.table td {
+    text-align: start;
+    padding: 5px;
 }
 
 .btnsWrapper {
@@ -97,4 +93,129 @@
 .btn img {
     width: 18px;
     height: 18px;
+}
+
+.formSection {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 15px 20px;
+    width: 100%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.formBlock {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+}
+
+.formRow {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.formRow label {
+    font-weight: 500;
+    position: relative;
+}
+
+.formRow input,
+.formRow select {
+    padding: 8px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+}
+
+.dateInputs {
+    display: flex;
+    gap: 10px;
+}
+
+.dateInputs input {
+    padding: 8px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    width: 100px;
+}
+
+.formButtons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.formButtons button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+}
+
+.formButtons button:hover {
+    background-color: #0056b3;
+}
+
+.formButtons span {
+    color: red;
+    display: flex;
+    align-items: center;
+}
+
+.formRow input:required+label::after,
+.formRow select:required+label::after {
+    content: '*';
+    color: red;
+    margin-left: 4px;
+}
+
+.formRow input:required:invalid,
+.formRow select:required:invalid {
+    border-color: #ffdddd;
+}
+
+.formRow input:required:valid,
+.formRow select:required:valid {
+    border-color: #ddffdd;
+}
+
+.tableBody {
+    height: 300px;
+    width: 100%;
+    overflow-y: auto;
+    display: block;
+}
+
+.tableBonuses thead,
+.tableBonuses tbody tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+}
+
+.tableBonuses {
+    width: 100%;
+}
+
+.tableBonuses th,
+.tableBonuses td {
+    text-align: start;
+    padding: 5px;
+}
+
+.tableBonuses tr {
+    height: 30px;
+}
+
+.tableBody::-webkit-scrollbar {
+    width: 0px;
 }
