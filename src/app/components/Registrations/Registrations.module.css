@@ -163,23 +163,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: transparent;
-    border: none;
-    outline: none;
-    cursor: pointer;
-}
-
-.btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
     border: none;
     outline: none;
     cursor: pointer;
     border-radius: 8px;
     padding: 5px;
 }
-
 
 .btn:nth-child(1) {
     background-color: #007bff;
@@ -538,4 +527,37 @@
     text-align: left;
     padding-left: 10px;
     transition-duration: 0.3s;
+}
+
+.pagination {
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+.pagination button {
+    padding: 1px 10px;
+    border-radius: 8px;
+    border: none;
+    background-color: #007bff;
+    color: #fff;
+    font-size: 18px;
+}
+
+.selectPage {
+    display: flex;
+    gap: 10px;
+    flex-direction: column;
+    align-items: center;
+}
+
+.selectPage select {
+    padding: 1px 10px;
+    border-radius: 8px;
+    border: none;
+    background-color: #007bff;
+    color: #fff;
+    font-size: 18px;
 }

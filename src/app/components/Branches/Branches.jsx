@@ -1,12 +1,31 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styles from './Branches.module.css';
 
-import Link from 'next/link';
 import edit from '@/assets/edit.svg';
 import add from '@/assets/add.webp';
 
 import Image from 'next/image';
-function Branches() {
+import axios from 'axios';
+import { API_URL } from '@/api/api';
+
+function Branches({ setActiveComponent }) {
+
+  const getBranches = async () => {
+    const token = localStorage.getItem('authToken')
+    try {
+      const response = await axios.get(`${API_URL}/api/v1/branches`,)
+    } catch (error) {
+
+    }
+  }
+
+  useEffect(() => {
+    getBranches()
+  }, [])
+
+  const handleBranchesPage = (name, id) => {
+    setActiveComponent({ name, id });
+  };
   return (
     <div className={styles.branchesContainer}>
       <div className={styles.tableSection}>
@@ -33,9 +52,9 @@ function Branches() {
                   <td>Бишкек</td>
                   <td>нет</td>
                   <td className={styles.editBtn}>
-                    <Link href="#" className={styles.editLink}>
+                    <button className={styles.btn} onClick={() => handleBranchesPage('AddBranches', item.id)}>
                       <Image src={edit} alt="edit" />
-                    </Link>
+                    </button>
                   </td>
                 </tr>
               </tbody>

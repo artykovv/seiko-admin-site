@@ -106,7 +106,7 @@ function Registrations({ setActiveComponent }) {
       await axios.delete(`${API_URL}/api/v1/participants/${id}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      getParticipants();
+      getRegistrations();
     } catch (error) {
       console.log(error);
     }
@@ -211,9 +211,29 @@ function Registrations({ setActiveComponent }) {
               </tbody>
             </table>
           </div>
+          <div className={styles.pagination}>
+            {Array.from({ length: totalPages }, (_, index) => (
+              <button key={index} onClick={() => handlePageChange(index + 1)} disabled={currentPage === index + 1}>
+                {index + 1}
+              </button>
+            ))}
+            <div className={styles.selectPage}>
+              <select>
+                <option style={pageCount === 20 ? { backgroundColor: '#007BFF' } : {}} onClick={() => setPageCount(20)}>
+                  20
+                </option>
+                <option style={pageCount === 50 ? { backgroundColor: '#007BFF' } : {}} onClick={() => setPageCount(50)}>
+                  50
+                </option>
+                <option style={pageCount === 100 ? { backgroundColor: '#007BFF' } : {}} onClick={() => setPageCount(100)}>
+                  100
+                </option>
+              </select>
+            </div>
+          </div>
         </div>
       </div>
-    </div >
+    </div>
   );
 }
 

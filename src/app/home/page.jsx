@@ -118,6 +118,8 @@ function Page() {
                 return <RegistrationsBonuses participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
             case 'RegistrationsEdit':
                 return <RegistrationsEdit participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
+            case 'AddBranches':
+                return <RegistrationsEdit participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
             default:
                 return <Home />;
         }

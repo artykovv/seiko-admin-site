@@ -82,11 +82,19 @@
     align-items: center;
 }
 
-.editLink {
+.btn {
     display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    border-radius: 8px;
+    padding: 5px;
+    background-color: #FFC107;
 }
 
-.editLink img {
+.btn img {
     width: 18px;
     height: 18px;
 }
