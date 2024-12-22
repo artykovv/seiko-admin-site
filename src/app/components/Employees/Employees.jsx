@@ -25,7 +25,6 @@ function Employees() {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsers(response.data)
-      console.log(response.data);
     } catch (error) {
       console.log(error)
     }
@@ -35,16 +34,22 @@ function Employees() {
     getEmployees()
   }, [])
 
+  const handlePermissionsUpdate = (updatedPermissions) => {
+    console.log(updatedPermissions);
+  };
+
   const renderComponent = () => {
     switch (activeComponent.name) {
       case 'BranchesEdit':
         return <EmployeesBranchesEdit participantId={activeComponent.id} setActiveComponent={setActiveComponent} />
       case 'PermissionsEdit':
-        return <EmployeesPermissionsEdit participantId={activeComponent.id} setActiveComponent={setActiveComponent} />
+        return <EmployeesPermissionsEdit participantId={activeComponent.id} setActiveComponent={setActiveComponent} onPermissionsUpdate={handlePermissionsUpdate} />
       default:
         return
     }
   }
+
+
   return (
     <div className={styles.employeesContainer}>
       <div className={styles.tableSection}>

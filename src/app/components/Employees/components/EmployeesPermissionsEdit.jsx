@@ -1,51 +1,80 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import styles from "../Employees.module.css";
 import axios from 'axios';
 import { API_URL } from '@/api/api';
 
-export default function EmployeesPermissionsEdit({ participantId, setActiveComponent }) {
-    const [userName, setUserName] = useState([]);
+export default function EmployeesPermissionsEdit({ participantId, setActiveComponent, onPermissionsUpdate }) {
+    const [userInfo, setUserInfo] = useState({});
     const [permissions, setPermissions] = useState([]);
     const [checkedPermissions, setCheckedPermissions] = useState({});
-
-    console.log(checkedPermissions);
 
     const handleBack = (name, id) => {
         setActiveComponent({ name, id });
     };
 
-    const getPermissions = async () => {
+    const getPermissions = useCallback(async () => {
         const token = localStorage.getItem('authToken');
         try {
-            const responseUser = await axios.get(`${API_URL}/users/${participantId}`, {
+            const userInfoResponse = await axios.get(`${API_URL}/users/${participantId}`, {
                 headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+                    'Authorization': `Bearer ${token}`,
+                },
             });
 
-            const permission = await axios.get(`${API_URL}/permissions`, {
+            const permissionsResponse = await axios.get(`${API_URL}/permissions`, {
                 headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+                    'Authorization': `Bearer ${token}`,
+                },
             });
 
-            setUserName(responseUser.data);
-            setPermissions(permission.data);
+            setUserInfo(userInfoResponse.data);
+            setPermissions(permissionsResponse.data);
+
+            const userPermissionsIds = new Set(userInfoResponse.data.permissions.map((perm) => perm.id));
+            const initialCheckedPermissions = permissionsResponse.data.reduce((acc, perm) => {
+                acc[perm.id] = userPermissionsIds.has(perm.id);
+                return acc;
+            }, {});
+            setCheckedPermissions(initialCheckedPermissions);
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
-    };
+    }, [participantId]);
 
-    const handleCheckboxChange = (id) => {
-        setCheckedPermissions((prevState) => ({
-            ...prevState,
-            [id]: !prevState[id], // Инвертируем текущее состояние
-        }));
+    const handleCheckboxChange = async (id) => {
+        const token = localStorage.getItem('authToken');
+        const isChecked = !checkedPermissions[id];
+        console.log(isChecked);
+
+        setCheckedPermissions((prevState) => {
+            const updatedState = { ...prevState, [id]: isChecked };
+            onPermissionsUpdate(updatedState);
+            return updatedState;
+        });
+
+        try {
+            const url = `${API_URL}/users/${participantId}/permissions/${id}`;
+            if (isChecked) {
+                await axios.post(url, {}, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+            } else {
+                await axios.delete(url, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+            }
+        } catch (error) {
+            console.error('Ошибка при изменении разрешения:', error);
+        }
     };
 
     useEffect(() => {
         getPermissions();
-    }, []);
+    }, [getPermissions]);
 
     return (
         <div className={styles.detailModal} onClick={() => handleBack('')}>
@@ -54,9 +83,9 @@ export default function EmployeesPermissionsEdit({ participantId, setActiveCompo
                     <h2>Права</h2>
                 </div>
                 <div className={styles.detailModalBody}>
-                    <p>Сотрудник :  {userName.name} {userName.lastname} {userName.patronymic}</p>
-                    {permissions.map((item, index) => (
-                        <div key={index}>
+                    <p>Сотрудник : {userInfo.name} {userInfo.lastname} {userInfo.patronymic}</p>
+                    {permissions.map((item) => (
+                        <div key={item.id}>
                             <label className={styles.checkboxContainer}>
                                 {item.permission_name}
                                 <input

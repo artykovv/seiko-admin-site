@@ -135,26 +135,35 @@ function Page() {
                 <Header />
                 <main className={styles.main}>
                     <div className={styles.sidebar}>
-                        {permissions.map((permission) => (
-                            <button
-                                key={permission.permission_name}
-                                onClick={() => setActiveComponent({ name: permission.permission_name, id: null })}
-                                className={activeComponent.name === permission.permission_name ? styles.activeButton : ''}
-                            >
-                                {(() => {
-                                    const permissionLabels = {
-                                        'home': 'Главная',
-                                        'participants': 'Участники',
-                                        'registrations': 'Регистрации',
-                                        'employees': 'Сотрудники',
-                                        'branches': 'Филиалы',
-                                        'bonuses': 'Бонусы',
-                                        'gift': 'Подарочные',
-                                    };
-                                    return permissionLabels[permission.permission_name] || permission.permission_name;
-                                })()}
-                            </button>
-                        ))}
+                        {permissions
+                            .slice() // Создаем копию массива, чтобы не изменять оригинальный массив
+                            .sort((a, b) => {
+                                // Пример сортировки по имени права
+                                if (a.id < b.id) return -1;
+                                if (a.id > b.id) return 1;
+                                return 0;
+                            })
+                            .map((permission) => (
+                                <button
+                                    key={permission.permission_name}
+                                    onClick={() => setActiveComponent({ name: permission.permission_name, id: null })}
+                                    className={activeComponent.name === permission.permission_name ? styles.activeButton : ''}
+                                >
+                                    {(() => {
+                                        const permissionLabels = {
+                                            'home': 'Главная',
+                                            'participants': 'Участники',
+                                            'registrations': 'Регистрации',
+                                            'employees': 'Сотрудники',
+                                            'branches': 'Филиалы',
+                                            'bonuses': 'Бонусы',
+                                            'gift': 'Подарочные',
+                                        };
+                                        return permissionLabels[permission.permission_name] || permission.permission_name;
+                                    })()}
+                                </button>
+                            ))}
+
                     </div>
                     <div className={styles.content}>
                         <AnimatePresence mode="wait">
