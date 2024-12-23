@@ -28,12 +28,17 @@ import RegistrationsInvite from '../components/Registrations/components/Registra
 import RegistrationsEdit from '../components/Registrations/components/RegistrationsEdit';
 import BranchesEdit from '../components/Branches/components/BranchesEdit';
 import BranchesAdd from '../components/Branches/components/BranchesAdd';
+import EmployeesBranchesEdit from '../components/Employees/components/EmployeesBranchesEdit';
+import EmployeesPermissionsEdit from '../components/Employees/components/EmployeesPermissionsEdit';
+import EmployeesEdit from '../components/Employees/components/EmployeesEdit';
+import EmployeesAdd from '../components/Employees/components/EmployeesAdd';
 
 
 function Page() {
     const router = useRouter()
     const [permissions, setPermissions] = useState([]);
     const [activeComponent, setActiveComponent] = useState({ name: 'Главная', id: null });
+    const [updatedPermissions, setUpdatePermissions] = useState(false)
 
     useEffect(() => {
         const savedPermissions = localStorage.getItem('permissions');
@@ -68,23 +73,25 @@ function Page() {
 
     const getUser = useCallback(async () => {
         const token = localStorage.getItem('authToken');
-        if (!token || permissions.length > 0) return;
 
         try {
             const response = await axios.get(`${API_URL}/users/me`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setPermissions(response.data.permissions);
+            setUpdatePermissions(true)
+            console.log(1);
+
             localStorage.setItem('permissions', JSON.stringify(response.data.permissions));
         } catch (error) {
             localStorage.removeItem('authToken');
             router.push('/');
         }
-    }, [permissions, router]);
+    }, [router]);
 
     useEffect(() => {
         getUser();
-    }, [getUser]);
+    }, [updatedPermissions, getUser], permissions);
 
     const renderComponent = () => {
         switch (activeComponent.name) {
@@ -95,7 +102,7 @@ function Page() {
             case 'Регистрации':
                 return <Registrations participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
             case "Сотрудники":
-                return <Employees />;
+                return <Employees setActiveComponent={setActiveComponent} />;
             case "Филиалы":
                 return <Branches participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
             case "Бонусы":
@@ -124,6 +131,14 @@ function Page() {
                 return <BranchesEdit participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
             case 'BranchesAdd':
                 return <BranchesAdd participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
+            case 'EmployeesBranchesEdit':
+                return <EmployeesBranchesEdit participantId={activeComponent.id} setActiveComponent={setActiveComponent} />
+            case 'EmployeesEdit':
+                return <EmployeesEdit participantId={activeComponent.id} setActiveComponent={setActiveComponent} />
+            case 'EmployeesAdd':
+                return <EmployeesAdd participantId={activeComponent.id} setActiveComponent={setActiveComponent} />
+            case 'EmployeesPermissionsEdit':
+                return <EmployeesPermissionsEdit participantId={activeComponent.id} setActiveComponent={setActiveComponent} setUpdatePermissions={setUpdatePermissions} />
             default:
                 return <Home />;
         }
@@ -136,9 +151,8 @@ function Page() {
                 <main className={styles.main}>
                     <div className={styles.sidebar}>
                         {permissions
-                            .slice() // Создаем копию массива, чтобы не изменять оригинальный массив
+                            .slice()
                             .sort((a, b) => {
-                                // Пример сортировки по имени права
                                 if (a.id < b.id) return -1;
                                 if (a.id > b.id) return 1;
                                 return 0;

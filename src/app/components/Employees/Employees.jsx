@@ -11,12 +11,9 @@ import deletePng from '@/assets/delete.svg'
 import Image from 'next/image';
 import axios from 'axios';
 import { API_URL } from '@/api/api';
-import EmployeesBranchesEdit from './components/EmployeesBranchesEdit';
-import EmployeesPermissionsEdit from './components/EmployeesPermissionsEdit';
 
-function Employees() {
+function Employees({ setActiveComponent }) {
   const [users, setUsers] = useState([])
-  const [activeComponent, setActiveComponent] = useState({ name: 'Главная', id: null });
 
   const getEmployees = async () => {
     const token = localStorage.getItem('authToken')
@@ -34,30 +31,28 @@ function Employees() {
     getEmployees()
   }, [])
 
-  const handlePermissionsUpdate = (updatedPermissions) => {
-    console.log(updatedPermissions);
+  const handleParticipantPage = (name, id) => {
+    setActiveComponent({ name, id });
   };
 
-  const renderComponent = () => {
-    switch (activeComponent.name) {
-      case 'BranchesEdit':
-        return <EmployeesBranchesEdit participantId={activeComponent.id} setActiveComponent={setActiveComponent} />
-      case 'PermissionsEdit':
-        return <EmployeesPermissionsEdit participantId={activeComponent.id} setActiveComponent={setActiveComponent} onPermissionsUpdate={handlePermissionsUpdate} />
-      default:
-        return
+  const hanldeDelete = async (id) => {
+    const token = localStorage.getItem('authToken')
+    try {
+      await axios.delete(`${API_URL}/users/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    } catch (error) {
+      console.log(error);
     }
   }
-
 
   return (
     <div className={styles.employeesContainer}>
       <div className={styles.tableSection}>
         <div className={styles.tableIn}>
-          {renderComponent()}
           <div className={styles.tableWrapper}>
             <div className={styles.btnsWrapper}>
-              <button className={styles.addBtn} onClick={getEmployees}>
+              <button className={styles.addBtn} onClick={() => handleParticipantPage('EmployeesAdd', null)}>
                 <Image src={add} alt="add" />
                 Добавить
               </button>
@@ -83,16 +78,16 @@ function Employees() {
                     <td>{item.is_active === true ? 'Действует' : 'Не действует'}</td>
                     <td className={styles.actions}>
                       <button className={styles.btn}>
-                        <Image src={usersetting} alt="usersetting" onClick={() => setActiveComponent({ name: 'PermissionsEdit', id: item.id })} />
+                        <Image src={usersetting} alt="usersetting" onClick={() => handleParticipantPage('EmployeesPermissionsEdit', item.id)} />
                       </button>
                       <button className={styles.btn}>
-                        <Image src={geo} alt="geo" onClick={() => setActiveComponent({ name: 'BranchesEdit', id: item.id })} />
+                        <Image src={geo} alt="geo" onClick={() => handleParticipantPage('EmployeesBranchesEdit', item.id)} />
                       </button>
                       <button className={styles.btn}>
-                        <Image src={edit} alt="edit" />
+                        <Image src={edit} alt="edit" onClick={() => handleParticipantPage('EmployeesEdit', item.id)} />
                       </button>
                       <button className={styles.btn}>
-                        <Image src={deletePng} alt="delete" />
+                        <Image src={deletePng} alt="delete" onClick={() => hanldeDelete(item.id)} />
                       </button>
                     </td>
                   </tr>
@@ -102,7 +97,7 @@ function Employees() {
           </div>
         </div>
       </div>
-    </div >
+    </div>
   );
 }
 

@@ -3,7 +3,7 @@ import styles from "../Employees.module.css";
 import axios from 'axios';
 import { API_URL } from '@/api/api';
 
-export default function EmployeesPermissionsEdit({ participantId, setActiveComponent, onPermissionsUpdate }) {
+export default function EmployeesPermissionsEdit({ participantId, setActiveComponent, setUpdatePermissions }) {
     const [userInfo, setUserInfo] = useState({});
     const [permissions, setPermissions] = useState([]);
     const [checkedPermissions, setCheckedPermissions] = useState({});
@@ -44,11 +44,10 @@ export default function EmployeesPermissionsEdit({ participantId, setActiveCompo
     const handleCheckboxChange = async (id) => {
         const token = localStorage.getItem('authToken');
         const isChecked = !checkedPermissions[id];
-        console.log(isChecked);
+        setUpdatePermissions(id)
 
         setCheckedPermissions((prevState) => {
             const updatedState = { ...prevState, [id]: isChecked };
-            onPermissionsUpdate(updatedState);
             return updatedState;
         });
 
@@ -77,30 +76,36 @@ export default function EmployeesPermissionsEdit({ participantId, setActiveCompo
     }, [getPermissions]);
 
     return (
-        <div className={styles.detailModal} onClick={() => handleBack('')}>
-            <div className={styles.detailModalContent} onClick={(e) => e.stopPropagation()}>
-                <div className={styles.detailModalHeader}>
-                    <h2>Права</h2>
-                </div>
-                <div className={styles.detailModalBody}>
-                    <p>Сотрудник : {userInfo.name} {userInfo.lastname} {userInfo.patronymic}</p>
-                    {permissions.map((item) => (
-                        <div key={item.id}>
-                            <label className={styles.checkboxContainer}>
-                                {item.permission_name}
-                                <input
-                                    className={styles.customCheckbox}
-                                    type="checkbox"
-                                    checked={!!checkedPermissions[item.id]}
-                                    onChange={() => handleCheckboxChange(item.id)}
-                                />
-                                <span className={styles.checkmark}></span>
-                            </label>
+        <div className={styles.employeesContainer}>
+            <div className={styles.tableSection}>
+                <div className={styles.tableIn}>
+                    <div className={styles.tableWrapper}>
+                        <div >
+                            <div className={styles.detailModalHeader}>
+                                <h2>Права</h2>
+                            </div>
+                            <div className={styles.detailModalBody}>
+                                <p>Сотрудник : {userInfo.name} {userInfo.lastname} {userInfo.patronymic}</p>
+                                {permissions.map((item) => (
+                                    <div key={item.id}>
+                                        <label className={styles.checkboxContainer}>
+                                            {item.permission_name}
+                                            <input
+                                                className={styles.customCheckbox}
+                                                type="checkbox"
+                                                checked={!!checkedPermissions[item.id]}
+                                                onChange={() => handleCheckboxChange(item.id)}
+                                            />
+                                            <span className={styles.checkmark}></span>
+                                        </label>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className={styles.detailModalFooter}>
+                                <button className={styles.closeDetailBtn} onClick={() => handleBack('Сотрудники')}>Закрыть</button>
+                            </div>
                         </div>
-                    ))}
-                </div>
-                <div className={styles.detailModalFooter}>
-                    <button className={styles.closeDetailBtn} onClick={() => handleBack('')}>Закрыть</button>
+                    </div>
                 </div>
             </div>
         </div>
