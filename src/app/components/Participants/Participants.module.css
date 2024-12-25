@@ -98,7 +98,6 @@
     border: 1px solid #dee2e6;
     border-radius: 8px;
     flex-direction: column;
-    gap: 5px;
     transition: .2s;
     padding: 5px;
 }
@@ -365,93 +364,6 @@
     justify-content: center;
     align-items: center;
     font-size: 16px;
-}
-
-.firstChild,
-.rightChild,
-.leftChild {
-    width: 200px;
-    height: 200px;
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    position: relative;
-}
-
-.leftChild::after {
-    content: '';
-    position: absolute;
-    top: -15px;
-    right: -100%;
-    width: 300px;
-    height: 1px;
-    border-top: 1px solid #bababa;
-}
-
-.rightChild::after {
-    content: '';
-    position: absolute;
-    top: -15px;
-    left: -100%;
-    width: 300px;
-    height: 15px;
-    border-top: 1px solid #bababa;
-}
-
-.rightChild::before,
-.leftChild::before {
-    content: '';
-    position: absolute;
-    top: -15px;
-    height: 15px;
-    width: 1px;
-    background-color: #bababa;
-}
-
-.firstChild::after {
-    content: '';
-    position: absolute;
-    bottom: -15px;
-    width: 1px;
-    height: 15px;
-    background-color: #bababa;
-}
-
-.firstChildTitle {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.structurePersonalNumber {
-    margin-top: 10px;
-    color: black;
-    background-color: white;
-    border-radius: 8px;
-    padding: 5px 10px;
-    border: none;
-    width: 100px;
-}
-
-.openDetailBtnChildren {
-    margin-top: 10px;
-    color: black;
-    background-color: white;
-    border-radius: 8px;
-    padding: 5px 10px;
-    border: none;
-    width: 100px;
-}
-
-.secondChild {
-    width: 100%;
-    display: flex;
-    justify-content: space-around;
-    margin-top: 30px;
 }
 
 .pagination {

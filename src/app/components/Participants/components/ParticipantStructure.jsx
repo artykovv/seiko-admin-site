@@ -5,14 +5,12 @@ import axios from 'axios';
 import { API_URL } from '@/api/api';
 import styles from "../Participants.module.css";
 
-const ParticipantStructure = ({ participantId }) => {
+const ParticipantStructure = ({ participantId, setActiveComponent }) => {
     const [state, setState] = useState(null);
     const [participantDetail, setParticipantDetail] = useState(null);
     const [isDetailOpen, setIsDetailOpen] = useState(false);
     const [isDetailOpenTwo, setIsDetailOpenTwo] = useState(false);
     const [participantDetailTwo, setParticipantDetailTwo] = useState(null);
-
-    console.log(participantDetail);
 
     const getStructure = async () => {
         const token = localStorage.getItem('authToken');
@@ -27,7 +25,6 @@ const ParticipantStructure = ({ participantId }) => {
             );
             setState(data);
         } catch (error) {
-            console.error('Ошибка при загрузке участников:', error);
         }
     };
 
@@ -62,7 +59,6 @@ const ParticipantStructure = ({ participantId }) => {
             setParticipantDetail(response.data);
             setIsDetailOpen(true);
         } catch (error) {
-            console.error("Ошибка при открытии деталей участника:", error);
         }
     };
 
@@ -92,8 +88,6 @@ const ParticipantStructure = ({ participantId }) => {
             setIsDetailOpenTwo(true);
         } catch (error) {
             setIsDetailOpenTwo(true);
-
-            console.error("Ошибка при открытии деталей участника:", error);
         }
     };
 
@@ -124,6 +118,10 @@ const ParticipantStructure = ({ participantId }) => {
                 </ul>
             </li>
         );
+    };
+
+    const handleBack = (name, id) => {
+        setActiveComponent({ name, id });
     };
 
     return (
@@ -210,6 +208,11 @@ const ParticipantStructure = ({ participantId }) => {
                             </ul>
                         </div>
                     </div>
+                    <footer className={styles.formButtons}>
+                        <button type="button" onClick={() => handleBack('Участники')}>
+                            Назад
+                        </button>
+                    </footer>
                 </div>
             </div>
         </div>

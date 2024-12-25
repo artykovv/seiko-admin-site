@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import axios from 'axios';
 import { API_URL } from '@/api/api';
 import styles from '../Participants.module.css';
+import Loading from '@/components/Loading';
 
 export default function ParticipantBonuses({ participantId, setActiveComponent }) {
     const [bonuses, setBonuses] = useState(null);
@@ -109,7 +110,7 @@ export default function ParticipantBonuses({ participantId, setActiveComponent }
                             </div>
                         </footer>
 
-                        {bonuses && (
+                        {bonuses ? (
                             <>
                                 <h3 style={{ marginTop: '20px', backgroundColor: '#dee2e6', padding: '5px' }}>Вознаграждение Реферал</h3>
                                 <table className={styles.table}>
@@ -219,6 +220,8 @@ export default function ParticipantBonuses({ participantId, setActiveComponent }
                                     </tbody>
                                 </table>
                             </>
+                        ) : (
+                            <Loading />
                         )}
                     </div>
                 </div>

@@ -13,6 +13,8 @@ import Image from 'next/image';
 import axios from 'axios';
 import { API_URL } from '@/api/api';
 
+import toast, { Toaster } from 'react-hot-toast';
+
 function Participants({ setActiveComponent }) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState('Фильтр');
@@ -96,6 +98,17 @@ function Participants({ setActiveComponent }) {
   const handleOpenDetail = async (personalNumber) => {
     const token = localStorage.getItem('authToken');
     const cachedDetail = localStorage.getItem(`participant_${personalNumber}`);
+
+    let toastId;
+    if (!cachedDetail) {
+      toastId = toast.loading('Загрузка...', {
+        duration: 1500,
+        position: 'bottom-left',
+      });
+    } else if (toastId) {
+      toast.dismiss(toastId);
+    }
+
     if (cachedDetail) {
       setParticipantDetail(JSON.parse(cachedDetail));
       setIsDetailOpen(true);
@@ -107,16 +120,21 @@ function Participants({ setActiveComponent }) {
         'Authorization': `Bearer ${token}`
       }
     });
+
     localStorage.setItem(`participant_${personalNumber}`, JSON.stringify(response.data));
     setParticipantDetail(response.data);
     setIsDetailOpen(true);
   }
   //! Модальное окно
 
+
+
   return (
     <div className={styles.participantsContainer}>
       <div className={styles.tableSection}>
         <div className={styles.tableIn}>
+          <Toaster />
+
           {isDetailOpen && <div className={styles.detailModal} onClick={() => setIsDetailOpen(false)}>
             <div className={styles.detailModalContent} onClick={(e) => e.stopPropagation()}>
               <div className={styles.detailModalHeader}>
