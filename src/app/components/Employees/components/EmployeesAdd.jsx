@@ -45,7 +45,6 @@ export default function EmployeesAdd({ setActiveComponent }) {
             const response = await axios.post(`${API_URL}/auth/register`, data);
             handleBack('Сотрудники');
         } catch (error) {
-            console.error('Registration error:', error);
             setError(error.response?.data?.message || 'Произошла ошибка при регистрации');
         } finally {
             setLoading(false);

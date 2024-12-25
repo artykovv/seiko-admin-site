@@ -86,7 +86,6 @@ export default function Register({ setActiveComponent }) {
             });
             setBranches(response.data);
         } catch (error) {
-            console.error('Error getting branches:', error);
         }
     };
 
@@ -100,7 +99,6 @@ export default function Register({ setActiveComponent }) {
             });
             setPakets(response.data);
         } catch (error) {
-            console.error('Error getting pakets:', error);
         }
     };
 
@@ -114,7 +112,6 @@ export default function Register({ setActiveComponent }) {
             });
             setSponsor(response.data);
         } catch (error) {
-            console.error('Ошибка при получении номера участника:', error);
         }
     };
 
@@ -128,7 +125,6 @@ export default function Register({ setActiveComponent }) {
             });
             setPersonalNumber(response.data.personal_number);
         } catch (error) {
-            console.error('Ошибка при получени номера участника:', error);
         }
     };
 
@@ -223,7 +219,6 @@ export default function Register({ setActiveComponent }) {
                 handleBack('Регистрации');
             }
         } catch (error) {
-            console.error('Ошибка при создании участника:', error.response?.data || error);
             setErrorMessage('Данные уже существуют или не все поля заполнены корректно.')
         }
     };

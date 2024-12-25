@@ -37,7 +37,6 @@ export default function EmployeesPermissionsEdit({ participantId, setActiveCompo
             }, {});
             setCheckedPermissions(initialCheckedPermissions);
         } catch (error) {
-            console.error(error);
         }
     }, [participantId]);
 
@@ -67,7 +66,6 @@ export default function EmployeesPermissionsEdit({ participantId, setActiveCompo
                 });
             }
         } catch (error) {
-            console.error('Ошибка при изменении разрешения:', error);
         }
     };
 

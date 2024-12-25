@@ -9,7 +9,7 @@ export default function AddStructure({ setActiveComponent, participantId }) {
     const [freePositions, setFreePositions] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredPositions, setFilteredPositions] = useState([]);
-    const [selectedSponsor, setSelectedSponsor] = useState(null); // Добавлен для хранения выбранного спонсора
+    const [selectedSponsor, setSelectedSponsor] = useState(null);
 
     const [data, setData] = useState({
         mentor_id: '',
@@ -22,13 +22,12 @@ export default function AddStructure({ setActiveComponent, participantId }) {
 
     const filterPositions = (term) => {
         if (!Array.isArray(freePositions)) {
-            console.error('freePositions не является массивом:', freePositions);
-            return; // Выход из функции, если freePositions не массив
+            return;
         }
-        const lowerCaseTerm = term.toLowerCase(); // Преобразуем вводимое значение в ��ижний регистр
+        const lowerCaseTerm = term.toLowerCase();
         const filtered = freePositions.filter(position =>
-            position.name.toLowerCase().includes(lowerCaseTerm) || // Преобразуем name в нижний регистр
-            position.personal_number.toLowerCase().includes(lowerCaseTerm) // Оставляем personal_number без изменений
+            position.name.toLowerCase().includes(lowerCaseTerm) ||
+            position.personal_number.toLowerCase().includes(lowerCaseTerm)
         );
         setFilteredPositions(filtered);
     };
@@ -39,7 +38,7 @@ export default function AddStructure({ setActiveComponent, participantId }) {
             filterPositions(value);
         } else if (field === 'sponsor_id') {
             setData({ ...data, [field]: value, mentor_id: value });
-            setSelectedSponsor(value); // Обновляем выбранного спонсора
+            setSelectedSponsor(value);
         } else {
             setData({ ...data, [field]: value });
         }
@@ -53,12 +52,9 @@ export default function AddStructure({ setActiveComponent, participantId }) {
                     'Authorization': `Bearer ${token}`
                 }
             });
-            console.log(response);
-
             setFreePositions(response.data.available_positions);
             setFilteredPositions(response.data.available_positions);
         } catch (error) {
-            console.error('Ошибка при получении номера участника:', error);
         }
     };
 
@@ -71,11 +67,9 @@ export default function AddStructure({ setActiveComponent, participantId }) {
                     'Authorization': `Bearer ${token}`
                 }
             });
-            console.log(response);
 
             setActiveComponent({ name: 'Регистрации', id: null });
         } catch (error) {
-            console.error('Ошибка при создании участника:', error.response?.data || error);
             setErrorMessage('Данные уже существуют или не все поля заполнены корректно.')
         }
     };
@@ -94,7 +88,6 @@ export default function AddStructure({ setActiveComponent, participantId }) {
             });
             setPakets(response.data);
         } catch (error) {
-            console.error('Error getting pakets:', error);
         }
     };
 

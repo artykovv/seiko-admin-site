@@ -23,7 +23,6 @@ function Employees({ setActiveComponent }) {
       });
       setUsers(response.data)
     } catch (error) {
-      console.log(error)
     }
   }
 
@@ -35,21 +34,47 @@ function Employees({ setActiveComponent }) {
     setActiveComponent({ name, id });
   };
 
-  const hanldeDelete = async (id) => {
+  const handleDelete = async (id) => {
     const token = localStorage.getItem('authToken')
     try {
       await axios.delete(`${API_URL}/users/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
+        'Content-Type': 'application/json',
       });
     } catch (error) {
-      console.log(error);
+      handleOpenDetail()
     }
   }
+
+
+  //! Модальное окно
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+
+  const handleOpenDetail = async () => {
+    setIsDetailOpen(true);
+  }
+  //! Модальное окно
 
   return (
     <div className={styles.employeesContainer}>
       <div className={styles.tableSection}>
         <div className={styles.tableIn}>
+          {isDetailOpen && <div className={styles.detailModal} onClick={() => setIsDetailOpen(false)}>
+            <div className={styles.detailModalContent} onClick={(e) => e.stopPropagation()}>
+              <div className={styles.detailModalHeader}>
+                <h2 style={{ color: 'red' }}>Ошибка</h2>
+              </div>
+              <div className={styles.detailModalBody}>
+                <p>У сотрудника есть <strong>Филиалы</strong></p>
+                <p>У сотрудника есть <strong>Права</strong></p>
+                <p>У сотрудник <strong>Суперпользователь</strong></p>
+                <p>Посмотрите выше перечисленные вещи и убедитесь что все пункты сделаны</p>
+              </div>
+              <div className={styles.detailModalFooter}>
+                <button className={styles.closeDetailBtn} onClick={() => setIsDetailOpen(false)}>Закрыть</button>
+              </div>
+            </div>
+          </div>}
           <div className={styles.tableWrapper}>
             <div className={styles.btnsWrapper}>
               <button className={styles.addBtn} onClick={() => handleParticipantPage('EmployeesAdd', null)}>
@@ -87,7 +112,7 @@ function Employees({ setActiveComponent }) {
                         <Image src={edit} alt="edit" onClick={() => handleParticipantPage('EmployeesEdit', item.id)} />
                       </button>
                       <button className={styles.btn}>
-                        <Image src={deletePng} alt="delete" onClick={() => hanldeDelete(item.id)} />
+                        <Image src={deletePng} alt="delete" onClick={() => handleDelete(item.id)} />
                       </button>
                     </td>
                   </tr>

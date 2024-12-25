@@ -80,8 +80,6 @@ function Page() {
             });
             setPermissions(response.data.permissions);
             setUpdatePermissions(true)
-            console.log(1);
-
             localStorage.setItem('permissions', JSON.stringify(response.data.permissions));
         } catch (error) {
             localStorage.removeItem('authToken');

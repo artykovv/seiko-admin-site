@@ -66,7 +66,6 @@ export default function Page() {
           setMessage('Сайт временно не работает');
           break;
         default:
-          console.error(error);
           setMessage('Неверный логин или пароль');
           break;
       }

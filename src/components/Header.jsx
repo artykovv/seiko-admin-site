@@ -41,7 +41,6 @@ function Header() {
             localStorage.setItem('lastname', lastname);
             localStorage.setItem('patronymic', patronymic);
         } catch (error) {
-            console.log(error);
         }
     }
 

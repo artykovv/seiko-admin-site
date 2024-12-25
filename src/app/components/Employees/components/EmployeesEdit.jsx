@@ -29,7 +29,6 @@ export default function EmployeesEdit({ participantId, setActiveComponent }) {
             });
             setParticipant(response.data);
         } catch (error) {
-            console.error('Error editing participant:', error);
         }
     };
 
@@ -45,7 +44,6 @@ export default function EmployeesEdit({ participantId, setActiveComponent }) {
 
         const token = localStorage.getItem('authToken');
         try {
-            console.log(1);
             const booleanValue = (value) => {
                 if (value === true || value === 'true' || value === 1) return true;
                 return false;
@@ -82,7 +80,7 @@ export default function EmployeesEdit({ participantId, setActiveComponent }) {
                 handleBack('Сотрудники');
             }
         } catch (error) {
-            console.error('Ошибка при обновлении участника:', error.response?.data || error);
+            error('Ошибка при обновлении участника:', error.response?.data || error);
         } finally {
             setLoading(false); // Stop loading after request
         }

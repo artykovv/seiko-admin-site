@@ -74,7 +74,6 @@ export default function ParticipantEdit({ participantId, setActiveComponent }) {
             });
             setParticipant(response.data);
         } catch (error) {
-            console.error('Error editing participant:', error);
         }
     };
 
@@ -89,7 +88,6 @@ export default function ParticipantEdit({ participantId, setActiveComponent }) {
             });
             setBranches(response.data);
         } catch (error) {
-            console.error('Error getting branches:', error);
         }
     };
 
@@ -104,7 +102,6 @@ export default function ParticipantEdit({ participantId, setActiveComponent }) {
             });
             setPakets(response.data);
         } catch (error) {
-            console.error('Error getting pakets:', error);
         }
     };
 
@@ -205,7 +202,6 @@ export default function ParticipantEdit({ participantId, setActiveComponent }) {
                 handleBack('Участники');
             }
         } catch (error) {
-            console.error('Ошибка при обновлении участника:', error.response?.data || error);
         }
     };
 

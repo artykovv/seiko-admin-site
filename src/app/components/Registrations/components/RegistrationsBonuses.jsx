@@ -37,7 +37,6 @@ export default function RegistrationsBonuses({ participantId, setActiveComponent
                     'Authorization': `Bearer ${token}`
                 }
             });
-            console.log(response.data);
 
             setBonusHistory(response.data.bonuses);
             localStorage.setItem(`bonusHistory_${participantId}`, JSON.stringify(response.data.bonuses));

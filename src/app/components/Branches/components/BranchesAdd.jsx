@@ -33,7 +33,6 @@ export default function BranchesAdd({ setActiveComponent, participantId }) {
             );
             setActiveComponent({ name: 'Филиалы', id: null });
         } catch (error) {
-            console.log(error);
             setErrorMessage('Данные уже существуют или не все поля заполнены корректно.');
         }
     };

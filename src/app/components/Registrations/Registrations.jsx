@@ -108,7 +108,6 @@ function Registrations({ setActiveComponent }) {
       });
       getRegistrations();
     } catch (error) {
-      console.log(error);
     }
   }
 

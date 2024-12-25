@@ -21,8 +21,6 @@ export default function EmployeesBranchesEdit({ participantId, setActiveComponen
                 },
             });
 
-            console.log(userInfoResponse);
-
             const permissionsResponse = await axios.get(`${API_URL}/api/v1/branches`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -39,7 +37,6 @@ export default function EmployeesBranchesEdit({ participantId, setActiveComponen
             }, {});
             setCheckedPermissions(initialCheckedPermissions);
         } catch (error) {
-            console.error(error);
         }
     }, [participantId]);
 
@@ -68,7 +65,6 @@ export default function EmployeesBranchesEdit({ participantId, setActiveComponen
                 });
             }
         } catch (error) {
-            console.error('Ошибка при изменении разрешения:', error);
         }
     };
 
