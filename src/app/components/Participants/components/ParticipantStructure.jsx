@@ -91,6 +91,10 @@ const ParticipantStructure = ({ participantId, setActiveComponent }) => {
         }
     };
 
+    const handleParticipantPage = (name, id) => {
+        setActiveComponent({ name, id });
+    };
+
 
     const renderNode = (node) => (
         <div className={styles.node}>
@@ -98,8 +102,8 @@ const ParticipantStructure = ({ participantId, setActiveComponent }) => {
                 className={styles.trr}
                 style={{ background: `linear-gradient(180deg, ${node.color})` }}
             >
-                <span>{node.participant_name}</span>
-                <span>{node.participant_lastname}</span>
+                <span onClick={() => handleParticipantPage('participantStructure', node.participant_id)}>{node.participant_name}</span>
+                <span onClick={() => handleParticipantPage('participantStructure', node.participant_id)}>{node.participant_lastname}</span>
                 <button onClick={() => handleDetailOne(node.participant_id)}>{node.participant_personal_number}</button>
                 <button onClick={() => handleDetailTwo(node.participant_id)}>Подробности</button>
             </div>

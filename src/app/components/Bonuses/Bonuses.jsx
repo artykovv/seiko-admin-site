@@ -1,11 +1,8 @@
-'use client';
 import React, { useState } from 'react';
 import styles from './Bonuses.module.css';
 import BinaryCheck from './components/BinaryCheck';
 import ReferralBonuses from './components/ReferralBonuses';
 import StatusAndSponsorship from './components/StatusAndSponsorship';
-
-
 
 function Bonuses() {
   const [activeComponent, setActiveComponent] = useState('BinaryCheck');

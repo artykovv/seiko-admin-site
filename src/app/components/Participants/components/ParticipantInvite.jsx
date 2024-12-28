@@ -5,14 +5,27 @@ import { API_URL } from '@/api/api';
 
 import styles from '../Participants.module.css';
 
+// Функция для записи куки
+const setCookie = (name, value, days) => {
+    const expires = new Date();
+    expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000)); // Устанавливаем срок действия
+    document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/`;
+};
+
+// Функция для чтения куки
+const getCookie = (name) => {
+    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+    return match ? decodeURIComponent(match[2]) : null;
+};
+
 export default function ParticipantInvite({ participantId, setActiveComponent }) {
     const [isDetailOpen, setIsDetailOpen] = useState(false);
     const [participantDetail, setParticipantDetail] = useState(null);
     const [sponsored, setSponsored] = useState([]);
 
     const getSponsored = async () => {
-        const token = localStorage.getItem('authToken');
-        const cachedSponsored = localStorage.getItem(`participantSponsored_${participantId}`);
+        const token = localStorage.getItem('authToken'); // Токен остаётся из localStorage
+        const cachedSponsored = getCookie(`participantSponsored_${participantId}`); // Ищем данные в куки
         if (cachedSponsored) {
             setSponsored(JSON.parse(cachedSponsored));
         } else {
@@ -21,7 +34,7 @@ export default function ParticipantInvite({ participantId, setActiveComponent })
                     'Authorization': `Bearer ${token}`
                 }
             });
-            localStorage.setItem(`participantSponsored_${participantId}`, JSON.stringify(response.data));
+            setCookie(`participantSponsored_${participantId}`, JSON.stringify(response.data), 7);
             setSponsored(response.data);
         }
     };
@@ -32,7 +45,7 @@ export default function ParticipantInvite({ participantId, setActiveComponent })
 
     const handleOpenDetail = async (personalNumber) => {
         const token = localStorage.getItem('authToken');
-        const cachedDetail = localStorage.getItem(`participantInvite_${personalNumber}`);
+        const cachedDetail = getCookie(`participantInvite_${personalNumber}`);
         if (cachedDetail) {
             setParticipantDetail(JSON.parse(cachedDetail));
             setIsDetailOpen(true);
@@ -44,10 +57,10 @@ export default function ParticipantInvite({ participantId, setActiveComponent })
                 'Authorization': `Bearer ${token}`
             }
         });
-        localStorage.setItem(`participantInvite_${personalNumber}`, JSON.stringify(response.data));
+        setCookie(`participantInvite_${personalNumber}`, JSON.stringify(response.data), 7);
         setParticipantDetail(response.data);
         setIsDetailOpen(true);
-    }
+    };
 
     useEffect(() => {
         getSponsored();
@@ -57,8 +70,6 @@ export default function ParticipantInvite({ participantId, setActiveComponent })
         <div className={styles.participantsContainer}>
             <div className={styles.tableSection}>
                 <div className={styles.tableIn}>
-
-                    {/* Детали участника */}
                     {isDetailOpen && <div className={styles.detailModal} onClick={() => setIsDetailOpen(false)}>
                         <div className={styles.detailModalContent} onClick={(e) => e.stopPropagation()}>
                             <div className={styles.detailModalHeader}>
@@ -96,14 +107,13 @@ export default function ParticipantInvite({ participantId, setActiveComponent })
                                     <th scope="col">ФИО</th>
                                     <th scope="col">Статус</th>
                                     <th scope="col">В бинаре с</th>
-                                    <th scope="col">То малой ветки</th>
-                                    <th scope="col">То большой ветки</th>
+                                    <th scope="col">ТО малой ветки</th>
+                                    <th scope="col">ТО большой ветки</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {sponsored.length > 0 && sponsored.map((item) => (
                                     <tr key={item.id}>
-
                                         <td scope="row">{item.branch.name}</td>
                                         <td>
                                             <button className={styles.openDetailBtn} onClick={() => handleOpenDetail(item.id)}>{item.personal_number}</button>

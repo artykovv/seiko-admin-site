@@ -57,25 +57,25 @@ export default function RegistrationsInvite({ participantId, setActiveComponent 
         <div className={styles.participantsContainer}>
             <div className={styles.tableSection}>
                 <div className={styles.tableIn}>
-
-                    {/* Детали участника */}
                     {isDetailOpen && <div className={styles.detailModal} onClick={() => setIsDetailOpen(false)}>
                         <div className={styles.detailModalContent} onClick={(e) => e.stopPropagation()}>
                             <div className={styles.detailModalHeader}>
                                 <h2>Детали участника</h2>
                             </div>
                             <div className={styles.detailModalBody}>
-                                <p> <strong>Персональный номер:</strong> {participantDetail.personal_number}</p>
+                                <p> <strong>Персональный номер</strong>: {participantDetail.personal_number}</p>
                                 <p> {participantDetail.name} {participantDetail.lastname} {participantDetail.patronymic}</p>
-                                <p> <strong>Пакет:</strong> {participantDetail.paket.name} (${participantDetail.paket.price})</p>
-                                <p> <strong>Спонсор:</strong> {participantDetail.sponsor ? participantDetail.sponsor.name : 'Не указано'}</p>
-                                <p> <strong>Наставник:</strong> {participantDetail.mentor ? participantDetail.mentor.name : 'Не указано'}</p>
-                                <p> <strong>Логин:</strong> {participantDetail.login}</p>
-                                <p> <strong>Личная информация:</strong></p>
-                                <p> <strong>Дата рождения:</strong> {participantDetail.birth_date ? new Date(participantDetail.birth_date).toLocaleDateString() : 'Не указано'}</p>
-                                <p> <strong>Телефон:</strong> {participantDetail.phone_number}</p>
-                                <p> <strong>Филиал:</strong> {participantDetail.branch.name}</p>
-                                <p> <strong>Банк. Номер (Мбанк):</strong> {participantDetail.bank}</p>
+                                <p> <strong>Пакет</strong>: {participantDetail.paket.name} (${participantDetail.paket.price})</p>
+                                <p> <strong>Спонсор</strong>: {participantDetail.sponsor ? participantDetail.sponsor.name : 'Не указано'} {participantDetail.sponsor ? participantDetail.sponsor.lastname : 'не указано'}</p>
+                                <p> <strong>Наставник</strong>: {participantDetail.mentor ? participantDetail.mentor.name : 'Не указано'} {participantDetail.mentor ? participantDetail.mentor.lastname : 'не указано'}</p>
+                                <p> <strong>Логин</strong>: {participantDetail.email}</p>
+                                <p> <strong>Личная информация</strong>: {participantDetail.personal_info}</p>
+                                <p> <strong>Дата рождения</strong>: {participantDetail.birth_date ? new Date(participantDetail.birth_date).toLocaleDateString() : 'Не указано'}</p>
+                                <p> <strong>Телефон</strong>: {participantDetail.phone_number}</p>
+                                <p> <strong>Филиал</strong>: {participantDetail.branch.name}</p>
+                                <p> <strong>Банк. Номер (Мбанк)</strong>: {participantDetail.bank}</p>
+                                <p> <strong>Левый ТО</strong>: {participantDetail.left_volume}</p>
+                                <p> <strong>Парвый ТО</strong>: {participantDetail.right_volume}</p>
                             </div>
                             <div className={styles.detailModalFooter}>
                                 <button className={styles.closeDetailBtn} onClick={() => setIsDetailOpen(false)}>Закрыть</button>

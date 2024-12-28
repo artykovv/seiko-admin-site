@@ -15,17 +15,35 @@ import { API_URL } from '@/api/api';
 
 import toast, { Toaster } from 'react-hot-toast';
 
+// Функция для записи куки
+const setCookie = (name, value, days) => {
+  const expires = new Date();
+  expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+  document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+};
+
+// Функция для чтения куки
+const getCookie = (name) => {
+  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+  return match ? match[2] : null;
+};
+
+// Функция для удаления куки
+const deleteCookie = (name) => {
+  document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/`;
+};
+
 function Participants({ setActiveComponent }) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState('Фильтр');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const searchInputRef = useRef('');
-  const [participants, setParticipants] = useState([])
-  const [pageCount, setPageCount] = useState(20)
+  const [participants, setParticipants] = useState([]);
+  const [pageCount, setPageCount] = useState(20);
 
   useEffect(() => {
-    const cachedParticipants = localStorage.getItem('participants');
+    const cachedParticipants = getCookie('participants');
     if (cachedParticipants) {
       setParticipants(JSON.parse(cachedParticipants));
     } else {
@@ -51,8 +69,8 @@ function Participants({ setActiveComponent }) {
 
   const handleSearchChange = (event) => {
     searchInputRef.current = event.target.value;
-    if (searchInputRef.current == '') {
-      getParticipants(selectedOption)
+    if (searchInputRef.current === '') {
+      getParticipants(selectedOption);
     } else if (searchInputRef.current.length > 0) {
       setCurrentPage(1);
       getParticipants(searchInputRef);
@@ -60,7 +78,7 @@ function Participants({ setActiveComponent }) {
   };
 
   const getParticipants = async (option) => {
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('authToken'); // Чтение токена из куки
     const url = option === 'Все' || option === 'Фильтр'
       ? `${API_URL}/api/v1/participants/in/structure?page=${currentPage}&page_size=${pageCount}`
       : `${API_URL}/api/v1/participants/in/structure?page=${currentPage}&page_size=${pageCount}&paket_names=${option}`;
@@ -69,35 +87,34 @@ function Participants({ setActiveComponent }) {
     if (searchInputRef.current) {
       const response = await axios.get(searchUrl, {
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          'Authorization': `Bearer ${token}`,
+        },
       });
       setParticipants(response.data.participants || []);
       setTotalPages(response.data.total_pages);
     } else {
       const response = await axios.get(url, {
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          'Authorization': `Bearer ${token}`,
+        },
       });
       setParticipants(response.data.participants || []);
       setTotalPages(response.data.total_pages);
-      localStorage.setItem('participants', JSON.stringify(response.data || []));
+      setCookie('participants', JSON.stringify(response.data)); // Сохраняем данные в куки
     }
-  }
+  };
 
   useEffect(() => {
     getParticipants(selectedOption);
   }, [selectedOption]);
-
 
   //! Модальное окно
   const [participantDetail, setParticipantDetail] = useState(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   const handleOpenDetail = async (personalNumber) => {
-    const token = localStorage.getItem('authToken');
-    const cachedDetail = localStorage.getItem(`participant_${personalNumber}`);
+    const token = localStorage.getItem('authToken'); // Чтение токена из куки
+    const cachedDetail = getCookie(`participant_${personalNumber}`); // Загружаем данные из куки
 
     let toastId;
     if (!cachedDetail) {
@@ -110,23 +127,22 @@ function Participants({ setActiveComponent }) {
     }
 
     if (cachedDetail) {
-      setParticipantDetail(JSON.parse(cachedDetail));
+      setParticipantDetail(JSON.parse(cachedDetail)); // Загружаем данные из куки
       setIsDetailOpen(true);
       return;
     }
 
     const response = await axios.get(`${API_URL}/api/v1/participants/${personalNumber}`, {
       headers: {
-        'Authorization': `Bearer ${token}`
-      }
+        'Authorization': `Bearer ${token}`,
+      },
     });
 
-    localStorage.setItem(`participant_${personalNumber}`, JSON.stringify(response.data));
+    setCookie(`participant_${personalNumber}`, JSON.stringify(response.data)); // Сохраняем данные в куки
     setParticipantDetail(response.data);
     setIsDetailOpen(true);
-  }
+  };
   //! Модальное окно
-
 
 
   return (
