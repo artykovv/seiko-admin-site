@@ -11,27 +11,30 @@ import edit from '@/assets/edit.svg';
 function Branches({ setActiveComponent }) {
   const [branches, setBranches] = useState([]);
 
-  const setCookie = (name, value, days) => {
-    const expires = new Date();
-    expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-    document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/`;
+  const setLocalStorage = (key, value) => {
+    const data = {
+      value,
+      timestamp: Date.now(),
+    };
+    localStorage.setItem(key, JSON.stringify(data));
   };
 
-  const getCookie = (name) => {
-    const cookies = document.cookie.split(';');
-    for (let cookie of cookies) {
-      const [key, val] = cookie.split('=').map((item) => item.trim());
-      if (key === name) {
-        return decodeURIComponent(val);
-      }
+  const getLocalStorage = (key, maxAgeInMs) => {
+    const item = localStorage.getItem(key);
+    if (!item) return null;
+
+    const data = JSON.parse(item);
+    if (Date.now() - data.timestamp > maxAgeInMs) {
+      localStorage.removeItem(key);
+      return null;
     }
-    return null;
+    return data.value;
   };
 
   const getBranches = async () => {
-    const cachedBranches = getCookie('branches');
+    const cachedBranches = getLocalStorage('branches', 7 * 24 * 60 * 60 * 1000); // Кэш на 7 дней
     if (cachedBranches) {
-      setBranches(JSON.parse(cachedBranches));
+      setBranches(cachedBranches);
       return;
     }
 
@@ -42,9 +45,9 @@ function Branches({ setActiveComponent }) {
       });
       const branchesData = response.data;
       setBranches(branchesData);
-      setCookie('branches', JSON.stringify(branchesData), 7); // Кэшируем на 7 дней
+      setLocalStorage('branches', branchesData);
     } catch (error) {
-      console.error("Ошибка при загрузке данных:", error);
+      console.error('Ошибка при загрузке данных:', error);
     }
   };
 
@@ -55,6 +58,7 @@ function Branches({ setActiveComponent }) {
   const handleBranchesPage = (name, id) => {
     setActiveComponent({ name, id });
   };
+
 
   return (
     <div className={styles.branchesContainer}>

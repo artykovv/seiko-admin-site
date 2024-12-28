@@ -10,26 +10,8 @@ export default function ReferralBonuses() {
     const [participantDetail, setParticipantDetail] = useState(null);
     const [participantHistory, setParticipantHistory] = useState(null);
 
-    // Функции работы с куки
-    const setCookie = (name, value, days) => {
-        const expires = new Date();
-        expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-        document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/`;
-    };
-
-    const getCookie = (name) => {
-        const cookies = document.cookie.split(';');
-        for (let cookie of cookies) {
-            const [key, val] = cookie.split('=').map((item) => item.trim());
-            if (key === name) {
-                return decodeURIComponent(val);
-            }
-        }
-        return null;
-    };
-
     const getRef = async () => {
-        const cachedBinary = getCookie('referralData');
+        const cachedBinary = localStorage.getItem('referralData');
         if (cachedBinary) {
             setBinary(JSON.parse(cachedBinary));
             return;
@@ -43,7 +25,7 @@ export default function ReferralBonuses() {
                 }
             });
             setBinary(response.data.participants);
-            setCookie('referralData', JSON.stringify(response.data.participants), 7); // Кэшируем на 7 дней
+            localStorage.setItem('referralData', JSON.stringify(response.data.participants)); // Кэшируем данные
         } catch (error) {
             console.error("Ошибка загрузки данных:", error);
         }
@@ -59,7 +41,7 @@ export default function ReferralBonuses() {
     };
 
     const handleOpenDetail = async (personalNumber) => {
-        const cachedDetail = getCookie(`participantInvite_${personalNumber}`);
+        const cachedDetail = localStorage.getItem(`participantInvite_${personalNumber}`);
         if (cachedDetail) {
             setParticipantDetail(JSON.parse(cachedDetail));
             setIsDetailOpen(true);
@@ -73,7 +55,7 @@ export default function ReferralBonuses() {
                     'Authorization': `Bearer ${token}`
                 }
             });
-            setCookie(`participantInvite_${personalNumber}`, JSON.stringify(response.data), 7); // Кэшируем детали
+            localStorage.setItem(`participantInvite_${personalNumber}`, JSON.stringify(response.data)); // Кэшируем детали
             setParticipantDetail(response.data);
             setIsDetailOpen(true);
         } catch (error) {
@@ -82,7 +64,7 @@ export default function ReferralBonuses() {
     };
 
     const handleOpenHistory = async (personalNumber) => {
-        const cachedHistory = getCookie(`refHistory_${personalNumber}`);
+        const cachedHistory = localStorage.getItem(`refHistory_${personalNumber}`);
         if (cachedHistory) {
             setParticipantHistory(JSON.parse(cachedHistory));
             setIsDetailOpenHistory(true);
@@ -96,7 +78,7 @@ export default function ReferralBonuses() {
                     'Authorization': `Bearer ${token}`
                 }
             });
-            setCookie(`refHistory_${personalNumber}`, JSON.stringify(response.data.bonuses), 7); // Кэшируем историю
+            localStorage.setItem(`refHistory_${personalNumber}`, JSON.stringify(response.data.bonuses)); // Кэшируем историю
             setParticipantHistory(response.data.bonuses);
             setIsDetailOpenHistory(true);
         } catch (error) {

@@ -3,7 +3,7 @@ import styles from '../Branches.module.css';
 import axios from 'axios';
 import { API_URL } from '@/api/api';
 
-export default function BranchesAdd({ setActiveComponent, participantId }) {
+export default function BranchesAdd({ setActiveComponent }) {
     const [dates, setDates] = useState({
         code: "",
         name: "",

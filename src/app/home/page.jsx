@@ -32,6 +32,8 @@ import EmployeesBranchesEdit from '../components/Employees/components/EmployeesB
 import EmployeesPermissionsEdit from '../components/Employees/components/EmployeesPermissionsEdit';
 import EmployeesEdit from '../components/Employees/components/EmployeesEdit';
 import EmployeesAdd from '../components/Employees/components/EmployeesAdd';
+import SurpriseBonusAdd from '../components/Gifts/components/SurpriseBonusAdd';
+import SurpriseBonus from '../components/Gifts/components/SurpriseBonus';
 
 
 function Page() {

@@ -10,27 +10,31 @@ export default function StatusAndSponsorship() {
     const [participantDetail, setParticipantDetail] = useState(null);
     const [participantHistory, setParticipantHistory] = useState(null);
 
-    const setCookie = (name, value, days) => {
-        const expires = new Date();
-        expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-        document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/`;
+    // Функции работы с localStorage
+    const setLocalStorage = (key, value) => {
+        const data = {
+            value,
+            timestamp: Date.now(),
+        };
+        localStorage.setItem(key, JSON.stringify(data));
     };
 
-    const getCookie = (name) => {
-        const cookies = document.cookie.split(';');
-        for (let cookie of cookies) {
-            const [key, val] = cookie.split('=').map((item) => item.trim());
-            if (key === name) {
-                return decodeURIComponent(val);
-            }
+    const getLocalStorage = (key, maxAgeInMs) => {
+        const item = localStorage.getItem(key);
+        if (!item) return null;
+
+        const data = JSON.parse(item);
+        if (Date.now() - data.timestamp > maxAgeInMs) {
+            localStorage.removeItem(key);
+            return null;
         }
-        return null;
+        return data.value;
     };
 
     const getStatusAndSponsor = async () => {
-        const cachedBinary = getCookie('statusAndSponsorshipData');
+        const cachedBinary = getLocalStorage('statusAndSponsorshipData', 7 * 24 * 60 * 60 * 1000); // 7 дней
         if (cachedBinary) {
-            setBinary(JSON.parse(cachedBinary));
+            setBinary(cachedBinary);
             return;
         }
 
@@ -38,29 +42,30 @@ export default function StatusAndSponsorship() {
         try {
             const response = await axios.get(`${API_URL}/api/v1/participants/status&sponsor/?page=1&page_size=20`, {
                 headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+                    Authorization: `Bearer ${token}`,
+                },
             });
             setBinary(response.data.participants);
-            setCookie('statusAndSponsorshipData', JSON.stringify(response.data.participants), 7); // Кэшируем на 7 дней
+            setLocalStorage('statusAndSponsorshipData', response.data.participants);
         } catch (error) {
-            console.error("Ошибка загрузки данных:", error);
+            console.error('Ошибка загрузки данных:', error);
         }
     };
 
     const formatDate = (dateString) => {
-        if (!dateString) return "Неизвестно";
+        if (!dateString) return 'Неизвестно';
         const date = new Date(dateString);
-        const day = date.getDate().toString().padStart(2, '0');
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const year = date.getFullYear();
-        return `${day}.${month}.${year}`;
+        return date.toLocaleDateString('ru-RU', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+        });
     };
 
     const handleOpenDetail = async (personalNumber) => {
-        const cachedDetail = getCookie(`participantInvite_${personalNumber}`);
+        const cachedDetail = getLocalStorage(`participantDetail_${personalNumber}`, 7 * 24 * 60 * 60 * 1000);
         if (cachedDetail) {
-            setParticipantDetail(JSON.parse(cachedDetail));
+            setParticipantDetail(cachedDetail);
             setIsDetailOpen(true);
             return;
         }
@@ -69,37 +74,40 @@ export default function StatusAndSponsorship() {
         try {
             const response = await axios.get(`${API_URL}/api/v1/participants/${personalNumber}`, {
                 headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+                    Authorization: `Bearer ${token}`,
+                },
             });
-            setCookie(`participantInvite_${personalNumber}`, JSON.stringify(response.data), 7); // Кэшируем детали
+            setLocalStorage(`participantDetail_${personalNumber}`, response.data);
             setParticipantDetail(response.data);
             setIsDetailOpen(true);
         } catch (error) {
-            console.error("Ошибка загрузки деталей участника:", error);
+            console.error('Ошибка загрузки деталей участника:', error);
         }
     };
 
     const handleOpenHistory = async (personalNumber) => {
-        const cachedHistory = getCookie(`refHistory_${personalNumber}`);
+        const cachedHistory = getLocalStorage(`participantHistory_${personalNumber}`, 7 * 24 * 60 * 60 * 1000);
         if (cachedHistory) {
-            setParticipantHistory(JSON.parse(cachedHistory));
+            setParticipantHistory(cachedHistory);
             setIsDetailOpenHistory(true);
             return;
         }
 
         const token = localStorage.getItem('authToken');
         try {
-            const response = await axios.get(`${API_URL}/api/v1/participants/bonuses/history/${personalNumber}/ref_bonus`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
+            const response = await axios.get(
+                `${API_URL}/api/v1/participants/bonuses/history/${personalNumber}/ref_bonus`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
                 }
-            });
-            setCookie(`refHistory_${personalNumber}`, JSON.stringify(response.data.bonuses), 7); // Кэшируем историю
+            );
+            setLocalStorage(`participantHistory_${personalNumber}`, response.data.bonuses);
             setParticipantHistory(response.data.bonuses);
             setIsDetailOpenHistory(true);
         } catch (error) {
-            console.error("Ошибка загрузки истории бонусов:", error);
+            console.error('Ошибка загрузки истории бонусов:', error);
         }
     };
 
@@ -187,5 +195,5 @@ export default function StatusAndSponsorship() {
                 </tbody>
             </table>
         </div>
-    )
+    );
 }

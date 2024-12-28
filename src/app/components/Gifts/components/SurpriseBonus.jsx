@@ -4,45 +4,68 @@ import axios from 'axios';
 import { API_URL } from '@/api/api';
 import Image from 'next/image';
 import deletePng from "@/assets/delete.svg";
+import add from '@/assets/add.webp';
 
-export default function SurpriseBonus() {
+export default function SurpriseBonus({ setActiveComponentGift }) {
     const [binaty, setBinary] = useState([]);
     const [isDetailOpen, setIsDetailOpen] = useState(false);
     const [participantDetail, setParticipantDetail] = useState(null);
+    const [pageCount, setPageCount] = useState(20);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(0);
 
-    const setCookie = (name, value, days) => {
-        const expires = new Date();
-        expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-        document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/`;
+    const setLocalStorage = (key, value) => {
+        localStorage.setItem(key, JSON.stringify(value));
     };
 
-    const getCookie = (name) => {
-        const cookies = document.cookie.split(';');
-        for (let cookie of cookies) {
-            const [key, val] = cookie.split('=').map((item) => item.trim());
-            if (key === name) {
-                return decodeURIComponent(val);
-            }
-        }
-        return null;
+    const getLocalStorage = (key) => {
+        const item = localStorage.getItem(key);
+        if (!item) return null;
+        return JSON.parse(item);
     };
 
     const getBinary = async () => {
-        const cachedBinary = getCookie('binaryData');
+        const cachedBinary = getLocalStorage('SurpriseBonus');
         if (cachedBinary) {
-            setBinary(JSON.parse(cachedBinary));
+            setBinary(cachedBinary);
             return;
         }
 
         const token = localStorage.getItem('authToken');
         try {
-            const response = await axios.get(`${API_URL}/api/v1/surprise/bonuses?page=1&page_size=20`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+            const response = await axios.get(`${API_URL}/api/v1/surprise/bonuses?page=${currentPage}&page_size=${pageCount}`, {
+                headers: { Authorization: `Bearer ${token}` },
             });
-            setBinary(response.data.participants);
-            setCookie('binaryData', JSON.stringify(response.data.participants), 7); // Кэшируем на 7 дней
+
+            if (response.data && response.data.participants) {
+                setTotalPages(response.data.total_pages);
+                setBinary(response.data.participants);
+                setLocalStorage('SurpriseBonus', response.data.participants);
+            } else {
+                console.error('Ошибка: отсутствуют участники в ответе API');
+            }
+        } catch (error) {
+            console.error('Ошибка при получении бонусов:', error);
+        }
+    };
+
+
+    const handleOpenDetail = async (personalNumber) => {
+        const cachedDetail = getLocalStorage(`participantInvite_${personalNumber}`, 7 * 24 * 60 * 60 * 1000); // Кэш на 7 дней
+        if (cachedDetail) {
+            setParticipantDetail(cachedDetail);
+            setIsDetailOpen(true);
+            return;
+        }
+
+        const token = localStorage.getItem('authToken');
+        try {
+            const response = await axios.get(`${API_URL}/api/v1/participants/${personalNumber}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setParticipantDetail(response.data);
+            setLocalStorage(`participantInvite_${personalNumber}`, response.data);
+            setIsDetailOpen(true);
         } catch (error) {
             console.error(error);
         }
@@ -57,35 +80,49 @@ export default function SurpriseBonus() {
         return `${day}.${month}.${year}`;
     };
 
-    const handleOpenDetail = async (personalNumber) => {
-        const cachedDetail = getCookie(`participantInvite_${personalNumber}`);
-        if (cachedDetail) {
-            setParticipantDetail(JSON.parse(cachedDetail));
-            setIsDetailOpen(true);
-            return;
-        }
-
+    const handleDelete = async (id) => {
         const token = localStorage.getItem('authToken');
         try {
-            const response = await axios.get(`${API_URL}/api/v1/participants/${personalNumber}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+            await axios.delete(`${API_URL}/api/v1/surprise/bonus/${id}`, {
+                headers: { Authorization: `Bearer ${token}` },
             });
-            setParticipantDetail(response.data);
-            setCookie(`participantInvite_${personalNumber}`, JSON.stringify(response.data), 7); // Кэшируем на 7 дней
-            setIsDetailOpen(true);
+            const cachedBinary = getLocalStorage('SurpriseBonus', 7 * 24 * 60 * 60 * 1000);
+            if (cachedBinary) {
+                const updatedBinary = cachedBinary.filter(item => item.id !== id);
+                setBinary(updatedBinary);
+                setLocalStorage('SurpriseBonus', updatedBinary);
+            }
         } catch (error) {
-            console.error(error);
+            console.error('Ошибка при удалении:', error);
         }
+    };
+
+    const handlePageCountChange = (count) => {
+        setPageCount(count);
+        setCurrentPage(1); // Возвращаем на первую страницу при изменении количества элементов на странице
+        getBinary();
+    };
+
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+        setLocalStorage('SurpriseBonus', []); // Сбросить кэш для нового запроса
+        getBinary();
     };
 
     useEffect(() => {
         getBinary();
-    }, []);
+    }, [currentPage, pageCount]);
+
 
     return (
         <div>
+            <div className={styles.btnsWrapperAdd}>
+                <button className={styles.addBtn} onClick={() => setActiveComponentGift('SurpriseBonusAdd')}>
+                    <Image src={add} alt="add" />
+                    Добавить
+                </button>
+            </div>
             {isDetailOpen && <div className={styles.detailModal} onClick={() => setIsDetailOpen(false)}>
                 <div className={styles.detailModalContent} onClick={(e) => e.stopPropagation()}>
                     <div className={styles.detailModalHeader}>
@@ -120,7 +157,7 @@ export default function SurpriseBonus() {
                         <th scope="col">ID документа</th>
                         <th scope="col">Дата</th>
                         <th scope="col">Статус</th>
-                        <th scope="col">Действия</th>
+                        <th scope="col" style={{ textAlign: 'center' }}>Действия</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -132,15 +169,29 @@ export default function SurpriseBonus() {
                             <td>{item.passport_id || "Неизвестно"}</td>
                             <td>{formatDate(item.register_at)}</td>
                             <td>{item.status ? item.status.name : 'Не указано'}</td>
-                            <td>
+                            <td style={{ display: 'flex', justifyContent: 'center' }}>
                                 <button className={styles.btn}>
-                                    <Image src={deletePng} alt="delete" />
+                                    <Image src={deletePng} alt="delete" onClick={() => handleDelete(item.id)} />
                                 </button>
                             </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
+            <div className={styles.pagination}>
+                {Array.from({ length: totalPages }, (_, index) => (
+                    <button key={index} onClick={() => handlePageChange(index + 1)} disabled={currentPage === index + 1}>
+                        {index + 1}
+                    </button>
+                ))}
+                <div className={styles.selectPage}>
+                    <select onChange={(e) => handlePageCountChange(Number(e.target.value))}>
+                        <option value={20} style={pageCount === 20 ? { backgroundColor: '#007BFF' } : {}}>20</option>
+                        <option value={50} style={pageCount === 50 ? { backgroundColor: '#007BFF' } : {}}>50</option>
+                        <option value={100} style={pageCount === 100 ? { backgroundColor: '#007BFF' } : {}}>100</option>
+                    </select>
+                </div>
+            </div>
         </div>
     );
 }

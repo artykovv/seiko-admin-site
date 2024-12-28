@@ -4,45 +4,59 @@ import axios from 'axios';
 import { API_URL } from '@/api/api';
 
 export default function AutoProgram() {
-    const [binaty, setBinary] = useState([]);
+    const [binary, setBinary] = useState([]);
     const [isDetailOpen, setIsDetailOpen] = useState(false);
     const [participantDetail, setParticipantDetail] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageCount, setPageCount] = useState(20);
+    const [totalPages, setTotalPages] = useState(0);
 
-    const setCookie = (name, value, days) => {
-        const expires = new Date();
-        expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-        document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/`;
+    const setLocalStorage = (key, value) => {
+        localStorage.setItem(key, JSON.stringify(value));
     };
 
-    const getCookie = (name) => {
-        const cookies = document.cookie.split(';');
-        for (let cookie of cookies) {
-            const [key, val] = cookie.split('=').map((item) => item.trim());
-            if (key === name) {
-                return decodeURIComponent(val);
-            }
-        }
-        return null;
+    const getLocalStorage = (key) => {
+        const item = localStorage.getItem(key);
+        if (!item) return null;
+        return JSON.parse(item);
     };
 
     const getBinary = async () => {
-        const cachedBinary = getCookie('AutoProgram');
+        const cachedBinary = getLocalStorage('AutoProgram');
         if (cachedBinary) {
-            setBinary(JSON.parse(cachedBinary));
+            setBinary(cachedBinary);
             return;
         }
 
         const token = localStorage.getItem('authToken');
         try {
-            const response = await axios.get(`${API_URL}/api/v1/auto/bonuses?page=1&page_size=20`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+            const response = await axios.get(`${API_URL}/api/v1auto/bonuses?page=${currentPage}&page_size=${pageCount}`, {
+                headers: { Authorization: `Bearer ${token}` },
             });
-            console.log(response);
-
+            setTotalPages(response.data.total_pages);
             setBinary(response.data.participants);
-            setCookie('AutoProgram', JSON.stringify(response.data.participants), 7); // Кэшируем на 7 дней
+            setLocalStorage('AutoProgram', response.data.participants);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const handleOpenDetail = async (personalNumber) => {
+        const cachedDetail = getLocalStorage(`participantInvite_${personalNumber}`);
+        if (cachedDetail) {
+            setParticipantDetail(cachedDetail);
+            setIsDetailOpen(true);
+            return;
+        }
+
+        const token = localStorage.getItem('authToken');
+        try {
+            const response = await axios.get(`${API_URL}/api/v1/participants/${personalNumber}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setParticipantDetail(response.data);
+            setLocalStorage(`participantInvite_${personalNumber}`, response.data);
+            setIsDetailOpen(true);
         } catch (error) {
             console.error(error);
         }
@@ -57,32 +71,19 @@ export default function AutoProgram() {
         return `${day}.${month}.${year}`;
     };
 
-    const handleOpenDetail = async (personalNumber) => {
-        const cachedDetail = getCookie(`participantInvite_${personalNumber}`);
-        if (cachedDetail) {
-            setParticipantDetail(JSON.parse(cachedDetail));
-            setIsDetailOpen(true);
-            return;
-        }
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
 
-        const token = localStorage.getItem('authToken');
-        try {
-            const response = await axios.get(`${API_URL}/api/v1/participants/${personalNumber}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            setParticipantDetail(response.data);
-            setCookie(`participantInvite_${personalNumber}`, JSON.stringify(response.data), 7); // Кэшируем на 7 дней
-            setIsDetailOpen(true);
-        } catch (error) {
-            console.error(error);
-        }
+    const handlePageCountChange = (count) => {
+        setPageCount(count);
+        setCurrentPage(1); // Возвращаем на первую страницу при изменении количества элементов на странице
     };
 
     useEffect(() => {
         getBinary();
-    }, []);
+    }, [currentPage, pageCount]);
+
     return (
         <div>
             {isDetailOpen && <div className={styles.detailModal} onClick={() => setIsDetailOpen(false)}>
@@ -123,7 +124,7 @@ export default function AutoProgram() {
                     </tr>
                 </thead>
                 <tbody>
-                    {binaty.map((item, index) => (
+                    {binary.map((item, index) => (
                         <tr key={index}>
                             <td scope="row">{item.branch?.name || "Неизвестно"}</td>
                             <td className={styles.openDetailBtn} onClick={() => handleOpenDetail(item.id)}>{item.personal_number || "Неизвестно"}</td>
@@ -136,6 +137,20 @@ export default function AutoProgram() {
                     ))}
                 </tbody>
             </table>
+            <div className={styles.pagination}>
+                {Array.from({ length: totalPages }, (_, index) => (
+                    <button key={index} onClick={() => handlePageChange(index + 1)} disabled={currentPage === index + 1}>
+                        {index + 1}
+                    </button>
+                ))}
+                <div className={styles.selectPage}>
+                    <select onChange={(e) => handlePageCountChange(Number(e.target.value))} value={pageCount}>
+                        <option value={20}>20</option>
+                        <option value={50}>50</option>
+                        <option value={100}>100</option>
+                    </select>
+                </div>
+            </div>
         </div>
     )
 }

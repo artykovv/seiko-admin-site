@@ -15,24 +15,6 @@ import { API_URL } from '@/api/api';
 
 import toast, { Toaster } from 'react-hot-toast';
 
-// Функция для записи куки
-const setCookie = (name, value, days) => {
-  const expires = new Date();
-  expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
-  document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
-};
-
-// Функция для чтения куки
-const getCookie = (name) => {
-  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-  return match ? match[2] : null;
-};
-
-// Функция для удаления куки
-const deleteCookie = (name) => {
-  document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/`;
-};
-
 function Participants({ setActiveComponent }) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState('Фильтр');
@@ -42,8 +24,9 @@ function Participants({ setActiveComponent }) {
   const [participants, setParticipants] = useState([]);
   const [pageCount, setPageCount] = useState(20);
 
+  // Загрузка участников из localStorage при монтировании компонента
   useEffect(() => {
-    const cachedParticipants = getCookie('participants');
+    const cachedParticipants = localStorage.getItem('participants');
     if (cachedParticipants) {
       setParticipants(JSON.parse(cachedParticipants));
     } else {
@@ -78,7 +61,7 @@ function Participants({ setActiveComponent }) {
   };
 
   const getParticipants = async (option) => {
-    const token = localStorage.getItem('authToken'); // Чтение токена из куки
+    const token = localStorage.getItem('authToken'); // Чтение токена из localStorage
     const url = option === 'Все' || option === 'Фильтр'
       ? `${API_URL}/api/v1/participants/in/structure?page=${currentPage}&page_size=${pageCount}`
       : `${API_URL}/api/v1/participants/in/structure?page=${currentPage}&page_size=${pageCount}&paket_names=${option}`;
@@ -100,7 +83,7 @@ function Participants({ setActiveComponent }) {
       });
       setParticipants(response.data.participants || []);
       setTotalPages(response.data.total_pages);
-      setCookie('participants', JSON.stringify(response.data)); // Сохраняем данные в куки
+      localStorage.setItem('participants', JSON.stringify(response.data));
     }
   };
 
@@ -113,8 +96,8 @@ function Participants({ setActiveComponent }) {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   const handleOpenDetail = async (personalNumber) => {
-    const token = localStorage.getItem('authToken'); // Чтение токена из куки
-    const cachedDetail = getCookie(`participant_${personalNumber}`); // Загружаем данные из куки
+    const token = localStorage.getItem('authToken'); // Чтение токена из localStorage
+    const cachedDetail = localStorage.getItem(`participant_${personalNumber}`); // Загружаем данные из localStorage
 
     let toastId;
     if (!cachedDetail) {
@@ -127,7 +110,7 @@ function Participants({ setActiveComponent }) {
     }
 
     if (cachedDetail) {
-      setParticipantDetail(JSON.parse(cachedDetail)); // Загружаем данные из куки
+      setParticipantDetail(JSON.parse(cachedDetail)); // Загружаем данные из localStorage
       setIsDetailOpen(true);
       return;
     }
@@ -138,13 +121,12 @@ function Participants({ setActiveComponent }) {
       },
     });
 
-    setCookie(`participant_${personalNumber}`, JSON.stringify(response.data)); // Сохраняем данные в куки
+    localStorage.setItem(`participant_${personalNumber}`, JSON.stringify(response.data)); // Сохраняем данные в localStorage
     setParticipantDetail(response.data);
     setIsDetailOpen(true);
   };
   //! Модальное окно
-
-
+  
   return (
     <div className={styles.participantsContainer}>
       <div className={styles.tableSection}>

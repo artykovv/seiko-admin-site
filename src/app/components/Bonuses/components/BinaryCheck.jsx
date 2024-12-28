@@ -10,26 +10,17 @@ export default function BinaryCheck() {
     const [participantDetail, setParticipantDetail] = useState(null);
     const [participantHistory, setParticipantHistory] = useState(null);
 
-    // Функции работы с куки
-    const setCookie = (name, value, days) => {
-        const expires = new Date();
-        expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-        document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/`;
-    };
-
-    const getCookie = (name) => {
-        const cookies = document.cookie.split(';');
-        for (let cookie of cookies) {
-            const [key, val] = cookie.split('=').map((item) => item.trim());
-            if (key === name) {
-                return decodeURIComponent(val);
-            }
-        }
-        return null;
+    const formatDate = (dateString) => {
+        if (!dateString) return "Неизвестно";
+        const date = new Date(dateString);
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}.${month}.${year}`;
     };
 
     const getBinary = async () => {
-        const cachedBinary = getCookie('binaryData');
+        const cachedBinary = localStorage.getItem('binaryData'); // Чтение из localStorage
         if (cachedBinary) {
             setBinary(JSON.parse(cachedBinary));
             return;
@@ -43,23 +34,14 @@ export default function BinaryCheck() {
                 }
             });
             setBinary(response.data.participants);
-            setCookie('binaryData', JSON.stringify(response.data.participants), 7); // Кэшируем на 7 дней
+            localStorage.setItem('binaryData', JSON.stringify(response.data.participants)); // Запись в localStorage
         } catch (error) {
             console.error("Ошибка загрузки данных:", error);
         }
     };
 
-    const formatDate = (dateString) => {
-        if (!dateString) return "Неизвестно";
-        const date = new Date(dateString);
-        const day = date.getDate().toString().padStart(2, '0');
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const year = date.getFullYear();
-        return `${day}.${month}.${year}`;
-    };
-
     const handleOpenDetail = async (personalNumber) => {
-        const cachedDetail = getCookie(`participantInvite_${personalNumber}`);
+        const cachedDetail = localStorage.getItem(`participantInvite_${personalNumber}`); // Чтение из localStorage
         if (cachedDetail) {
             setParticipantDetail(JSON.parse(cachedDetail));
             setIsDetailOpen(true);
@@ -73,7 +55,7 @@ export default function BinaryCheck() {
                     'Authorization': `Bearer ${token}`
                 }
             });
-            setCookie(`participantInvite_${personalNumber}`, JSON.stringify(response.data), 7); // Кэшируем детали
+            localStorage.setItem(`participantInvite_${personalNumber}`, JSON.stringify(response.data)); // Запись в localStorage
             setParticipantDetail(response.data);
             setIsDetailOpen(true);
         } catch (error) {
@@ -82,7 +64,7 @@ export default function BinaryCheck() {
     };
 
     const handleOpenHistory = async (personalNumber) => {
-        const cachedHistory = getCookie(`participantHistory_${personalNumber}`);
+        const cachedHistory = localStorage.getItem(`participantHistory_${personalNumber}`); // Чтение из localStorage
         if (cachedHistory) {
             setParticipantHistory(JSON.parse(cachedHistory));
             setIsDetailOpenHistory(true);
@@ -96,13 +78,14 @@ export default function BinaryCheck() {
                     'Authorization': `Bearer ${token}`
                 }
             });
-            setCookie(`participantHistory_${personalNumber}`, JSON.stringify(response.data.bonuses), 7); // Кэшируем историю
+            localStorage.setItem(`participantHistory_${personalNumber}`, JSON.stringify(response.data.bonuses)); // Запись в localStorage
             setParticipantHistory(response.data.bonuses);
             setIsDetailOpenHistory(true);
         } catch (error) {
             console.error("Ошибка загрузки истории бонусов:", error);
         }
     };
+
 
     useEffect(() => {
         getBinary();
