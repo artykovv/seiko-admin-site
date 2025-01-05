@@ -4,7 +4,7 @@ import axios from 'axios';
 import { API_URL } from '@/api/api';
 
 export default function TouristBonus() {
-    const [binaty, setBinary] = useState([]);
+    const [binary, setBinary] = useState([]);
     const [isDetailOpen, setIsDetailOpen] = useState(false);
     const [participantDetail, setParticipantDetail] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
@@ -12,27 +12,17 @@ export default function TouristBonus() {
     const [totalPages, setTotalPages] = useState(0);
 
     const setLocalStorage = (key, value) => {
-        const data = {
-            value,
-            timestamp: Date.now(),
-        };
-        localStorage.setItem(key, JSON.stringify(data));
+        localStorage.setItem(key, JSON.stringify(value));
     };
 
-    const getLocalStorage = (key, maxAgeInMs) => {
+    const getLocalStorage = (key) => {
         const item = localStorage.getItem(key);
         if (!item) return null;
-
-        const data = JSON.parse(item);
-        if (Date.now() - data.timestamp > maxAgeInMs) {
-            localStorage.removeItem(key);
-            return null;
-        }
-        return data.value;
+        return value;
     };
 
     const getBinary = async () => {
-        const cachedBinary = getLocalStorage('TouristBonus', 7 * 24 * 60 * 60 * 1000); // Кэш на 7 дней
+        const cachedBinary = getLocalStorage('TouristBonus');
         if (cachedBinary) {
             setBinary(cachedBinary);
             return;
@@ -44,15 +34,15 @@ export default function TouristBonus() {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setBinary(response.data.participants);
-            setTotalPages(response.data.total_pages); // Обновляем количество страниц
-            setLocalStorage('TouristBonus', response.data.participants);
+            setTotalPages(response.data.total_pages);
+            localStorage.setItem('TouristBonus', JSON.stringify(response.data.participants));
         } catch (error) {
             console.error(error);
         }
     };
 
     const handleOpenDetail = async (personalNumber) => {
-        const cachedDetail = getLocalStorage(`participantInvite_${personalNumber}`, 7 * 24 * 60 * 60 * 1000); // Кэш на 7 дней
+        const cachedDetail = getLocalStorage(`participantInvite_${personalNumber}`);
         if (cachedDetail) {
             setParticipantDetail(cachedDetail);
             setIsDetailOpen(true);
@@ -87,7 +77,7 @@ export default function TouristBonus() {
 
     const handlePageCountChange = (count) => {
         setPageCount(count);
-        setCurrentPage(1); // Возвращаем на первую страницу при изменении количества элементов на странице
+        setCurrentPage(1);
     };
 
     useEffect(() => {
@@ -123,7 +113,7 @@ export default function TouristBonus() {
                     </tr>
                 </thead>
                 <tbody>
-                    {binaty.map((item, index) => (
+                    {binary.map((item, index) => (
                         <tr key={index}>
                             <td scope="row">{item.branch?.name || "Неизвестно"}</td>
                             <td className={styles.openDetailBtn} onClick={() => handleOpenDetail(item.id)}>{item.personal_number || "Неизвестно"}</td>

@@ -9,6 +9,9 @@ export default function ReferralBonuses() {
     const [isDetailOpenHistory, setIsDetailOpenHistory] = useState(false);
     const [participantDetail, setParticipantDetail] = useState(null);
     const [participantHistory, setParticipantHistory] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageCount, setPageCount] = useState(20);
+    const [totalPages, setTotalPages] = useState(0);
 
     const getRef = async () => {
         const cachedBinary = localStorage.getItem('referralData');
@@ -25,7 +28,7 @@ export default function ReferralBonuses() {
                 }
             });
             setBinary(response.data.participants);
-            localStorage.setItem('referralData', JSON.stringify(response.data.participants)); // Кэшируем данные
+            localStorage.setItem('referralData', JSON.stringify(response.data.participants)); 
         } catch (error) {
             console.error("Ошибка загрузки данных:", error);
         }
@@ -86,9 +89,18 @@ export default function ReferralBonuses() {
         }
     };
 
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
+
+    const handlePageCountChange = (count) => {
+        setPageCount(count);
+        setCurrentPage(1); // Возвращаем на первую страницу при изменении количества элементов на странице
+    };
+
     useEffect(() => {
         getRef();
-    }, []);
+    }, [currentPage, pageCount]);
 
     return (
         <div>
@@ -167,6 +179,20 @@ export default function ReferralBonuses() {
                     ))}
                 </tbody>
             </table>
+            <div className={styles.pagination}>
+                {Array.from({ length: totalPages }, (_, index) => (
+                    <button key={index} onClick={() => handlePageChange(index + 1)} disabled={currentPage === index + 1}>
+                        {index + 1}
+                    </button>
+                ))}
+                <div className={styles.selectPage}>
+                    <select onChange={(e) => handlePageCountChange(Number(e.target.value))} value={pageCount}>
+                        <option value={20}>20</option>
+                        <option value={50}>50</option>
+                        <option value={100}>100</option>
+                    </select>
+                </div>
+            </div>
         </div>
     )
 }

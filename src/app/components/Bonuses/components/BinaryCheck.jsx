@@ -9,6 +9,9 @@ export default function BinaryCheck() {
     const [isDetailOpenHistory, setIsDetailOpenHistory] = useState(false);
     const [participantDetail, setParticipantDetail] = useState(null);
     const [participantHistory, setParticipantHistory] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageCount, setPageCount] = useState(20);
+    const [totalPages, setTotalPages] = useState(0);
 
     const formatDate = (dateString) => {
         if (!dateString) return "Неизвестно";
@@ -20,7 +23,7 @@ export default function BinaryCheck() {
     };
 
     const getBinary = async () => {
-        const cachedBinary = localStorage.getItem('binaryData'); // Чтение из localStorage
+        const cachedBinary = localStorage.getItem('binaryData');
         if (cachedBinary) {
             setBinary(JSON.parse(cachedBinary));
             return;
@@ -28,20 +31,21 @@ export default function BinaryCheck() {
 
         const token = localStorage.getItem('authToken');
         try {
-            const response = await axios.get(`${API_URL}/api/v1/participants/binar&cheque/?page=1&page_size=20`, {
+            const response = await axios.get(`${API_URL}/api/v1/participants/binar&cheque/?page=${currentPage}&page_size=${pageCount}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
             setBinary(response.data.participants);
-            localStorage.setItem('binaryData', JSON.stringify(response.data.participants)); // Запись в localStorage
+            setTotalPages(response.data.total_pages);
+            localStorage.setItem('binaryData', JSON.stringify(response.data.participants));
         } catch (error) {
             console.error("Ошибка загрузки данных:", error);
         }
     };
 
     const handleOpenDetail = async (personalNumber) => {
-        const cachedDetail = localStorage.getItem(`participantInvite_${personalNumber}`); // Чтение из localStorage
+        const cachedDetail = localStorage.getItem(`participantInvite_${personalNumber}`);
         if (cachedDetail) {
             setParticipantDetail(JSON.parse(cachedDetail));
             setIsDetailOpen(true);
@@ -86,10 +90,18 @@ export default function BinaryCheck() {
         }
     };
 
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
+
+    const handlePageCountChange = (count) => {
+        setPageCount(count);
+        setCurrentPage(1);
+    };
 
     useEffect(() => {
         getBinary();
-    }, []);
+    }, [currentPage, pageCount]);
 
     return (
         <div>
@@ -172,6 +184,20 @@ export default function BinaryCheck() {
                     ))}
                 </tbody>
             </table>
+            <div className={styles.pagination}>
+                {Array.from({ length: totalPages }, (_, index) => (
+                    <button key={index} onClick={() => handlePageChange(index + 1)} disabled={currentPage === index + 1}>
+                        {index + 1}
+                    </button>
+                ))}
+                <div className={styles.selectPage}>
+                    <select onChange={(e) => handlePageCountChange(Number(e.target.value))} value={pageCount}>
+                        <option value={20}>20</option>
+                        <option value={50}>50</option>
+                        <option value={100}>100</option>
+                    </select>
+                </div>
+            </div>
         </div>
     )
 }
