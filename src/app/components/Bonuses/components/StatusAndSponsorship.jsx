@@ -10,34 +10,7 @@ export default function StatusAndSponsorship() {
     const [participantDetail, setParticipantDetail] = useState(null);
     const [participantHistory, setParticipantHistory] = useState(null);
 
-    // Функции работы с localStorage
-    const setLocalStorage = (key, value) => {
-        const data = {
-            value,
-            timestamp: Date.now(),
-        };
-        localStorage.setItem(key, JSON.stringify(data));
-    };
-
-    const getLocalStorage = (key, maxAgeInMs) => {
-        const item = localStorage.getItem(key);
-        if (!item) return null;
-
-        const data = JSON.parse(item);
-        if (Date.now() - data.timestamp > maxAgeInMs) {
-            localStorage.removeItem(key);
-            return null;
-        }
-        return data.value;
-    };
-
     const getStatusAndSponsor = async () => {
-        const cachedBinary = getLocalStorage('statusAndSponsorshipData', 7 * 24 * 60 * 60 * 1000); // 7 дней
-        if (cachedBinary) {
-            setBinary(cachedBinary);
-            return;
-        }
-
         const token = localStorage.getItem('authToken');
         try {
             const response = await axios.get(`${API_URL}/api/v1/participants/status&sponsor/?page=1&page_size=20`, {
@@ -46,7 +19,6 @@ export default function StatusAndSponsorship() {
                 },
             });
             setBinary(response.data.participants);
-            setLocalStorage('statusAndSponsorshipData', response.data.participants);
         } catch (error) {
             console.error('Ошибка загрузки данных:', error);
         }

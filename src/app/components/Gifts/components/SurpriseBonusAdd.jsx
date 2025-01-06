@@ -18,25 +18,11 @@ export default function SurpriseBonusAdd({ setActiveComponentGift }) {
     const [participants, setParticipants] = useState([]);
     const [pageCount, setPageCount] = useState(20);
 
-    // Загрузка участников из localStorage при монтировании компонента
-    useEffect(() => {
-        const cachedParticipants = localStorage.getItem('participants');
-        if (cachedParticipants) {
-            setParticipants(JSON.parse(cachedParticipants));
-        } else {
-            setParticipants([]);
-        }
-    }, []);
-
     const handleSelectChange = (option) => {
         setSelectedOption(option);
         setIsFilterOpen(false);
         setCurrentPage(1);
         getParticipants(option);
-    };
-
-    const handleParticipantPage = (name, id) => {
-        setActiveComponent({ name, id });
     };
 
     const handlePageChange = (page) => {
@@ -77,7 +63,6 @@ export default function SurpriseBonusAdd({ setActiveComponentGift }) {
             });
             setParticipants(response.data.participants || []);
             setTotalPages(response.data.total_pages);
-            localStorage.setItem('participants', JSON.stringify(response.data));
         }
     };
 
@@ -133,7 +118,6 @@ export default function SurpriseBonusAdd({ setActiveComponentGift }) {
                     },
                 }
             );
-
             toast.success('Бонус успешно добавлен!');
             getParticipants(selectedOption);
         } catch (error) {

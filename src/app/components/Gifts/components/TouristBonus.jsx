@@ -11,23 +11,8 @@ export default function TouristBonus() {
     const [pageCount, setPageCount] = useState(20);
     const [totalPages, setTotalPages] = useState(0);
 
-    const setLocalStorage = (key, value) => {
-        localStorage.setItem(key, JSON.stringify(value));
-    };
-
-    const getLocalStorage = (key) => {
-        const item = localStorage.getItem(key);
-        if (!item) return null;
-        return value;
-    };
 
     const getBinary = async () => {
-        const cachedBinary = getLocalStorage('TouristBonus');
-        if (cachedBinary) {
-            setBinary(cachedBinary);
-            return;
-        }
-
         const token = localStorage.getItem('authToken');
         try {
             const response = await axios.get(`${API_URL}/api/v1/tour/bonuses?page=${currentPage}&page_size=${pageCount}`, {
@@ -35,7 +20,6 @@ export default function TouristBonus() {
             });
             setBinary(response.data.participants);
             setTotalPages(response.data.total_pages);
-            localStorage.setItem('TouristBonus', JSON.stringify(response.data.participants));
         } catch (error) {
             console.error(error);
         }

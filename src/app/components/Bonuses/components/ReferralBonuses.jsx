@@ -14,12 +14,6 @@ export default function ReferralBonuses() {
     const [totalPages, setTotalPages] = useState(0);
 
     const getRef = async () => {
-        const cachedBinary = localStorage.getItem('referralData');
-        if (cachedBinary) {
-            setBinary(JSON.parse(cachedBinary));
-            return;
-        }
-
         const token = localStorage.getItem('authToken');
         try {
             const response = await axios.get(`${API_URL}/api/v1/participants/ref_bonus/?page=1&page_size=20`, {
@@ -28,7 +22,6 @@ export default function ReferralBonuses() {
                 }
             });
             setBinary(response.data.participants);
-            localStorage.setItem('referralData', JSON.stringify(response.data.participants)); 
         } catch (error) {
             console.error("Ошибка загрузки данных:", error);
         }

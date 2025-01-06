@@ -10,7 +10,7 @@ export default function RegistrationsBonuses({ participantId, setActiveComponent
 
     const getBonuses = async () => {
         const token = localStorage.getItem('authToken');
-        const cachedBonuses = localStorage.getItem(`bonuses_${participantId}`);
+        const cachedBonuses = localStorage.getItem(`participantInvite_${participantId}`);
         if (cachedBonuses) {
             setBonuses(JSON.parse(cachedBonuses));
         } else {
@@ -21,7 +21,7 @@ export default function RegistrationsBonuses({ participantId, setActiveComponent
             });
 
             setBonuses(response.data);
-            localStorage.setItem(`bonuses_${participantId}`, JSON.stringify(response.data));
+            localStorage.setItem(`participantInvite_${participantId}`, JSON.stringify(response.data));
         }
     };
 

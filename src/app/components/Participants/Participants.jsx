@@ -24,16 +24,6 @@ function Participants({ setActiveComponent }) {
   const [participants, setParticipants] = useState([]);
   const [pageCount, setPageCount] = useState(20);
 
-  // Загрузка участников из localStorage при монтировании компонента
-  useEffect(() => {
-    const cachedParticipants = localStorage.getItem('participants');
-    if (cachedParticipants) {
-      setParticipants(JSON.parse(cachedParticipants));
-    } else {
-      setParticipants([]);
-    }
-  }, []);
-
   const handleSelectChange = (option) => {
     setSelectedOption(option);
     setIsFilterOpen(false);
@@ -83,7 +73,6 @@ function Participants({ setActiveComponent }) {
       });
       setParticipants(response.data.participants || []);
       setTotalPages(response.data.total_pages);
-      localStorage.setItem('participants', JSON.stringify(response.data));
     }
   };
 
@@ -97,7 +86,7 @@ function Participants({ setActiveComponent }) {
 
   const handleOpenDetail = async (personalNumber) => {
     const token = localStorage.getItem('authToken'); // Чтение токена из localStorage
-    const cachedDetail = localStorage.getItem(`participant_${personalNumber}`); // Загружаем данные из localStorage
+    const cachedDetail = localStorage.getItem(`participantInvite_${personalNumber}`); // Загружаем данные из localStorage
 
     let toastId;
     if (!cachedDetail) {
@@ -121,12 +110,12 @@ function Participants({ setActiveComponent }) {
       },
     });
 
-    localStorage.setItem(`participant_${personalNumber}`, JSON.stringify(response.data)); // Сохраняем данные в localStorage
+    localStorage.setItem(`participantInvite_${personalNumber}`, JSON.stringify(response.data)); // Сохраняем данные в localStorage
     setParticipantDetail(response.data);
     setIsDetailOpen(true);
   };
   //! Модальное окно
-  
+
   return (
     <div className={styles.participantsContainer}>
       <div className={styles.tableSection}>

@@ -19,7 +19,6 @@ function Home() {
 
     const fetchData = async (endpoint, key) => {
         const token = localStorage.getItem('authToken');
-
         const response = await axios.get(`${API_URL}/api/v1/${endpoint}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -27,7 +26,6 @@ function Home() {
         });
         const result = response.data || [];
         setData(prevData => ({ ...prevData, [key]: result }));
-        localStorage.setItem(key, JSON.stringify(result));
     };
 
     useEffect(() => {

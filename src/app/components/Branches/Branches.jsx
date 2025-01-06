@@ -11,45 +11,18 @@ import edit from '@/assets/edit.svg';
 function Branches({ setActiveComponent }) {
   const [branches, setBranches] = useState([]);
 
-  const setLocalStorage = (key, value) => {
-    const data = {
-      value,
-      timestamp: Date.now(),
-    };
-    localStorage.setItem(key, JSON.stringify(data));
-  };
-
-  const getLocalStorage = (key, maxAgeInMs) => {
-    const item = localStorage.getItem(key);
-    if (!item) return null;
-
-    const data = JSON.parse(item);
-    if (Date.now() - data.timestamp > maxAgeInMs) {
-      localStorage.removeItem(key);
-      return null;
-    }
-    return data.value;
-  };
-
   const getBranches = async () => {
-    const cachedBranches = getLocalStorage('branches', 7 * 24 * 60 * 60 * 1000); // Кэш на 7 дней
-    if (cachedBranches) {
-      setBranches(cachedBranches);
-      return;
-    }
-
     const token = localStorage.getItem('authToken');
     try {
       const response = await axios.get(`${API_URL}/api/v1/branches`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const branchesData = response.data;
-      setBranches(branchesData);
-      setLocalStorage('branches', branchesData);
+      setBranches(response.data);
     } catch (error) {
       console.error('Ошибка при загрузке данных:', error);
     }
   };
+
 
   useEffect(() => {
     getBranches();
@@ -58,7 +31,6 @@ function Branches({ setActiveComponent }) {
   const handleBranchesPage = (name, id) => {
     setActiveComponent({ name, id });
   };
-
 
   return (
     <div className={styles.branchesContainer}>

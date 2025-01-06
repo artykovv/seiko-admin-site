@@ -15,40 +15,13 @@ function Employees({ setActiveComponent }) {
   const [users, setUsers] = useState([]);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
-  const setLocalStorage = (key, value) => {
-    const data = {
-      value,
-      timestamp: Date.now(),
-    };
-    localStorage.setItem(key, JSON.stringify(data));
-  };
-
-  const getLocalStorage = (key, maxAgeInMs) => {
-    const item = localStorage.getItem(key);
-    if (!item) return null;
-
-    const data = JSON.parse(item);
-    if (Date.now() - data.timestamp > maxAgeInMs) {
-      localStorage.removeItem(key);
-      return null;
-    }
-    return data.value;
-  };
-
   const getEmployees = async () => {
-    const cachedUsers = getLocalStorage('employees', 7 * 24 * 60 * 60 * 1000); // Кэш на 7 дней
-    if (cachedUsers) {
-      setUsers(cachedUsers);
-      return;
-    }
-
     const token = localStorage.getItem('authToken');
     try {
       const response = await axios.get(`${API_URL}/users`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsers(response.data);
-      setLocalStorage('employees', response.data);
     } catch (error) {
       console.error('Ошибка при загрузке сотрудников:', error);
     }
@@ -69,7 +42,6 @@ function Employees({ setActiveComponent }) {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsers((prevUsers) => prevUsers.filter((user) => user.id !== id));
-      setLocalStorage('employees', users.filter((user) => user.id !== id));
     } catch (error) {
       handleOpenDetail();
     }

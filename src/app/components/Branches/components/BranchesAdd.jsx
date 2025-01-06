@@ -24,13 +24,15 @@ export default function BranchesAdd({ setActiveComponent }) {
         const token = localStorage.getItem('authToken');
         event.preventDefault();
         try {
-            await axios.post(`${API_URL}/api/v1/branches`, dates,
+            const response = await axios.post(`${API_URL}/api/v1/branches`, dates,
                 {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                     },
                 }
             );
+            console.log(response);
+
             setActiveComponent({ name: 'Филиалы', id: null });
         } catch (error) {
             setErrorMessage('Данные уже существуют или не все поля заполнены корректно.');
@@ -45,7 +47,7 @@ export default function BranchesAdd({ setActiveComponent }) {
         <div>
             <div className={styles.participantsContainer}>
                 <form className={styles.formSection} onSubmit={handleSubmit}>
-                    <h3>Изменить филиал</h3>
+                    <h3>Добавить филиал</h3>
                     <div className={styles.formRow}>
                         <label>Код</label>
                         <input
@@ -87,7 +89,7 @@ export default function BranchesAdd({ setActiveComponent }) {
                         <button type="button" onClick={() => handleBack('Филиалы', null)}>
                             Назад
                         </button>
-                        <button type="submit">Сохранить</button>
+                        <button type="submit">Добавить</button>
                     </footer>
                 </form>
             </div>

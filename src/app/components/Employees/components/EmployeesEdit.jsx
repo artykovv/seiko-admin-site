@@ -17,7 +17,7 @@ export default function EmployeesEdit({ participantId, setActiveComponent }) {
         branch: "",
         phone_number: ""
     });
-    const [loading, setLoading] = useState(false); // State to track loading
+    const [loading, setLoading] = useState(false);
 
     const handleEditParticipant = async () => {
         const token = localStorage.getItem('authToken');

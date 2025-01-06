@@ -14,23 +14,7 @@ export default function SurpriseBonus({ setActiveComponentGift }) {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
 
-    const setLocalStorage = (key, value) => {
-        localStorage.setItem(key, JSON.stringify(value));
-    };
-
-    const getLocalStorage = (key) => {
-        const item = localStorage.getItem(key);
-        if (!item) return null;
-        return JSON.parse(item);
-    };
-
     const getBinary = async () => {
-        const cachedBinary = getLocalStorage('SurpriseBonus');
-        if (cachedBinary) {
-            setBinary(cachedBinary);
-            return;
-        }
-
         const token = localStorage.getItem('authToken');
         try {
             const response = await axios.get(`${API_URL}/api/v1/surprise/bonuses?page=${currentPage}&page_size=${pageCount}`, {
@@ -40,7 +24,6 @@ export default function SurpriseBonus({ setActiveComponentGift }) {
             if (response.data && response.data.participants) {
                 setTotalPages(response.data.total_pages);
                 setBinary(response.data.participants);
-                setLocalStorage('SurpriseBonus', response.data.participants);
             } else {
                 console.error('Ошибка: отсутствуют участники в ответе API');
             }
@@ -86,12 +69,6 @@ export default function SurpriseBonus({ setActiveComponentGift }) {
             await axios.delete(`${API_URL}/api/v1/surprise/bonus/${id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            const cachedBinary = getLocalStorage('SurpriseBonus', 7 * 24 * 60 * 60 * 1000);
-            if (cachedBinary) {
-                const updatedBinary = cachedBinary.filter(item => item.id !== id);
-                setBinary(updatedBinary);
-                setLocalStorage('SurpriseBonus', updatedBinary);
-            }
         } catch (error) {
             console.error('Ошибка при удалении:', error);
         }
@@ -99,14 +76,13 @@ export default function SurpriseBonus({ setActiveComponentGift }) {
 
     const handlePageCountChange = (count) => {
         setPageCount(count);
-        setCurrentPage(1); // Возвращаем на первую страницу при изменении количества элементов на странице
+        setCurrentPage(1);
         getBinary();
     };
 
 
     const handlePageChange = (page) => {
         setCurrentPage(page);
-        setLocalStorage('SurpriseBonus', []); // Сбросить кэш для нового запроса
         getBinary();
     };
 

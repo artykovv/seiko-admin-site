@@ -23,12 +23,6 @@ export default function BinaryCheck() {
     };
 
     const getBinary = async () => {
-        const cachedBinary = localStorage.getItem('binaryData');
-        if (cachedBinary) {
-            setBinary(JSON.parse(cachedBinary));
-            return;
-        }
-
         const token = localStorage.getItem('authToken');
         try {
             const response = await axios.get(`${API_URL}/api/v1/participants/binar&cheque/?page=${currentPage}&page_size=${pageCount}`, {
@@ -38,7 +32,6 @@ export default function BinaryCheck() {
             });
             setBinary(response.data.participants);
             setTotalPages(response.data.total_pages);
-            localStorage.setItem('binaryData', JSON.stringify(response.data.participants));
         } catch (error) {
             console.error("Ошибка загрузки данных:", error);
         }
@@ -68,7 +61,7 @@ export default function BinaryCheck() {
     };
 
     const handleOpenHistory = async (personalNumber) => {
-        const cachedHistory = localStorage.getItem(`participantHistory_${personalNumber}`); // Чтение из localStorage
+        const cachedHistory = localStorage.getItem(`participantInvite_${personalNumber}`); // Чтение из localStorage
         if (cachedHistory) {
             setParticipantHistory(JSON.parse(cachedHistory));
             setIsDetailOpenHistory(true);
@@ -82,7 +75,7 @@ export default function BinaryCheck() {
                     'Authorization': `Bearer ${token}`
                 }
             });
-            localStorage.setItem(`participantHistory_${personalNumber}`, JSON.stringify(response.data.bonuses)); // Запись в localStorage
+            localStorage.setItem(`participantInvite_${personalNumber}`, JSON.stringify(response.data.bonuses)); // Запись в localStorage
             setParticipantHistory(response.data.bonuses);
             setIsDetailOpenHistory(true);
         } catch (error) {

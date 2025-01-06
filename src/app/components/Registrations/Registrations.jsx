@@ -74,7 +74,7 @@ function Registrations({ setActiveComponent }) {
 
   const handleOpenDetail = async (personalNumber) => {
     const token = localStorage.getItem('authToken')
-    const cachedDetail = localStorage.getItem(`participant_${personalNumber}`);
+    const cachedDetail = localStorage.getItem(`participantInvite_${personalNumber}`);
     if (cachedDetail) {
       setParticipantDetail(JSON.parse(cachedDetail));
       setIsDetailOpen(true);
@@ -86,7 +86,7 @@ function Registrations({ setActiveComponent }) {
         'Authorization': `Bearer ${token}`
       }
     });
-    localStorage.setItem(`participant_${personalNumber}`, JSON.stringify(response.data));
+    localStorage.setItem(`participantInvite_${personalNumber}`, JSON.stringify(response.data));
     setParticipantDetail(response.data);
     setIsDetailOpen(true);
   }
