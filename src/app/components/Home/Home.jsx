@@ -135,18 +135,20 @@ function Home() {
             </div>
             <div className={styles.singleTableWrapper}>
                 <div className={styles.tableIn}>
-                    <h3>Итого</h3>
+                    <h3>Бинар</h3>
                     <table className={styles.table} style={{ marginBottom: '50px' }}>
                         <thead>
                             <tr>
+                                <th scope="col">Бинар</th>
                                 <th scope="col">За все время</th>
                                 <th scope="col">За текущий месяц</th>
                             </tr>
                         </thead>
                         <tbody className={styles.homeTbody}>
-                            {data.total.length > 0 && data.total.map((item) => (
+                            {data.binar.length > 0 && data.binar.map((item) => (
                                 <tr key={item.branch_id}>
-                                    <td scope="row">{item.total_amount}</td>
+                                    <td scope="row">{item.branch_name}</td>
+                                    <td>{item.total_amount}</td>
                                     <td>{item.current_month_amount}</td>
                                 </tr>
                             ))}
@@ -163,44 +165,6 @@ function Home() {
                         </thead>
                         <tbody className={styles.homeTbody}>
                             {data.ref.length > 0 && data.ref.map((item) => (
-                                <tr key={item.branch_id}>
-                                    <td scope="row">{item.branch_name}</td>
-                                    <td>{item.total_amount}</td>
-                                    <td>{item.current_month_amount}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                    <h3>Статусные бонусы</h3>
-                    <table className={styles.table} style={{ marginBottom: '50px' }}>
-                        <thead>
-                            <tr>
-                                <th scope="col">Статусные бонусы</th>
-                                <th scope="col">За все время</th>
-                                <th scope="col">За текущий месяц</th>
-                            </tr>
-                        </thead>
-                        <tbody className={styles.homeTbody}>
-                            {data.statusTotal.length > 0 && data.statusTotal.map((item) => (
-                                <tr key={item.branch_id}>
-                                    <td scope="row">{item.branch_name}</td>
-                                    <td>{item.total_amount}</td>
-                                    <td>{item.current_month_amount}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                    <h3>Бинар</h3>
-                    <table className={styles.table} style={{ marginBottom: '50px' }}>
-                        <thead>
-                            <tr>
-                                <th scope="col">Бинар</th>
-                                <th scope="col">За все время</th>
-                                <th scope="col">За текущий месяц</th>
-                            </tr>
-                        </thead>
-                        <tbody className={styles.homeTbody}>
-                            {data.binar.length > 0 && data.binar.map((item) => (
                                 <tr key={item.branch_id}>
                                     <td scope="row">{item.branch_name}</td>
                                     <td>{item.total_amount}</td>
@@ -226,6 +190,25 @@ function Home() {
                             </tr>
                         </tbody>
                     </table>
+                    <h3>Статусные бонусы</h3>
+                    <table className={styles.table} style={{ marginBottom: '50px' }}>
+                        <thead>
+                            <tr>
+                                <th scope="col">Статусные бонусы</th>
+                                <th scope="col">За все время</th>
+                                <th scope="col">За текущий месяц</th>
+                            </tr>
+                        </thead>
+                        <tbody className={styles.homeTbody}>
+                            {data.statusTotal.length > 0 && data.statusTotal.map((item) => (
+                                <tr key={item.branch_id}>
+                                    <td scope="row">{item.branch_name}</td>
+                                    <td>{item.total_amount}</td>
+                                    <td>{item.current_month_amount}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                     <h3>Спонсоркие бонусы</h3>
                     <table className={styles.table} style={{ marginBottom: '50px' }}>
                         <thead>
@@ -240,6 +223,23 @@ function Home() {
                                 <tr key={item.branch_id}>
                                     <td scope="row">{item.branch_name}</td>
                                     <td>{item.total_amount}</td>
+                                    <td>{item.current_month_amount}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                    <h3>Итого</h3>
+                    <table className={styles.table} style={{ marginBottom: '50px' }}>
+                        <thead>
+                            <tr>
+                                <th scope="col">За все время</th>
+                                <th scope="col">За текущий месяц</th>
+                            </tr>
+                        </thead>
+                        <tbody className={styles.homeTbody}>
+                            {data.total.length > 0 && data.total.map((item) => (
+                                <tr key={item.branch_id}>
+                                    <td scope="row">{item.total_amount}</td>
                                     <td>{item.current_month_amount}</td>
                                 </tr>
                             ))}

@@ -12,16 +12,16 @@ import bonus from '@/assets/currency.svg';
 import edit from '@/assets/edit.svg';
 import arrowFilter from '@/assets/arrowdown.webp';
 import agreement from '@/assets/agreement.svg';
+import toast, { Toaster } from 'react-hot-toast';
 
 function Registrations({ setActiveComponent }) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState('Фильтр');
   const [participants, setParticipants] = useState([]);
-  const [pageCount, setPageCount] = useState(20)
+  const pageCountRef = useRef(20);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const searchInputRef = useRef('');
-
 
   const handleSelectChange = (option) => {
     setSelectedOption(option);
@@ -30,24 +30,31 @@ function Registrations({ setActiveComponent }) {
     getRegistrations(option);
   };
 
+  const handlePageCountChange = (event) => {
+    pageCountRef.current = Number(event.target.value);
+    setCurrentPage(1);
+    getRegistrations(selectedOption);
+  };
+
   const handleSearchChange = (event) => {
     searchInputRef.current = event.target.value;
-    if (searchInputRef.current == '') {
-      getRegistrations(selectedOption)
+    if (searchInputRef.current === '') {
+      getRegistrations(selectedOption);
     } else if (searchInputRef.current.length > 0) {
       setCurrentPage(1);
       getRegistrations(searchInputRef);
     }
   };
 
-
   const getRegistrations = useCallback(async (option) => {
     const token = localStorage.getItem('authToken');
-    const url = option === 'Все' || option === 'Фильтр'
-      ? `${API_URL}/api/v1/participants/none/structure?page=${currentPage}&page_size=${pageCount}`
-      : `${API_URL}/api/v1/participants/none/structure?page=${currentPage}&page_size=${pageCount}&paket_names=${option}`;
+    const loadingToast = toast.loading('Загрузка данных...');
 
-    const searchUrl = `${API_URL}/api/v1/search/none/participants?query=${searchInputRef.current}&page=${currentPage}&page_size=${pageCount}`;
+    const url = option === 'Все' || option === 'Фильтр'
+      ? `${API_URL}/api/v1/participants/none/structure?page=${currentPage}&page_size=${pageCountRef.current}`
+      : `${API_URL}/api/v1/participants/none/structure?page=${currentPage}&page_size=${pageCountRef.current}&paket_names=${option}`;
+
+    const searchUrl = `${API_URL}/api/v1/search/none/participants?query=${searchInputRef.current}&page=${currentPage}&page_size=${pageCountRef.current}`;
     if (searchInputRef.current) {
       const response = await axios.get(searchUrl, {
         headers: {
@@ -62,18 +69,18 @@ function Registrations({ setActiveComponent }) {
           'Authorization': `Bearer ${token}`
         }
       });
+
+      toast.success('Данные успешно загружены!', { id: loadingToast });
       setParticipants(response.data.participants || []);
       setTotalPages(response.data.total_pages);
-      localStorage.setItem('registrations', JSON.stringify(response.data || []));
     }
-  }, []);
-
+  }, [currentPage]);
 
   const [participantDetail, setParticipantDetail] = useState(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   const handleOpenDetail = async (personalNumber) => {
-    const token = localStorage.getItem('authToken')
+    const token = localStorage.getItem('authToken');
     const cachedDetail = localStorage.getItem(`participantInvite_${personalNumber}`);
     if (cachedDetail) {
       setParticipantDetail(JSON.parse(cachedDetail));
@@ -89,30 +96,34 @@ function Registrations({ setActiveComponent }) {
     localStorage.setItem(`participantInvite_${personalNumber}`, JSON.stringify(response.data));
     setParticipantDetail(response.data);
     setIsDetailOpen(true);
-  }
+  };
 
   const handleParticipantPage = (name, id) => {
     setActiveComponent({ name, id });
   };
 
-  useEffect(() => {
-    getRegistrations(selectedOption);
-  }, [selectedOption]);
-
-
   const handleDelete = async (id) => {
-    const token = localStorage.getItem('authToken')
+    const token = localStorage.getItem('authToken');
     try {
       await axios.delete(`${API_URL}/api/v1/participants/${id}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      getRegistrations();
+      getRegistrations(selectedOption);
     } catch (error) {
+      console.error(error);
     }
-  }
+  };
+
+  useEffect(() => {
+    getRegistrations(selectedOption);
+  }, [selectedOption, currentPage]);
 
   return (
     <div className={styles.registrationsContainer}>
+      <Toaster
+        position="bottom-left"
+        reverseOrder={false}
+      />
       <div className={styles.tableSection}>
         <div className={styles.tableIn}>
           {isDetailOpen && <div className={styles.detailModal} onClick={() => setIsDetailOpen(false)}>
@@ -121,19 +132,19 @@ function Registrations({ setActiveComponent }) {
                 <h2>Детали участника</h2>
               </div>
               <div className={styles.detailModalBody}>
-                <p> <strong>Персональный номер</strong>: {participantDetail.personal_number}</p>
-                <p> {participantDetail.name} {participantDetail.lastname} {participantDetail.patronymic}</p>
-                <p> <strong>Пакет</strong>: {participantDetail.paket.name} (${participantDetail.paket.price})</p>
-                <p> <strong>Спонсор</strong>: {participantDetail.sponsor ? participantDetail.sponsor.name : 'Не указано'} {participantDetail.sponsor ? participantDetail.sponsor.lastname : 'не указано'}</p>
-                <p> <strong>Наставник</strong>: {participantDetail.mentor ? participantDetail.mentor.name : 'Не указано'} {participantDetail.mentor ? participantDetail.mentor.lastname : 'не указано'}</p>
-                <p> <strong>Логин</strong>: {participantDetail.email}</p>
-                <p> <strong>Личная информация</strong>: {participantDetail.personal_info}</p>
-                <p> <strong>Дата рождения</strong>: {participantDetail.birth_date ? new Date(participantDetail.birth_date).toLocaleDateString() : 'Не указано'}</p>
-                <p> <strong>Телефон</strong>: {participantDetail.phone_number}</p>
-                <p> <strong>Филиал</strong>: {participantDetail.branch.name}</p>
-                <p> <strong>Банк. Номер (Мбанк)</strong>: {participantDetail.bank}</p>
-                <p> <strong>Левый ТО</strong>: {participantDetail.left_volume}</p>
-                <p> <strong>Парвый ТО</strong>: {participantDetail.right_volume}</p>
+                <p><strong>Персональный номер</strong>: {participantDetail.personal_number}</p>
+                <p>{participantDetail.name} {participantDetail.lastname} {participantDetail.patronymic}</p>
+                <p><strong>Пакет</strong>: {participantDetail.paket.name} (${participantDetail.paket.price})</p>
+                <p><strong>Спонсор</strong>: {participantDetail.sponsor ? participantDetail.sponsor.name : 'Не указано'} {participantDetail.sponsor ? participantDetail.sponsor.lastname : 'не указано'}</p>
+                <p><strong>Наставник</strong>: {participantDetail.mentor ? participantDetail.mentor.name : 'Не указано'} {participantDetail.mentor ? participantDetail.mentor.lastname : 'не указано'}</p>
+                <p><strong>Логин</strong>: {participantDetail.email}</p>
+                <p><strong>Личная информация</strong>: {participantDetail.personal_info}</p>
+                <p><strong>Дата рождения</strong>: {participantDetail.birth_date ? new Date(participantDetail.birth_date).toLocaleDateString() : 'Не указано'}</p>
+                <p><strong>Телефон</strong>: {participantDetail.phone_number}</p>
+                <p><strong>Филиал</strong>: {participantDetail.branch.name}</p>
+                <p><strong>Банк. Номер (Мбанк)</strong>: {participantDetail.bank}</p>
+                <p><strong>Левый ТО</strong>: {participantDetail.left_volume}</p>
+                <p><strong>Правый ТО</strong>: {participantDetail.right_volume}</p>
               </div>
               <div className={styles.detailModalFooter}>
                 <button className={styles.closeDetailBtn} onClick={() => setIsDetailOpen(false)}>Закрыть</button>
@@ -213,22 +224,65 @@ function Registrations({ setActiveComponent }) {
             </table>
           </div>
           <div className={styles.pagination}>
-            {Array.from({ length: totalPages }, (_, index) => (
-              <button key={index} onClick={() => handlePageChange(index + 1)} disabled={currentPage === index + 1}>
-                {index + 1}
-              </button>
-            ))}
+            <div className={styles.paginate}>
+              {(() => {
+                const pages = [];
+                const isStart = currentPage <= 4;
+                const isEnd = currentPage >= totalPages - 3;
+
+                pages.push(
+                  <button
+                    key="page_1"
+                    onClick={() => setCurrentPage(1)}
+                    className={currentPage === 1 ? styles.activePage : ''}
+                  >
+                    1
+                  </button>
+                );
+
+                if (!isStart) {
+                  pages.push(<span key="start_ellipsis">...</span>);
+                }
+
+                const startPage = isStart ? 2 : isEnd ? totalPages - 5 : currentPage - 2;
+                const endPage = isEnd ? totalPages - 1 : isStart ? 6 : currentPage + 2;
+
+                for (let page = startPage; page <= endPage; page++) {
+                  pages.push(
+                    <button
+                      key={`page_${page}`}
+                      onClick={() => setCurrentPage(page)}
+                      className={currentPage === page ? styles.activePage : ''}
+                    >
+                      {page}
+                    </button>
+                  );
+                }
+
+                if (!isEnd) {
+                  pages.push(<span key="end_ellipsis">...</span>);
+                }
+
+                if (totalPages > 1) {
+                  pages.push(
+                    <button
+                      key={`page_${totalPages}`}
+                      onClick={() => setCurrentPage(totalPages)}
+                      className={currentPage === totalPages ? styles.activePage : ''}
+                    >
+                      {totalPages}
+                    </button>
+                  );
+                }
+
+                return pages;
+              })()}
+            </div>
             <div className={styles.selectPage}>
-              <select>
-                <option style={pageCount === 20 ? { backgroundColor: '#007BFF' } : {}} onClick={() => setPageCount(20)}>
-                  20
-                </option>
-                <option style={pageCount === 50 ? { backgroundColor: '#007BFF' } : {}} onClick={() => setPageCount(50)}>
-                  50
-                </option>
-                <option style={pageCount === 100 ? { backgroundColor: '#007BFF' } : {}} onClick={() => setPageCount(100)}>
-                  100
-                </option>
+              <select defaultValue={pageCountRef.current} onChange={handlePageCountChange}>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
               </select>
             </div>
           </div>
