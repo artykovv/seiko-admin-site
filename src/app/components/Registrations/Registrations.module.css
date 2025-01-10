@@ -550,7 +550,7 @@
 
 .pagination button:first-child {
     padding: 2px 16px;
-    border-radius: 8px 0px 0px 8px;
+    border-radius: 8px 0px 0px 8px !important;
     border: none;
     background-color: #007bff;
     color: #fff;

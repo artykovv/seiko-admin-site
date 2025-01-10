@@ -4,12 +4,14 @@ import axios from 'axios';
 import { API_URL } from '@/api/api';
 
 export default function StatusAndSponsorship() {
-    const [binaty, setBinary] = useState([]);
+    const [binary, setBinary] = useState([]);
     const [isDetailOpen, setIsDetailOpen] = useState(false);
     const [isDetailOpenHistory, setIsDetailOpenHistory] = useState(false);
     const [participantDetail, setParticipantDetail] = useState(null);
     const [participantHistory, setParticipantHistory] = useState(null);
 
+
+    console.log(binary);
     const getStatusAndSponsor = async () => {
         const token = localStorage.getItem('authToken');
         try {
@@ -149,7 +151,7 @@ export default function StatusAndSponsorship() {
                     </tr>
                 </thead>
                 <tbody>
-                    {binaty.map((item, index) => (
+                    {binary.map((item, index) => (
                         <tr key={index}>
                             <td scope="row">{item.branch?.name || "Неизвестно"}</td>
                             <td className={styles.openDetailBtn} onClick={() => handleOpenDetail(item.id)}>{item.personal_number || "Неизвестно"}</td>
@@ -158,7 +160,9 @@ export default function StatusAndSponsorship() {
                             </td>
                             <td>{item.passport_id || "Неизвестно"}</td>
                             <td>{formatDate(item.register_at)}</td>
-                            <td>{item.bonus_referral || "Неизвестно"}</td>
+                            <td>{item.bonus_status}</td>
+                            <td>{item.bonus_sponsor}</td>
+                            <td>{item.total}</td>
                             <td>{item.ip_inn ? "да" : "нет"}</td>
                             <td>{item.pensioner ? "да" : "нет"}</td>
                             <td className={styles.openDetailBtn} onClick={() => handleOpenHistory(item.id)}>История</td>

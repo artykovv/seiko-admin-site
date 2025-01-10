@@ -48,31 +48,21 @@ function Registrations({ setActiveComponent }) {
 
   const getRegistrations = useCallback(async (option) => {
     const token = localStorage.getItem('authToken');
-    const loadingToast = toast.loading('Загрузка данных...');
+    try {
+      const url = option === 'Все' || option === 'Фильтр'
+        ? `${API_URL}/api/v1/participants/none/structure?page=${currentPage}&page_size=${pageCountRef.current}`
+        : `${API_URL}/api/v1/participants/none/structure?page=${currentPage}&page_size=${pageCountRef.current}&paket_names=${option}`;
 
-    const url = option === 'Все' || option === 'Фильтр'
-      ? `${API_URL}/api/v1/participants/none/structure?page=${currentPage}&page_size=${pageCountRef.current}`
-      : `${API_URL}/api/v1/participants/none/structure?page=${currentPage}&page_size=${pageCountRef.current}&paket_names=${option}`;
+      const searchUrl = `${API_URL}/api/v1/search/none/participants?query=${searchInputRef.current}&page=${currentPage}&page_size=${pageCountRef.current}`;
 
-    const searchUrl = `${API_URL}/api/v1/search/none/participants?query=${searchInputRef.current}&page=${currentPage}&page_size=${pageCountRef.current}`;
-    if (searchInputRef.current) {
-      const response = await axios.get(searchUrl, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = searchInputRef.current
+        ? await axios.get(searchUrl, { headers: { Authorization: `Bearer ${token}` } })
+        : await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
+
       setParticipants(response.data.participants || []);
       setTotalPages(response.data.total_pages);
-    } else {
-      const response = await axios.get(url, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
 
-      toast.success('Данные успешно загружены!', { id: loadingToast });
-      setParticipants(response.data.participants || []);
-      setTotalPages(response.data.total_pages);
+    } catch (error) {
     }
   }, [currentPage]);
 
@@ -98,8 +88,8 @@ function Registrations({ setActiveComponent }) {
     setIsDetailOpen(true);
   };
 
-  const handleParticipantPage = (name, id) => {
-    setActiveComponent({ name, id });
+  const handleParticipantPage = (name, id, sponsorId, paketId) => {
+    setActiveComponent({ name, id, sponsorId, paketId });
   };
 
   const handleDelete = async (id) => {
@@ -109,6 +99,7 @@ function Registrations({ setActiveComponent }) {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       getRegistrations(selectedOption);
+      toast.success('Успешно удалено!')
     } catch (error) {
       console.error(error);
     }
@@ -118,10 +109,12 @@ function Registrations({ setActiveComponent }) {
     getRegistrations(selectedOption);
   }, [selectedOption, currentPage]);
 
+  console.log(participants);
+
   return (
     <div className={styles.registrationsContainer}>
       <Toaster
-        position="bottom-left"
+        position="top-center"
         reverseOrder={false}
       />
       <div className={styles.tableSection}>
@@ -202,7 +195,7 @@ function Registrations({ setActiveComponent }) {
                       <button onClick={() => handleOpenDetail(item.id)} className={styles.btn}>
                         <Image src={agreement} alt='agreement' />
                       </button>
-                      <button className={styles.btn} onClick={() => handleParticipantPage('participantStructureAdd', item.sponsor_id)}>
+                      <button className={styles.btn} onClick={() => handleParticipantPage('participantStructureAdd', item.id, item.sponsor_id, item.paket_id)}>
                         <Image src={add} alt="add" />
                       </button>
                       <button className={styles.btn} onClick={() => handleParticipantPage('RegistrationsInvite', item.id)}>

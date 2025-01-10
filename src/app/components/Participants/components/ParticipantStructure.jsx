@@ -11,6 +11,7 @@ const ParticipantStructure = ({ participantId, setActiveComponent }) => {
     const [isDetailOpen, setIsDetailOpen] = useState(false);
     const [isDetailOpenTwo, setIsDetailOpenTwo] = useState(false);
     const [participantDetailTwo, setParticipantDetailTwo] = useState(null);
+    console.log(state);
 
     const getStructure = async () => {
         const token = localStorage.getItem('authToken');
@@ -127,6 +128,7 @@ const ParticipantStructure = ({ participantId, setActiveComponent }) => {
     const handleBack = (name, id) => {
         setActiveComponent({ name, id });
     };
+    console.log(participantDetail);
 
     return (
         <div className={styles.participantsContainer}>
@@ -149,8 +151,8 @@ const ParticipantStructure = ({ participantId, setActiveComponent }) => {
                                     <p>{participantDetail.personal_number}</p>
                                     <p><strong>Пакет</strong> : {participantDetail.paket.name}</p>
                                     <p><strong>Статус</strong> : {participantDetail.status.name}</p>
-                                    <p><strong>Спонсор</strong> : {participantDetail.sponsor.name} {participantDetail.sponsor.lastname}</p>
-                                    <p><strong>Наставник</strong> : {participantDetail.mentor.name} {participantDetail.mentor.lastname}</p>
+                                    <p> <strong>Спонсор</strong>: {participantDetail.sponsor ? participantDetail.sponsor.name : 'Не указано'} {participantDetail.sponsor ? participantDetail.sponsor.lastname : 'не указано'}</p>
+                                    <p> <strong>Наставник</strong>: {participantDetail.mentor ? participantDetail.mentor.name : 'Не указано'} {participantDetail.mentor ? participantDetail.mentor.lastname : 'не указано'}</p>
                                     <p><strong>Логин</strong> : {participantDetail.email}</p>
                                     <p><strong>Личная информация</strong> : {participantDetail.personal_info}</p>
                                     <p><strong>Дата рождения</strong> : {participantDetail.birth_date}</p>

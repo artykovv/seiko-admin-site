@@ -5,6 +5,7 @@ import { API_URL } from '@/api/api';
 import Image from 'next/image';
 import deletePng from "@/assets/delete.svg";
 import add from '@/assets/add.webp';
+import toast, { Toaster } from 'react-hot-toast';
 
 export default function SurpriseBonus({ setActiveComponentGift }) {
     const [binaty, setBinary] = useState([]);
@@ -34,25 +35,25 @@ export default function SurpriseBonus({ setActiveComponentGift }) {
 
 
     const handleOpenDetail = async (personalNumber) => {
-        const cachedDetail = getLocalStorage(`participantInvite_${personalNumber}`, 7 * 24 * 60 * 60 * 1000); // Кэш на 7 дней
+        const token = localStorage.getItem('authToken');
+        const cachedDetail = localStorage.getItem(`participantInvite_${personalNumber}`);
         if (cachedDetail) {
-            setParticipantDetail(cachedDetail);
+            setParticipantDetail(JSON.parse(cachedDetail));
             setIsDetailOpen(true);
             return;
         }
-
-        const token = localStorage.getItem('authToken');
         try {
             const response = await axios.get(`${API_URL}/api/v1/participants/${personalNumber}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setParticipantDetail(response.data);
-            setLocalStorage(`participantInvite_${personalNumber}`, response.data);
             setIsDetailOpen(true);
+            localStorage.setItem(`participantInvite_${personalNumber}`, JSON.stringify(response.data));
         } catch (error) {
             console.error(error);
         }
     };
+
 
     const formatDate = (dateString) => {
         if (!dateString) return "Неизвестно";
@@ -69,6 +70,8 @@ export default function SurpriseBonus({ setActiveComponentGift }) {
             await axios.delete(`${API_URL}/api/v1/surprise/bonus/${id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
+            getBinary();
+            toast.success('Успешно удалено!')
         } catch (error) {
             console.error('Ошибка при удалении:', error);
         }
@@ -93,6 +96,10 @@ export default function SurpriseBonus({ setActiveComponentGift }) {
 
     return (
         <div>
+            <Toaster
+                position="top-center"
+                reverseOrder={false}
+            />
             <div className={styles.btnsWrapperAdd}>
                 <button className={styles.addBtn} onClick={() => setActiveComponentGift('SurpriseBonusAdd')}>
                     <Image src={add} alt="add" />

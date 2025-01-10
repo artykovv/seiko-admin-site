@@ -32,14 +32,12 @@ import EmployeesBranchesEdit from '../components/Employees/components/EmployeesB
 import EmployeesPermissionsEdit from '../components/Employees/components/EmployeesPermissionsEdit';
 import EmployeesEdit from '../components/Employees/components/EmployeesEdit';
 import EmployeesAdd from '../components/Employees/components/EmployeesAdd';
-import SurpriseBonusAdd from '../components/Gifts/components/SurpriseBonusAdd';
-import SurpriseBonus from '../components/Gifts/components/SurpriseBonus';
 
 
 function Page() {
     const router = useRouter()
     const [permissions, setPermissions] = useState([]);
-    const [activeComponent, setActiveComponent] = useState({ name: 'Главная', id: null });
+    const [activeComponent, setActiveComponent] = useState({ name: 'Главная', id: null, sponsorId: null, paketId: null });
     const [updatedPermissions, setUpdatePermissions] = useState(false)
 
     useEffect(() => {
@@ -120,7 +118,7 @@ function Page() {
             case 'registerStructure':
                 return <Register participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
             case 'participantStructureAdd':
-                return <AddStructure participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
+                return <AddStructure participantId={activeComponent.id} setActiveComponent={setActiveComponent} sponsorId={activeComponent.sponsorId} paketId={activeComponent.paketId} />;
             case 'RegistrationsInvite':
                 return <RegistrationsInvite participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
             case 'RegistrationsBonuses':
