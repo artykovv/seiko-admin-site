@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { API_URL } from '@/api/api';
+import { API } from '@/constants/constants';
 import styles from '../../Participants/Participants.module.css';
 
 export default function RegistrationsEdit({ participantId, setActiveComponent }) {
@@ -67,7 +67,7 @@ export default function RegistrationsEdit({ participantId, setActiveComponent })
     const handleEditParticipant = async () => {
         const token = localStorage.getItem('authToken');
         try {
-            const response = await axios.get(`${API_URL}/api/v1/participants/${participantId}`, {
+            const response = await axios.get(`${API}/api/v1/participants/${participantId}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -81,7 +81,7 @@ export default function RegistrationsEdit({ participantId, setActiveComponent })
     const getBranches = async () => {
         const token = localStorage.getItem('authToken');
         try {
-            const response = await axios.get(`${API_URL}/api/v1/branches`, {
+            const response = await axios.get(`${API}/api/v1/branches`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -95,7 +95,7 @@ export default function RegistrationsEdit({ participantId, setActiveComponent })
     const getPakets = async () => {
         const token = localStorage.getItem('authToken');
         try {
-            const response = await axios.get(`${API_URL}/api/v1/pakets`, {
+            const response = await axios.get(`${API}/api/v1/pakets`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -187,7 +187,7 @@ export default function RegistrationsEdit({ participantId, setActiveComponent })
             }
 
             const response = await axios.put(
-                `${API_URL}/api/v1/participants/${participantId}`,
+                `${API}/api/v1/participants/${participantId}`,
                 submitData,
                 {
                     headers: {

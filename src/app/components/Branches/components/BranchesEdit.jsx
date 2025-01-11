@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styles from '../Branches.module.css';
 import axios from 'axios';
-import { API_URL } from '@/api/api';
+import { API } from '@/constants/constants';
 
 export default function BranchesEdit({ setActiveComponent, participantId }) {
     const [dates, setDates] = useState({
@@ -15,7 +15,7 @@ export default function BranchesEdit({ setActiveComponent, participantId }) {
     const getBranchesID = async () => {
         const token = localStorage.getItem('authToken');
         try {
-            const response = await axios.get(`${API_URL}/api/v1/branches/${participantId}`, {
+            const response = await axios.get(`${API}/api/v1/branches/${participantId}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                 },
@@ -37,7 +37,7 @@ export default function BranchesEdit({ setActiveComponent, participantId }) {
         const token = localStorage.getItem('authToken');
         event.preventDefault();
         try {
-            await axios.put(`${API_URL}/api/v1/branches/${participantId}`, dates,
+            await axios.put(`${API}/api/v1/branches/${participantId}`, dates,
                 {
                     headers: {
                         'Authorization': `Bearer ${token}`,

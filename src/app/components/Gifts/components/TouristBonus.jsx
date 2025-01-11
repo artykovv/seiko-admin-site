@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styles from '../Gifts.module.css';
 import axios from 'axios';
-import { API_URL } from '@/api/api';
+import { API } from '@/constants/constants';
 
 export default function TouristBonus() {
     const [binary, setBinary] = useState([]);
@@ -15,7 +15,7 @@ export default function TouristBonus() {
     const getBinary = async () => {
         const token = localStorage.getItem('authToken');
         try {
-            const response = await axios.get(`${API_URL}/api/v1/tour/bonuses?page=${currentPage}&page_size=${pageCount}`, {
+            const response = await axios.get(`${API}/api/v1/tour/bonuses?page=${currentPage}&page_size=${pageCount}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setBinary(response.data.participants);
@@ -35,7 +35,7 @@ export default function TouristBonus() {
 
         const token = localStorage.getItem('authToken');
         try {
-            const response = await axios.get(`${API_URL}/api/v1/participants/${personalNumber}`, {
+            const response = await axios.get(`${API}/api/v1/participants/${personalNumber}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setParticipantDetail(response.data);

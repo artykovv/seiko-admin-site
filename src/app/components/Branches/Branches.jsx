@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { API_URL } from '@/api/api';
+import { API } from '@/constants/constants';
 
 import styles from './Branches.module.css';
 
@@ -14,7 +14,7 @@ function Branches({ setActiveComponent }) {
   const getBranches = async () => {
     const token = localStorage.getItem('authToken');
     try {
-      const response = await axios.get(`${API_URL}/api/v1/branches`, {
+      const response = await axios.get(`${API}/api/v1/branches`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setBranches(response.data);

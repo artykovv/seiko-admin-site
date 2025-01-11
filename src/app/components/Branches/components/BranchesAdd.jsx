@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styles from '../Branches.module.css';
 import axios from 'axios';
-import { API_URL } from '@/api/api';
+import { API } from '@/constants/constants';
 
 export default function BranchesAdd({ setActiveComponent }) {
     const [dates, setDates] = useState({
@@ -24,7 +24,7 @@ export default function BranchesAdd({ setActiveComponent }) {
         const token = localStorage.getItem('authToken');
         event.preventDefault();
         try {
-            const response = await axios.post(`${API_URL}/api/v1/branches`, dates,
+            const response = await axios.post(`${API}/api/v1/branches`, dates,
                 {
                     headers: {
                         'Authorization': `Bearer ${token}`,

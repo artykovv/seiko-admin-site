@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { API_URL } from '@/api/api';
+import { API } from '@/constants/constants';
 import styles from "../Participants.module.css";
+import toast, { Toaster } from 'react-hot-toast';
 
 const ParticipantStructure = ({ participantId, setActiveComponent }) => {
     const [state, setState] = useState(null);
@@ -11,13 +12,14 @@ const ParticipantStructure = ({ participantId, setActiveComponent }) => {
     const [isDetailOpen, setIsDetailOpen] = useState(false);
     const [isDetailOpenTwo, setIsDetailOpenTwo] = useState(false);
     const [participantDetailTwo, setParticipantDetailTwo] = useState(null);
-    console.log(state);
+    const [resultBinary, setResultBinary] = useState(null);
+    console.log(resultBinary);
 
     const getStructure = async () => {
         const token = localStorage.getItem('authToken');
         try {
             const { data } = await axios.get(
-                `${API_URL}/api/v1/participants/${participantId}/children`,
+                `${API}/api/v1/participants/${participantId}/children`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -37,58 +39,40 @@ const ParticipantStructure = ({ participantId, setActiveComponent }) => {
 
     const handleDetailOne = async (detailStructureId) => {
         const token = localStorage.getItem("authToken");
+        toast.loading('Загрузка...', { duration: 1000, });
         try {
-            const cachedDetail = localStorage.getItem(
-                `structureFirstChild${detailStructureId}`
-            );
-            if (cachedDetail) {
-                setParticipantDetail(JSON.parse(cachedDetail));
-                setIsDetailOpen(true);
-                return;
-            }
-
             const response = await axios.get(
-                `${API_URL}/api/v1/participants/${detailStructureId}`,
+                `${API}/api/v1/participants/${detailStructureId}`,
                 {
                     headers: { Authorization: `Bearer ${token}` },
                 }
             );
-            localStorage.setItem(
-                `structureFirstChild${detailStructureId}`,
-                JSON.stringify(response.data)
-            );
             setParticipantDetail(response.data);
             setIsDetailOpen(true);
         } catch (error) {
+            toast.error('Ошибка при загрузке.', { duration: 2000, })
         }
     };
 
     const handleDetailTwo = async (detailStructureId) => {
         const token = localStorage.getItem("authToken");
+        toast.loading('Загрузка...', { duration: 1000, });
         try {
-            const cachedDetail = localStorage.getItem(
-                `structureFirstChildTwo${detailStructureId}`
-            );
-            if (cachedDetail) {
-                setParticipantDetailTwo(JSON.parse(cachedDetail));
-                setIsDetailOpenTwo(true);
-                return;
-            }
-
+            const result = await axios.get(`${API}/api/v1/binar-bonuse/calculate/${detailStructureId}`,
+                {
+                    headers: { Authorization: `Bearer ${token}` },
+                })
             const response = await axios.get(
-                `${API_URL}/api/v1/participant/${detailStructureId}/turnover/details`,
+                `${API}/api/v1/participant/${detailStructureId}/turnover/details`,
                 {
                     headers: { Authorization: `Bearer ${token}` },
                 }
             );
-            localStorage.setItem(
-                `structureFirstChildTwo${detailStructureId}`,
-                JSON.stringify(response.data)
-            );
+            setResultBinary(result.data)
             setParticipantDetailTwo(response.data);
             setIsDetailOpenTwo(true);
         } catch (error) {
-            setIsDetailOpenTwo(true);
+            toast.error('Ошибка при загрузке.', { duration: 2000, })
         }
     };
 
@@ -128,10 +112,13 @@ const ParticipantStructure = ({ participantId, setActiveComponent }) => {
     const handleBack = (name, id) => {
         setActiveComponent({ name, id });
     };
-    console.log(participantDetail);
 
     return (
         <div className={styles.participantsContainer}>
+            <Toaster
+                position="top-center"
+                reverseOrder={false}
+            />
             <div className={styles.tableSection}>
                 <div className={styles.tableIn}>
                     {isDetailOpen && (
@@ -188,13 +175,14 @@ const ParticipantStructure = ({ participantId, setActiveComponent }) => {
                                 <div className={styles.detailModalBody}>
                                     <p><strong>Статус</strong> : {participantDetailTwo.paket}</p>
                                     <p>Количество участников</p>
-                                    <p><strong>Левый ветка</strong> : {participantDetailTwo.left_volume}</p>
-                                    <p><strong>Парвый ветка</strong> : {participantDetailTwo.right_volume}</p>
-                                    <p>Общий ТО</p>
                                     <p><strong>Левый ветка</strong> : {participantDetailTwo.descendants.left_descendants}</p>
                                     <p><strong>Парвый ветка</strong> : {participantDetailTwo.descendants.right_descendants}</p>
+                                    <p>Общий ТО</p>
+                                    <p><strong>Левый ветка</strong> : {participantDetailTwo.left_volume}</p>
+                                    <p><strong>Парвый ветка</strong> : {participantDetailTwo.right_volume}</p>
                                     <p><strong>Количество личников</strong> : {participantDetailTwo.sponsored}</p>
-                                    <p><strong>Бонус за бинар</strong> : {participantDetailTwo.bonus_binar}</p>
+                                    <p><strong>Бонус за бинар на данный момент</strong> : {resultBinary.binar.bonus}</p>
+                                    <p><strong>Бонус за чек от чека на данный момент</strong> : {resultBinary.cheque.total_bonus}</p>
                                 </div>
                                 <div className={styles.detailModalFooter}>
                                     <button

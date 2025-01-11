@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styles from '../../Registrations/Registrations.module.css';
 import axios from 'axios';
-import { API_URL } from '@/api/api';
+import { API } from '@/constants/constants';
 
 export default function EmployeesAdd({ setActiveComponent }) {
     const [data, setData] = useState({
@@ -42,7 +42,7 @@ export default function EmployeesAdd({ setActiveComponent }) {
         }
 
         try {
-            const response = await axios.post(`${API_URL}/auth/register`, data);
+            const response = await axios.post(`${API}/auth/register`, data);
             handleBack('Сотрудники');
         } catch (error) {
             setError(error.response?.data?.message || 'Произошла ошибка при регистрации');

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import styles from '../Registrations.module.css'
 import axios from 'axios';
-import { API_URL } from '@/api/api';
+import { API } from '@/constants/constants';
 
 export default function AddStructure({ setActiveComponent, participantId, sponsorId, paketId }) {
     const [errorMessage, setErrorMessage] = useState('')
@@ -72,7 +72,7 @@ export default function AddStructure({ setActiveComponent, participantId, sponso
     const getFreePositions = async () => {
         const token = localStorage.getItem('authToken');
         try {
-            const response = await axios.get(`${API_URL}/api/v1/participants/find_free_positions/${sponsorId}`, {
+            const response = await axios.get(`${API}/api/v1/participants/find_free_positions/${sponsorId}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -89,7 +89,7 @@ export default function AddStructure({ setActiveComponent, participantId, sponso
         const token = localStorage.getItem('authToken');
         event.preventDefault();
         try {
-            const response = await axios.put(`${API_URL}/api/v1/participant/add/structure`, data, {
+            const response = await axios.put(`${API}/api/v1/participant/add/structure`, data, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -110,7 +110,7 @@ export default function AddStructure({ setActiveComponent, participantId, sponso
     const getPakets = async () => {
         const token = localStorage.getItem('authToken');
         try {
-            const response = await axios.get(`${API_URL}/api/v1/pakets`, {
+            const response = await axios.get(`${API}/api/v1/pakets`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

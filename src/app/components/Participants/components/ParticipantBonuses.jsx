@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import axios from 'axios';
-import { API_URL } from '@/api/api';
+import { API } from '@/constants/constants';
 import styles from '../Participants.module.css';
 import Loading from '@/components/Loading';
 
@@ -15,7 +15,7 @@ export default function ParticipantBonuses({ participantId, setActiveComponent }
         if (cachedBonuses) {
             setBonuses(JSON.parse(cachedBonuses));
         } else {
-            const response = await axios.get(`${API_URL}/api/v1/${participantId}/bonuses_summary`, {
+            const response = await axios.get(`${API}/api/v1/${participantId}/bonuses_summary`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -33,7 +33,7 @@ export default function ParticipantBonuses({ participantId, setActiveComponent }
             setBonusHistory(JSON.parse(cachedHistory));
             setIsHistoryOpen(true);
         } else {
-            const response = await axios.get(`${API_URL}/api/v1/participants/bonuses/history/${participantId}`, {
+            const response = await axios.get(`${API}/api/v1/participants/bonuses/history/${participantId}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

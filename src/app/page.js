@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import axios from 'axios';
 
 import styles from './page.module.css'
-import { API_URL } from '@/api/api';
+import { API } from '@/constants/constants';
 
 export default function Page() {
   const router = useRouter()
@@ -28,7 +28,7 @@ export default function Page() {
       params.append('username', username);
       params.append('password', password);
 
-      const response = await axios.post(`${API_URL}/auth/jwt/login`, params, {
+      const response = await axios.post(`${API}/auth/jwt/login`, params, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },

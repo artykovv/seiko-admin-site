@@ -1,7 +1,7 @@
 'use client'
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
-import { API_URL } from '@/api/api';
+import { API } from '@/constants/constants';
 import styles from '../Participants.module.css';
 
 export default function ParticipantEdit({ participantId, setActiveComponent }) {
@@ -22,10 +22,63 @@ export default function ParticipantEdit({ participantId, setActiveComponent }) {
         pensioner: null,
         number: '',
         branch: { id: '' },
-        paket: { id: '' }
+        paket: { id: '' },
+        sponsor: null
     });
+    console.log(participant);
+
     const [branches, setBranches] = useState([]);
-    const [pakets, setPakets] = useState([]);
+
+    const [searchResults, setSearchResults] = useState([]);
+    const searchInputRef = useRef();
+
+    const handleSearch = async () => {
+        const token = localStorage.getItem('authToken');
+        const query = searchInputRef.current?.value;
+        if (!query) return;
+
+        try {
+            const response = await axios.get(`${API}/api/v1/search/participants?query=${query}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            console.log(response.data.participants || []);
+            setSearchResults(response.data.participants || []);
+        } catch (error) {
+            console.error('Ошибка поиска:', error);
+        }
+    };
+
+    const selectSponsor = (sponsor) => {
+        setParticipant((prev) => ({
+            ...prev,
+            sponsor
+        }));
+        if (searchInputRef.current) {
+            searchInputRef.current.value = `${sponsor.name || ''} ${sponsor.lastname || ''} ${sponsor.patronymic || ''} (${sponsor.personal_number || ''})`.trim();
+        }
+        setSearchResults([]);
+    };
+
+    const handleEditParticipant = async () => {
+        const token = localStorage.getItem('authToken');
+        try {
+            const response = await axios.get(`${API}/api/v1/participants/${participantId}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            const participantData = response.data;
+            setParticipant(participantData);
+
+            if (participantData.sponsor && searchInputRef.current) {
+                searchInputRef.current.value = `${participantData.sponsor.name || ''} ${participantData.sponsor.lastname || ''} ${participantData.sponsor.patronymic || ''} (${participantData.sponsor.personal_number || ''})`.trim();
+            }
+        } catch (error) {
+            console.error('Ошибка загрузки участника:', error);
+        }
+    };
 
     const handleChange = (field, value) => {
         if (field === 'branch_id') {
@@ -64,24 +117,10 @@ export default function ParticipantEdit({ participantId, setActiveComponent }) {
         handleChange(field, date.toISOString());
     };
 
-    const handleEditParticipant = async () => {
-        const token = localStorage.getItem('authToken');
-        try {
-            const response = await axios.get(`${API_URL}/api/v1/participants/${participantId}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            setParticipant(response.data);
-        } catch (error) {
-        }
-    };
-
-
     const getBranches = async () => {
         const token = localStorage.getItem('authToken');
         try {
-            const response = await axios.get(`${API_URL}/api/v1/branches`, {
+            const response = await axios.get(`${API}/api/v1/branches`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -90,29 +129,6 @@ export default function ParticipantEdit({ participantId, setActiveComponent }) {
         } catch (error) {
         }
     };
-
-
-    const getPakets = async () => {
-        const token = localStorage.getItem('authToken');
-        try {
-            const response = await axios.get(`${API_URL}/api/v1/pakets`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            setPakets(response.data);
-        } catch (error) {
-        }
-    };
-
-
-    useEffect(() => {
-        if (participantId) {
-            handleEditParticipant();
-            getBranches();
-            getPakets();
-        }
-    }, [participantId]);
 
     const validateForm = () => {
         const requiredFields = [
@@ -144,7 +160,10 @@ export default function ParticipantEdit({ participantId, setActiveComponent }) {
     const handleSubmit = async (event) => {
         event.preventDefault();
         const token = localStorage.getItem('authToken');
-        if (!validateForm()) return;
+        if (!validateForm()) {
+            console.error('Форма не прошла валидацию.');
+            return;
+        }
 
         try {
             const formatDate = (dateString) => {
@@ -153,7 +172,6 @@ export default function ParticipantEdit({ participantId, setActiveComponent }) {
                 return date.toISOString().split('T')[0];
             };
 
-            // Преобразуем значения в строгие булевы значения
             const booleanValue = (value) => {
                 if (value === true || value === 'true' || value === 1) return true;
                 return false;
@@ -173,22 +191,21 @@ export default function ParticipantEdit({ participantId, setActiveComponent }) {
                 passport_issuer: participant.passport_issuer,
                 passport_issue_date: formatDate(participant.passport_issue_date),
                 bank: participant.bank || null,
-                // Преобразуем в строгие булевы зачения
                 ip_inn: booleanValue(participant.ip_inn),
                 pensioner: booleanValue(participant.pensioner),
                 paket_id: parseInt(participant.paket?.id),
                 branch_id: parseInt(participant.branch?.id),
-                code: participant.code || null
+                code: participant.code || null,
+                sponsor_id: participant.sponsor?.id // Отправляем ID спонсора
             };
 
-            // Добавляем пароль только если он был введен
             if (participant.password) {
                 submitData.password = participant.password;
                 submitData.password_confirmation = participant.password_confirmation;
             }
 
             const response = await axios.put(
-                `${API_URL}/api/v1/participants/${participantId}`,
+                `${API}/api/v1/participants/${participantId}`,
                 submitData,
                 {
                     headers: {
@@ -199,15 +216,26 @@ export default function ParticipantEdit({ participantId, setActiveComponent }) {
             );
 
             if (response.status === 200) {
-                handleBack('Участники');
+                handleBack('Участники', true);
             }
         } catch (error) {
+            console.log(error);
+
         }
     };
 
     const handleBack = (name, id) => {
         setActiveComponent({ name, id });
     };
+
+    useEffect(() => {
+        if (participantId) {
+            handleEditParticipant();
+            getBranches();
+        }
+
+    }, [participantId]);
+
 
     return (
         <div className={styles.participantsContainer}>
@@ -216,6 +244,30 @@ export default function ParticipantEdit({ participantId, setActiveComponent }) {
                 onSubmit={handleSubmit}
             >
                 <div className={styles.formBlock}>
+
+                    <div className={styles.formRow}>
+                        <label>Поиск спонсора</label>
+                        <input
+                            type="text"
+                            ref={searchInputRef}
+                            placeholder="Введите имя, фамилию или номер"
+                            onChange={handleSearch}
+                        />
+                    </div>
+                    {searchResults.length > 0 && (
+                        <div className={styles.searchResults}>
+                            {searchResults.map((item) => (
+                                <div
+                                    key={item.id}
+                                    className={styles.searchResultItem}
+                                    onClick={() => selectSponsor(item)}
+                                >
+                                    <span> {`${item.name || ''} ${item.lastname || ''}  ${item.patronymic || ''}  (${item.personal_number || ''})`}</span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
                     <div className={styles.formRow}>
                         <label>Филиал</label>
                         <select
@@ -241,15 +293,11 @@ export default function ParticipantEdit({ participantId, setActiveComponent }) {
 
                     <div className={styles.formRow}>
                         <label>Пакет</label>
-                        <select
-                            value={participant?.paket?.id || ''}
-                            onChange={(e) => handleChange('paket_id', e.target.value)}
-                        >
-                            <option value="">Выберите пакет</option>
-                            {pakets.map(paket => (
-                                <option key={paket.id} value={paket.id}>{paket.name}</option>
-                            ))}
-                        </select>
+                        <input
+                            type="text"
+                            value={participant?.paket?.name || ''}
+                            disabled
+                        />
                     </div>
                 </div>
 
@@ -303,6 +351,7 @@ export default function ParticipantEdit({ participantId, setActiveComponent }) {
                             type="password"
                             id="password"
                             name="password"
+                            placeholder="Оставте пустым для сохранения старого пароля"
                             autoComplete="new-password"
                             onChange={(e) => handleChange('password', e.target.value)}
                         />

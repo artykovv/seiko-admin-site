@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import styles from '../Bonuses.module.css';
 import axios from 'axios';
-import { API_URL } from '@/api/api';
+import { API } from '@/constants/constants';
 
 export default function BinaryCheck() {
     const [binaty, setBinary] = useState([]);
@@ -25,7 +25,7 @@ export default function BinaryCheck() {
     const getBinary = async () => {
         const token = localStorage.getItem('authToken');
         try {
-            const response = await axios.get(`${API_URL}/api/v1/participants/binar&cheque/?page=${currentPage}&page_size=${pageCount}`, {
+            const response = await axios.get(`${API}/api/v1/participants/binar&cheque/?page=${currentPage}&page_size=${pageCount}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -47,7 +47,7 @@ export default function BinaryCheck() {
 
         const token = localStorage.getItem('authToken');
         try {
-            const response = await axios.get(`${API_URL}/api/v1/participants/${personalNumber}`, {
+            const response = await axios.get(`${API}/api/v1/participants/${personalNumber}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -70,7 +70,7 @@ export default function BinaryCheck() {
 
         const token = localStorage.getItem('authToken');
         try {
-            const response = await axios.get(`${API_URL}/api/v1/participants/bonuses/history/${personalNumber}/binary_cheque_bonuses`, {
+            const response = await axios.get(`${API}/api/v1/participants/bonuses/history/${personalNumber}/binary_cheque_bonuses`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

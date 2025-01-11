@@ -381,16 +381,11 @@
     padding: 5px;
 }
 
-
-
 .openDetailBtn {
     border: none;
     outline: none;
     color: #007BFF;
     cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     background-color: transparent;
 }
 

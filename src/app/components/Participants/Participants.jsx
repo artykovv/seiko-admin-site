@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import styles from './Participants.module.css';
 
 import arrowFilter from '@/assets/arrowdown.webp';
@@ -11,18 +11,18 @@ import agreement from '@/assets/agreement.svg';
 
 import Image from 'next/image';
 import axios from 'axios';
-import { API_URL } from '@/api/api';
+import { API } from '@/constants/constants';
 
 import toast, { Toaster } from 'react-hot-toast';
 
 function Participants({ setActiveComponent }) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState('Фильтр');
+  const [participants, setParticipants] = useState([]);
+  const pageCountRef = useRef(20);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const searchInputRef = useRef('');
-  const [participants, setParticipants] = useState([]);
-  const [pageCount, setPageCount] = useState(20);
 
   const handleSelectChange = (option) => {
     setSelectedOption(option);
@@ -35,9 +35,10 @@ function Participants({ setActiveComponent }) {
     setActiveComponent({ name, id });
   };
 
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-    getParticipants();
+  const handlePageCountChange = (event) => {
+    pageCountRef.current = Number(event.target.value);
+    setCurrentPage(1);
+    getParticipants(selectedOption);
   };
 
   const handleSearchChange = (event) => {
@@ -50,43 +51,37 @@ function Participants({ setActiveComponent }) {
     }
   };
 
-  const getParticipants = async (option) => {
-    const token = localStorage.getItem('authToken'); // Чтение токена из localStorage
-    const url = option === 'Все' || option === 'Фильтр'
-      ? `${API_URL}/api/v1/participants/in/structure?page=${currentPage}&page_size=${pageCount}`
-      : `${API_URL}/api/v1/participants/in/structure?page=${currentPage}&page_size=${pageCount}&paket_names=${option}`;
+  const getParticipants = useCallback(async (option) => {
+    const token = localStorage.getItem('authToken');
+    try {
+      const url = option === 'Все' || option === 'Фильтр'
+        ? `${API}/api/v1/participants/in/structure?page=${currentPage}&page_size=${pageCountRef.current}`
+        : `${API}/api/v1/participants/in/structure?page=${currentPage}&page_size=${pageCountRef.current}&paket_names=${option}`;
 
-    const searchUrl = `${API_URL}/api/v1/search/participants?query=${searchInputRef.current}&page=${currentPage}&page_size=${pageCount}`;
-    if (searchInputRef.current) {
-      const response = await axios.get(searchUrl, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      const searchUrl = `${API}/api/v1/search/participants?query=${searchInputRef.current}&page=${currentPage}&page_size=${pageCountRef.current}`;
+
+      const response = searchInputRef.current
+        ? await axios.get(searchUrl, { headers: { Authorization: `Bearer ${token}` } })
+        : await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
+
       setParticipants(response.data.participants || []);
       setTotalPages(response.data.total_pages);
-    } else {
-      const response = await axios.get(url, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-      setParticipants(response.data.participants || []);
-      setTotalPages(response.data.total_pages);
+
+    } catch (error) {
     }
-  };
+  }, [currentPage]);
 
   useEffect(() => {
     getParticipants(selectedOption);
-  }, [selectedOption]);
+  }, [selectedOption, currentPage]);
 
   //! Модальное окно
   const [participantDetail, setParticipantDetail] = useState(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   const handleOpenDetail = async (personalNumber) => {
-    const token = localStorage.getItem('authToken'); // Чтение токена из localStorage
-    const cachedDetail = localStorage.getItem(`participantInvite_${personalNumber}`); // Загружаем данные из localStorage
+    const token = localStorage.getItem('authToken');
+    const cachedDetail = localStorage.getItem(`participantInvite_${personalNumber}`);
 
     let toastId;
     if (!cachedDetail) {
@@ -104,7 +99,7 @@ function Participants({ setActiveComponent }) {
       return;
     }
 
-    const response = await axios.get(`${API_URL}/api/v1/participants/${personalNumber}`, {
+    const response = await axios.get(`${API}/api/v1/participants/${personalNumber}`, {
       headers: {
         'Authorization': `Bearer ${token}`,
       },
@@ -120,8 +115,6 @@ function Participants({ setActiveComponent }) {
     <div className={styles.participantsContainer}>
       <div className={styles.tableSection}>
         <div className={styles.tableIn}>
-          <Toaster />
-
           {isDetailOpen && <div className={styles.detailModal} onClick={() => setIsDetailOpen(false)}>
             <div className={styles.detailModalContent} onClick={(e) => e.stopPropagation()}>
               <div className={styles.detailModalHeader}>
@@ -211,22 +204,65 @@ function Participants({ setActiveComponent }) {
             </table>
           </div>
           <div className={styles.pagination}>
-            {Array.from({ length: totalPages }, (_, index) => (
-              <button key={index} onClick={() => handlePageChange(index + 1)} disabled={currentPage === index + 1}>
-                {index + 1}
-              </button>
-            ))}
+            <div className={styles.paginate}>
+              {(() => {
+                const pages = [];
+                const isStart = currentPage <= 4;
+                const isEnd = currentPage >= totalPages - 3;
+
+                pages.push(
+                  <button
+                    key="page_1"
+                    onClick={() => setCurrentPage(1)}
+                    className={currentPage === 1 ? styles.activePage : ''}
+                  >
+                    1
+                  </button>
+                );
+
+                if (!isStart) {
+                  pages.push(<span key="start_ellipsis">...</span>);
+                }
+
+                const startPage = isStart ? 2 : isEnd ? totalPages - 5 : currentPage - 2;
+                const endPage = isEnd ? totalPages - 1 : isStart ? 6 : currentPage + 2;
+
+                for (let page = startPage; page <= endPage; page++) {
+                  pages.push(
+                    <button
+                      key={`page_${page}`}
+                      onClick={() => setCurrentPage(page)}
+                      className={currentPage === page ? styles.activePage : ''}
+                    >
+                      {page}
+                    </button>
+                  );
+                }
+
+                if (!isEnd) {
+                  pages.push(<span key="end_ellipsis">...</span>);
+                }
+
+                if (totalPages > 1) {
+                  pages.push(
+                    <button
+                      key={`page_${totalPages}`}
+                      onClick={() => setCurrentPage(totalPages)}
+                      className={currentPage === totalPages ? styles.activePage : ''}
+                    >
+                      {totalPages}
+                    </button>
+                  );
+                }
+
+                return pages;
+              })()}
+            </div>
             <div className={styles.selectPage}>
-              <select>
-                <option style={pageCount === 20 ? { backgroundColor: '#007BFF' } : {}} onClick={() => setPageCount(20)}>
-                  20
-                </option>
-                <option style={pageCount === 50 ? { backgroundColor: '#007BFF' } : {}} onClick={() => setPageCount(50)}>
-                  50
-                </option>
-                <option style={pageCount === 100 ? { backgroundColor: '#007BFF' } : {}} onClick={() => setPageCount(100)}>
-                  100
-                </option>
+              <select defaultValue={pageCountRef.current} onChange={handlePageCountChange}>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
               </select>
             </div>
           </div>

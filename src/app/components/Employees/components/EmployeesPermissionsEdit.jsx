@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import styles from "../Employees.module.css";
 import axios from 'axios';
-import { API_URL } from '@/api/api';
+import { API } from '@/constants/constants';
 
 export default function EmployeesPermissionsEdit({ participantId, setActiveComponent, setUpdatePermissions }) {
     const [userInfo, setUserInfo] = useState({});
@@ -15,13 +15,13 @@ export default function EmployeesPermissionsEdit({ participantId, setActiveCompo
     const getPermissions = useCallback(async () => {
         const token = localStorage.getItem('authToken');
         try {
-            const userInfoResponse = await axios.get(`${API_URL}/users/${participantId}`, {
+            const userInfoResponse = await axios.get(`${API}/users/${participantId}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                 },
             });
 
-            const permissionsResponse = await axios.get(`${API_URL}/permissions`, {
+            const permissionsResponse = await axios.get(`${API}/permissions`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                 },
@@ -51,7 +51,7 @@ export default function EmployeesPermissionsEdit({ participantId, setActiveCompo
         });
 
         try {
-            const url = `${API_URL}/users/${participantId}/permissions/${id}`;
+            const url = `${API}/users/${participantId}/permissions/${id}`;
             if (isChecked) {
                 await axios.post(url, {}, {
                     headers: {

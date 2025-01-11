@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import styles from "../Employees.module.css";
 import axios from 'axios';
-import { API_URL } from '@/api/api';
+import { API } from '@/constants/constants';
 
 export default function EmployeesBranchesEdit({ participantId, setActiveComponent }) {
     const [userInfo, setUserInfo] = useState({});
@@ -15,13 +15,13 @@ export default function EmployeesBranchesEdit({ participantId, setActiveComponen
     const getPermissions = useCallback(async () => {
         const token = localStorage.getItem('authToken');
         try {
-            const userInfoResponse = await axios.get(`${API_URL}/users/${participantId}`, {
+            const userInfoResponse = await axios.get(`${API}/users/${participantId}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                 },
             });
 
-            const permissionsResponse = await axios.get(`${API_URL}/api/v1/branches`, {
+            const permissionsResponse = await axios.get(`${API}/api/v1/branches`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                 },
@@ -50,7 +50,7 @@ export default function EmployeesBranchesEdit({ participantId, setActiveComponen
         });
 
         try {
-            const url = `${API_URL}/users/${participantId}/branch/${id}`;
+            const url = `${API}/users/${participantId}/branch/${id}`;
             if (isChecked) {
                 await axios.post(url, {}, {
                     headers: {

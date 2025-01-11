@@ -9,7 +9,7 @@ import deletePng from '@/assets/delete.svg';
 
 import Image from 'next/image';
 import axios from 'axios';
-import { API_URL } from '@/api/api';
+import { API } from '@/constants/constants';
 
 function Employees({ setActiveComponent }) {
   const [users, setUsers] = useState([]);
@@ -18,7 +18,7 @@ function Employees({ setActiveComponent }) {
   const getEmployees = async () => {
     const token = localStorage.getItem('authToken');
     try {
-      const response = await axios.get(`${API_URL}/users`, {
+      const response = await axios.get(`${API}/users`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsers(response.data);
@@ -38,7 +38,7 @@ function Employees({ setActiveComponent }) {
   const handleDelete = async (id) => {
     const token = localStorage.getItem('authToken');
     try {
-      await axios.delete(`${API_URL}/users/${id}`, {
+      await axios.delete(`${API}/users/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsers((prevUsers) => prevUsers.filter((user) => user.id !== id));

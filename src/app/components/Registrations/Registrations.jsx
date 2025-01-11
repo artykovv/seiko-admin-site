@@ -2,7 +2,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import styles from './Registrations.module.css';
 import Image from 'next/image';
-import { API_URL } from '@/api/api';
+import { API } from '@/constants/constants';
 import axios from 'axios';
 
 import deletePng from "@/assets/delete.svg";
@@ -50,10 +50,10 @@ function Registrations({ setActiveComponent }) {
     const token = localStorage.getItem('authToken');
     try {
       const url = option === 'Все' || option === 'Фильтр'
-        ? `${API_URL}/api/v1/participants/none/structure?page=${currentPage}&page_size=${pageCountRef.current}`
-        : `${API_URL}/api/v1/participants/none/structure?page=${currentPage}&page_size=${pageCountRef.current}&paket_names=${option}`;
+        ? `${API}/api/v1/participants/none/structure?page=${currentPage}&page_size=${pageCountRef.current}`
+        : `${API}/api/v1/participants/none/structure?page=${currentPage}&page_size=${pageCountRef.current}&paket_names=${option}`;
 
-      const searchUrl = `${API_URL}/api/v1/search/none/participants?query=${searchInputRef.current}&page=${currentPage}&page_size=${pageCountRef.current}`;
+      const searchUrl = `${API}/api/v1/search/none/participants?query=${searchInputRef.current}&page=${currentPage}&page_size=${pageCountRef.current}`;
 
       const response = searchInputRef.current
         ? await axios.get(searchUrl, { headers: { Authorization: `Bearer ${token}` } })
@@ -78,7 +78,7 @@ function Registrations({ setActiveComponent }) {
       return;
     }
 
-    const response = await axios.get(`${API_URL}/api/v1/participants/${personalNumber}`, {
+    const response = await axios.get(`${API}/api/v1/participants/${personalNumber}`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -95,7 +95,7 @@ function Registrations({ setActiveComponent }) {
   const handleDelete = async (id) => {
     const token = localStorage.getItem('authToken');
     try {
-      await axios.delete(`${API_URL}/api/v1/participants/${id}`, {
+      await axios.delete(`${API}/api/v1/participants/${id}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       getRegistrations(selectedOption);
@@ -108,8 +108,6 @@ function Registrations({ setActiveComponent }) {
   useEffect(() => {
     getRegistrations(selectedOption);
   }, [selectedOption, currentPage]);
-
-  console.log(participants);
 
   return (
     <div className={styles.registrationsContainer}>

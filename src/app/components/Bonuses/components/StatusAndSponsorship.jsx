@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styles from '../Bonuses.module.css';
 import axios from 'axios';
-import { API_URL } from '@/api/api';
+import { API } from '@/constants/constants';
 
 export default function StatusAndSponsorship() {
     const [binary, setBinary] = useState([]);
@@ -15,7 +15,7 @@ export default function StatusAndSponsorship() {
     const getStatusAndSponsor = async () => {
         const token = localStorage.getItem('authToken');
         try {
-            const response = await axios.get(`${API_URL}/api/v1/participants/status&sponsor/?page=1&page_size=20`, {
+            const response = await axios.get(`${API}/api/v1/participants/status&sponsor/?page=1&page_size=20`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -46,7 +46,7 @@ export default function StatusAndSponsorship() {
 
         const token = localStorage.getItem('authToken');
         try {
-            const response = await axios.get(`${API_URL}/api/v1/participants/${personalNumber}`, {
+            const response = await axios.get(`${API}/api/v1/participants/${personalNumber}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -70,7 +70,7 @@ export default function StatusAndSponsorship() {
         const token = localStorage.getItem('authToken');
         try {
             const response = await axios.get(
-                `${API_URL}/api/v1/participants/bonuses/history/${personalNumber}/ref_bonus`,
+                `${API}/api/v1/participants/bonuses/history/${personalNumber}/ref_bonus`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,

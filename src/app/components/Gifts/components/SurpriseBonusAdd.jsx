@@ -5,7 +5,7 @@ import arrowFilter from '@/assets/arrowdown.webp';
 
 import Image from 'next/image';
 import axios from 'axios';
-import { API_URL } from '@/api/api';
+import { API } from '@/constants/constants';
 
 import toast, { Toaster } from 'react-hot-toast';
 
@@ -43,10 +43,10 @@ export default function SurpriseBonusAdd({ setActiveComponentGift }) {
     const getParticipants = async (option) => {
         const token = localStorage.getItem('authToken'); // Чтение токена из localStorage
         const url = option === 'Все' || option === 'Фильтр'
-            ? `${API_URL}/api/v1/participants/for/surprise/bonuses?page=${currentPage}&page_size=${pageCount}`
-            : `${API_URL}/api/v1/participants/for/surprise/bonuses?page=${currentPage}&page_size=${pageCount}&paket_names=${option}`;
+            ? `${API}/api/v1/participants/for/surprise/bonuses?page=${currentPage}&page_size=${pageCount}`
+            : `${API}/api/v1/participants/for/surprise/bonuses?page=${currentPage}&page_size=${pageCount}&paket_names=${option}`;
 
-        const searchUrl = `${API_URL}/api/v1/search/participants?query=${searchInputRef.current}&page=${currentPage}&page_size=${pageCount}`;
+        const searchUrl = `${API}/api/v1/search/participants?query=${searchInputRef.current}&page=${currentPage}&page_size=${pageCount}`;
         if (searchInputRef.current) {
             const response = await axios.get(searchUrl, {
                 headers: {
@@ -94,7 +94,7 @@ export default function SurpriseBonusAdd({ setActiveComponentGift }) {
             return;
         }
 
-        const response = await axios.get(`${API_URL}/api/v1/participants/${personalNumber}`, {
+        const response = await axios.get(`${API}/api/v1/participants/${personalNumber}`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
             },
@@ -110,7 +110,7 @@ export default function SurpriseBonusAdd({ setActiveComponentGift }) {
         const token = localStorage.getItem('authToken');
         try {
             await axios.post(
-                `${API_URL}/api/v1/add/surprise/bonus/${id}`,
+                `${API}/api/v1/add/surprise/bonus/${id}`,
                 {},
                 {
                     headers: {

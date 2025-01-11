@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation'
 import axios from 'axios';
 
-import { API_URL } from '@/api/api';
+import { API } from '@/constants/constants';
 
 function Header() {
     const [userName, setUserName] = useState('')
@@ -27,7 +27,7 @@ function Header() {
     const getUserName = async () => {
         const token = localStorage.getItem('authToken');
         try {
-            const response = await axios.get(`${API_URL}/users/me`, {
+            const response = await axios.get(`${API}/users/me`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 
 import styles from './page.module.css';
-import { API_URL } from '@/api/api';
+import { API } from '@/constants/constants';
 
 import Home from '../components/Home/Home';
 import Header from '@/components/Header';
@@ -32,6 +32,7 @@ import EmployeesBranchesEdit from '../components/Employees/components/EmployeesB
 import EmployeesPermissionsEdit from '../components/Employees/components/EmployeesPermissionsEdit';
 import EmployeesEdit from '../components/Employees/components/EmployeesEdit';
 import EmployeesAdd from '../components/Employees/components/EmployeesAdd';
+import toast, { Toaster } from 'react-hot-toast';
 
 
 function Page() {
@@ -52,7 +53,7 @@ function Page() {
 
         const validateToken = async () => {
             try {
-                await axios.get(`${API_URL}/auth/validate-token`, {
+                await axios.get(`${API}/auth/validate-token`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -75,7 +76,7 @@ function Page() {
         const token = localStorage.getItem('authToken');
 
         try {
-            const response = await axios.get(`${API_URL}/users/me`, {
+            const response = await axios.get(`${API}/users/me`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setPermissions(response.data.permissions);
@@ -90,6 +91,12 @@ function Page() {
     useEffect(() => {
         getUser();
     }, [updatedPermissions, getUser], permissions);
+
+    useEffect(() => {
+        if (activeComponent.name === 'Участники' && activeComponent.id === true) {
+            toast.success("Данные успешно обновлены");
+        }
+    }, [activeComponent.name])
 
     const renderComponent = () => {
         switch (activeComponent.name) {
@@ -147,6 +154,7 @@ function Page() {
             <div>
                 <Header />
                 <main className={styles.main}>
+                    <Toaster />
                     <div className={styles.sidebar}>
                         {permissions
                             .slice()

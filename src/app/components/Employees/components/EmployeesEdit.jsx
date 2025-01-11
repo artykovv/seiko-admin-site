@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { API_URL } from '@/api/api';
+import { API } from '@/constants/constants';
 import styles from '../../Participants/Participants.module.css';
 
 export default function EmployeesEdit({ participantId, setActiveComponent }) {
@@ -22,7 +22,7 @@ export default function EmployeesEdit({ participantId, setActiveComponent }) {
     const handleEditParticipant = async () => {
         const token = localStorage.getItem('authToken');
         try {
-            const response = await axios.get(`${API_URL}/users/${participantId}`, {
+            const response = await axios.get(`${API}/users/${participantId}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -66,7 +66,7 @@ export default function EmployeesEdit({ participantId, setActiveComponent }) {
             }
 
             const response = await axios.patch(
-                `${API_URL}/users/${participantId}`,
+                `${API}/users/${participantId}`,
                 submitData,
                 {
                     headers: {

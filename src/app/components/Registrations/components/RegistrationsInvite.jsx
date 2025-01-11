@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import axios from 'axios';
-import { API_URL } from '@/api/api';
+import { API } from '@/constants/constants';
 
 import styles from '../../Participants/Participants.module.css';
 
@@ -16,7 +16,7 @@ export default function RegistrationsInvite({ participantId, setActiveComponent 
         if (cachedSponsored) {
             setSponsored(JSON.parse(cachedSponsored));
         } else {
-            const response = await axios.get(`${API_URL}/api/v1/participant/${participantId}/sponsored`, {
+            const response = await axios.get(`${API}/api/v1/participant/${participantId}/sponsored`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -39,7 +39,7 @@ export default function RegistrationsInvite({ participantId, setActiveComponent 
             return;
         }
 
-        const response = await axios.get(`${API_URL}/api/v1/participants/${personalNumber}`, {
+        const response = await axios.get(`${API}/api/v1/participants/${personalNumber}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }

@@ -375,12 +375,44 @@
 }
 
 .pagination button {
-    padding: 1px 10px;
-    border-radius: 8px;
+    padding: 2px 16px;
     border: none;
     background-color: #007bff;
     color: #fff;
     font-size: 18px;
+    border-right: 1px solid rgb(222, 222, 222);
+    border-left: 1px solid rgb(222, 222, 222);
+}
+
+.pagination span {
+    padding: 2px 16px;
+    border: none;
+    background-color: #007bff;
+    color: #fff;
+    font-size: 18px;
+}
+
+.pagination button:first-child {
+    padding: 2px 16px;
+    border-radius: 8px 0px 0px 8px !important;
+    border: none;
+    background-color: #007bff;
+    color: #fff;
+    font-size: 18px;
+}
+
+.pagination button:last-child {
+    padding: 2px 16px;
+    border-radius: 0px 8px 8px 0px;
+    border: none;
+    background-color: #007bff;
+    color: #fff;
+    font-size: 18px;
+}
+
+.paginate {
+    display: flex;
+    overflow: hidden;
 }
 
 .selectPage {
@@ -397,6 +429,10 @@
     background-color: #007bff;
     color: #fff;
     font-size: 18px;
+}
+
+.activePage {
+    background-color: #074f9c !important;
 }
 
 .genealogyBody {
@@ -505,4 +541,32 @@
     padding: 5px;
     margin: 5px;
     cursor: pointer;
+}
+
+.searchResults {
+    max-height: 400px;
+    overflow-y: scroll;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 10px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.searchResults span {
+    cursor: pointer;
+    border: 1px solid #dee2e6;
+    font-size: 14px;
+    padding: 5px;
+    width: 100%;
+    border-radius: 8px;
+    display: block;
+    transition: 0.4s;
+}
+
+.searchResults span:hover {
+    background-color: lightblue;
+    transition: 0.4s;
 }

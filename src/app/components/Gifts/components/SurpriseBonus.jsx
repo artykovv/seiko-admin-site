@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styles from '../Gifts.module.css';
 import axios from 'axios';
-import { API_URL } from '@/api/api';
+import { API } from '@/constants/constants';
 import Image from 'next/image';
 import deletePng from "@/assets/delete.svg";
 import add from '@/assets/add.webp';
@@ -18,7 +18,7 @@ export default function SurpriseBonus({ setActiveComponentGift }) {
     const getBinary = async () => {
         const token = localStorage.getItem('authToken');
         try {
-            const response = await axios.get(`${API_URL}/api/v1/surprise/bonuses?page=${currentPage}&page_size=${pageCount}`, {
+            const response = await axios.get(`${API}/api/v1/surprise/bonuses?page=${currentPage}&page_size=${pageCount}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
@@ -26,7 +26,7 @@ export default function SurpriseBonus({ setActiveComponentGift }) {
                 setTotalPages(response.data.total_pages);
                 setBinary(response.data.participants);
             } else {
-                console.error('Ошибка: отсутствуют участники в ответе API');
+                setBinary([{ text: 'Нет данных' }]);
             }
         } catch (error) {
             console.error('Ошибка при получении бонусов:', error);
@@ -43,7 +43,7 @@ export default function SurpriseBonus({ setActiveComponentGift }) {
             return;
         }
         try {
-            const response = await axios.get(`${API_URL}/api/v1/participants/${personalNumber}`, {
+            const response = await axios.get(`${API}/api/v1/participants/${personalNumber}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setParticipantDetail(response.data);
@@ -67,7 +67,7 @@ export default function SurpriseBonus({ setActiveComponentGift }) {
     const handleDelete = async (id) => {
         const token = localStorage.getItem('authToken');
         try {
-            await axios.delete(`${API_URL}/api/v1/surprise/bonus/${id}`, {
+            await axios.delete(`${API}/api/v1/surprise/bonus/${id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             getBinary();

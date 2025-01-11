@@ -2,8 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import styles from './Home.module.css';
 import axios from 'axios';
-import { API_URL } from '@/api/api';
-
+import { API } from '@/constants/constants';
 
 function Home() {
     const [data, setData] = useState({
@@ -19,13 +18,17 @@ function Home() {
 
     const fetchData = async (endpoint, key) => {
         const token = localStorage.getItem('authToken');
-        const response = await axios.get(`${API_URL}/api/v1/${endpoint}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-        const result = response.data || [];
-        setData(prevData => ({ ...prevData, [key]: result }));
+        try {
+            const response = await axios.get(`${API}/api/v1/${endpoint}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            const result = response.data || [];
+            setData(prevData => ({ ...prevData, [key]: result }));
+        } catch (error) {
+            console.error(`Error fetching ${key}:`, error);
+        }
     };
 
     useEffect(() => {
@@ -40,18 +43,12 @@ function Home() {
             { endpoint: 'total', key: 'total' }
         ];
 
-        const fetchDataIfNeeded = async () => {
-            await Promise.all(keys.map(({ endpoint, key }) => {
-                const cachedData = localStorage.getItem(key);
-                if (!cachedData || JSON.parse(cachedData).length === 0) {
-                    return fetchData(endpoint, key);
-                } else {
-                    setData(prevData => ({ ...prevData, [key]: JSON.parse(cachedData) }));
-                }
-            }));
+        const fetchAllData = async () => {
+            const promises = keys.map(({ endpoint, key }) => fetchData(endpoint, key));
+            await Promise.all(promises);
         };
 
-        fetchDataIfNeeded();
+        fetchAllData();
     }, []);
 
 
@@ -90,7 +87,7 @@ function Home() {
                         <table className={styles.table}>
                             <thead>
                                 <tr>
-                                    <th scope="col">Товарооборот</th>
+                                    <th scope="col">Филиалы</th>
                                     <th scope="col">За все время</th>
                                     <th scope="col">За текущий месяц</th>
                                 </tr>
@@ -139,7 +136,7 @@ function Home() {
                     <table className={styles.table} style={{ marginBottom: '50px' }}>
                         <thead>
                             <tr>
-                                <th scope="col">Бинар</th>
+                                <th scope="col">Филиалы</th>
                                 <th scope="col">За все время</th>
                                 <th scope="col">За текущий месяц</th>
                             </tr>
@@ -158,7 +155,7 @@ function Home() {
                     <table className={styles.table} style={{ marginBottom: '50px' }}>
                         <thead>
                             <tr>
-                                <th scope="col">Реферальные бонусы</th>
+                                <th scope="col">Филиалы</th>
                                 <th scope="col">За все время</th>
                                 <th scope="col">За текущий месяц</th>
                             </tr>
@@ -177,7 +174,7 @@ function Home() {
                     <table className={styles.table} style={{ marginBottom: '50px' }}>
                         <thead>
                             <tr>
-                                <th scope="col">Чек от чека</th>
+                                <th scope="col">Филиалы</th>
                                 <th scope="col">За все время</th>
                                 <th scope="col">За текущий месяц</th>
                             </tr>
@@ -194,7 +191,7 @@ function Home() {
                     <table className={styles.table} style={{ marginBottom: '50px' }}>
                         <thead>
                             <tr>
-                                <th scope="col">Статусные бонусы</th>
+                                <th scope="col">Филиалы</th>
                                 <th scope="col">За все время</th>
                                 <th scope="col">За текущий месяц</th>
                             </tr>
@@ -213,7 +210,7 @@ function Home() {
                     <table className={styles.table} style={{ marginBottom: '50px' }}>
                         <thead>
                             <tr>
-                                <th scope="col">Спонсоркие бонусы</th>
+                                <th scope="col">Филиалы</th>
                                 <th scope="col">За все время</th>
                                 <th scope="col">За текущий месяц</th>
                             </tr>
@@ -232,6 +229,7 @@ function Home() {
                     <table className={styles.table} style={{ marginBottom: '50px' }}>
                         <thead>
                             <tr>
+                                <th scope="col">Филиалы</th>
                                 <th scope="col">За все время</th>
                                 <th scope="col">За текущий месяц</th>
                             </tr>
@@ -239,6 +237,7 @@ function Home() {
                         <tbody className={styles.homeTbody}>
                             {data.total.length > 0 && data.total.map((item) => (
                                 <tr key={item.branch_id}>
+                                    <td scope="row">{item.branch_name}</td>
                                     <td scope="row">{item.total_amount}</td>
                                     <td>{item.current_month_amount}</td>
                                 </tr>
