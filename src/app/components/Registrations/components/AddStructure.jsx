@@ -96,7 +96,9 @@ export default function AddStructure({ setActiveComponent, participantId, sponso
             });
             console.log(response);
             console.log(data);
-            setActiveComponent({ name: 'Регистрации', id: null });
+            if (response.status === 200) {
+                handleBack('Регистрации', true);
+            }
         } catch (error) {
             setErrorMessage('Данные уже существуют или не все поля заполнены корректно.')
             console.log(data);

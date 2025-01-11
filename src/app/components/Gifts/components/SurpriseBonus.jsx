@@ -8,12 +8,13 @@ import add from '@/assets/add.webp';
 import toast, { Toaster } from 'react-hot-toast';
 
 export default function SurpriseBonus({ setActiveComponentGift }) {
-    const [binaty, setBinary] = useState([]);
+    const [binary, setBinary] = useState([]);
     const [isDetailOpen, setIsDetailOpen] = useState(false);
     const [participantDetail, setParticipantDetail] = useState(null);
     const [pageCount, setPageCount] = useState(20);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
+    console.log(binary);
 
     const getBinary = async () => {
         const token = localStorage.getItem('authToken');
@@ -26,10 +27,8 @@ export default function SurpriseBonus({ setActiveComponentGift }) {
                 setTotalPages(response.data.total_pages);
                 setBinary(response.data.participants);
             } else {
-                setBinary([{ text: 'Нет данных' }]);
             }
         } catch (error) {
-            console.error('Ошибка при получении бонусов:', error);
         }
     };
 
@@ -144,21 +143,27 @@ export default function SurpriseBonus({ setActiveComponentGift }) {
                     </tr>
                 </thead>
                 <tbody>
-                    {binaty.map((item, index) => (
-                        <tr key={index}>
-                            <td scope="row">{item.branch?.name || "Неизвестно"}</td>
-                            <td className={styles.openDetailBtn} onClick={() => handleOpenDetail(item.id)}>{item.personal_number || "Неизвестно"}</td>
-                            <td>{item.name || "Неизвестно"} {item.lastname || "Неизвестно"} {item.patronymic || "Неизвестно"}</td>
-                            <td>{item.passport_id || "Неизвестно"}</td>
-                            <td>{formatDate(item.register_at)}</td>
-                            <td>{item.status ? item.status.name : 'Не указано'}</td>
-                            <td style={{ display: 'flex', justifyContent: 'center' }}>
-                                <button className={styles.btn}>
-                                    <Image src={deletePng} alt="delete" onClick={() => handleDelete(item.id)} />
-                                </button>
-                            </td>
+                    {binary && binary.length > 0 ? (
+                        binary.map((item, index) => (
+                            <tr key={index}>
+                                <td scope="row">{item.branch?.name || "Неизвестно"}</td>
+                                <td className={styles.openDetailBtn} onClick={() => handleOpenDetail(item.id)}>{item.personal_number || "Неизвестно"}</td>
+                                <td>{item.name || "Неизвестно"} {item.lastname || "Неизвестно"} {item.patronymic || "Неизвестно"}</td>
+                                <td>{item.passport_id || "Неизвестно"}</td>
+                                <td>{formatDate(item.register_at)}</td>
+                                <td>{item.status ? item.status.name : 'Не указано'}</td>
+                                <td style={{ display: 'flex', justifyContent: 'center' }}>
+                                    <button className={styles.btn}>
+                                        <Image src={deletePng} alt="delete" onClick={() => handleDelete(item.id)} />
+                                    </button>
+                                </td>
+                            </tr>
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan="7" style={{ textAlign: 'center' }}>Нет данных</td>
                         </tr>
-                    ))}
+                    )}
                 </tbody>
             </table>
             <div className={styles.pagination}>

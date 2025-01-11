@@ -93,10 +93,20 @@ function Page() {
     }, [updatedPermissions, getUser], permissions);
 
     useEffect(() => {
-        if (activeComponent.name === 'Участники' && activeComponent.id === true) {
-            toast.success("Данные успешно обновлены");
+        switch (activeComponent.name) {
+            case 'Участники':
+            case 'Регистрации':
+                if (activeComponent.id === true) {
+                    toast.success("Данные успешно обновлены");
+                }
+                console.log(1);
+
+                break;
+            default:
+                break;
         }
-    }, [activeComponent.name])
+    }, [activeComponent.name]);
+
 
     const renderComponent = () => {
         switch (activeComponent.name) {

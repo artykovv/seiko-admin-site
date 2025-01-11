@@ -26,23 +26,14 @@ export default function TouristBonus() {
     };
 
     const handleOpenDetail = async (personalNumber) => {
-        const cachedDetail = getLocalStorage(`participantInvite_${personalNumber}`);
-        if (cachedDetail) {
-            setParticipantDetail(cachedDetail);
-            setIsDetailOpen(true);
-            return;
-        }
-
         const token = localStorage.getItem('authToken');
         try {
             const response = await axios.get(`${API}/api/v1/participants/${personalNumber}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setParticipantDetail(response.data);
-            setLocalStorage(`participantInvite_${personalNumber}`, response.data);
             setIsDetailOpen(true);
         } catch (error) {
-            console.error(error);
         }
     };
 
@@ -77,7 +68,18 @@ export default function TouristBonus() {
                     </div>
                     <div className={styles.detailModalBody}>
                         <p><strong>Персональный номер:</strong> {participantDetail?.personal_number}</p>
-                        {/* ... */}
+                        <p>{participantDetail?.name} {participantDetail?.lastname} {participantDetail?.patronymic}</p>
+                        <p><strong>Пакет:</strong> {participantDetail?.paket?.name} (${participantDetail?.paket?.price})</p>
+                        <p><strong>Спонсор:</strong> {participantDetail?.sponsor?.name || 'Не указано'} {participantDetail?.sponsor?.lastname || ''}</p>
+                        <p><strong>Наставник:</strong> {participantDetail?.mentor?.name || 'Не указано'} {participantDetail?.mentor?.lastname || ''}</p>
+                        <p><strong>Логин:</strong> {participantDetail?.email}</p>
+                        <p><strong>Личная информация:</strong> {participantDetail?.personal_info}</p>
+                        <p><strong>Дата рождения:</strong> {participantDetail?.birth_date ? formatDate(participantDetail.birth_date) : 'Не указано'}</p>
+                        <p><strong>Телефон:</strong> {participantDetail?.phone_number}</p>
+                        <p><strong>Филиал:</strong> {participantDetail?.branch?.name}</p>
+                        <p><strong>Банк. Номер (Мбанк):</strong> {participantDetail?.bank}</p>
+                        <p><strong>Левый ТО:</strong> {participantDetail?.left_volume}</p>
+                        <p><strong>Правый ТО:</strong> {participantDetail?.right_volume}</p>
                     </div>
                     <div className={styles.detailModalFooter}>
                         <button className={styles.closeDetailBtn} onClick={() => setIsDetailOpen(false)}>Закрыть</button>

@@ -25,23 +25,14 @@ export default function AutoProgram() {
     };
 
     const handleOpenDetail = async (personalNumber) => {
-        const cachedDetail = getLocalStorage(`participantInvite_${personalNumber}`);
-        if (cachedDetail) {
-            setParticipantDetail(cachedDetail);
-            setIsDetailOpen(true);
-            return;
-        }
-
         const token = localStorage.getItem('authToken');
         try {
             const response = await axios.get(`${API}/api/v1/participants/${personalNumber}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setParticipantDetail(response.data);
-            setLocalStorage(`participantInvite_${personalNumber}`, response.data);
             setIsDetailOpen(true);
         } catch (error) {
-            console.error(error);
         }
     };
 
