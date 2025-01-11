@@ -88,7 +88,7 @@ export default function Page() {
           <input
             type="password"
             name="password"
-            autoComplete="new-password"
+            autoComplete="current-password"
             placeholder="Пароль"
             value={password}
             onChange={(e) => setPassword(e.target.value)}

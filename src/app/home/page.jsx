@@ -100,13 +100,11 @@ function Page() {
                     toast.success("Данные успешно обновлены");
                 }
                 console.log(1);
-
                 break;
             default:
                 break;
         }
     }, [activeComponent.name]);
-
 
     const renderComponent = () => {
         switch (activeComponent.name) {
