@@ -178,8 +178,6 @@
     background-color: #5a6268;
 }
 
-
-
 .btnsWrapperAdd {
     padding-block: 10px;
     display: flex;
@@ -198,6 +196,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    cursor: pointer;
 }
 
 .addBtn img {
@@ -589,12 +588,48 @@
 }
 
 .pagination button {
-    padding: 1px 10px;
-    border-radius: 8px;
+    padding: 2px 16px;
     border: none;
     background-color: #007bff;
     color: #fff;
     font-size: 18px;
+    border-right: 1px solid rgb(222, 222, 222);
+    border-left: 1px solid rgb(222, 222, 222);
+}
+
+.pagination span {
+    padding: 2px 16px;
+    border: none;
+    background-color: #007bff;
+    color: #fff;
+    font-size: 18px;
+}
+
+.pagination button:first-child {
+    padding: 2px 16px;
+    border-radius: 8px 0px 0px 8px !important;
+    border: none;
+    background-color: #007bff;
+    color: #fff;
+    font-size: 18px;
+}
+
+.pagination button:last-child {
+    padding: 2px 16px;
+    border-radius: 0px 8px 8px 0px;
+    border: none;
+    background-color: #007bff;
+    color: #fff;
+    font-size: 18px;
+}
+
+.paginate {
+    display: flex;
+    overflow: hidden;
+}
+
+.activePage {
+    background-color: #074f9c !important;
 }
 
 .selectPage {

@@ -77,6 +77,7 @@ export default function EmployeesEdit({ participantId, setActiveComponent }) {
             );
 
             if (response.status === 200) {
+                toast.success('Данные успешно изменены')
                 handleBack('Сотрудники');
             }
         } catch (error) {

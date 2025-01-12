@@ -1,17 +1,20 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import styles from '../Bonuses.module.css';
 import axios from 'axios';
 import { API } from '@/constants/constants';
+import toast from 'react-hot-toast';
 
 export default function BinaryCheck() {
-    const [binaty, setBinary] = useState([]);
-    const [isDetailOpen, setIsDetailOpen] = useState(false);
+    const [binary, setBinary] = useState([]);
     const [isDetailOpenHistory, setIsDetailOpenHistory] = useState(false);
+    const [isDetailOpen, setIsDetailOpen] = useState(false);
+    const [isDetailOpenCalculate, setIsDetailOpenCalculate] = useState(false);
     const [participantDetail, setParticipantDetail] = useState(null);
     const [participantHistory, setParticipantHistory] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
-    const [pageCount, setPageCount] = useState(20);
     const [totalPages, setTotalPages] = useState(0);
+    const pageCountRef = useRef(20);
+    const [message, setMessage] = useState('')
 
     const formatDate = (dateString) => {
         if (!dateString) return "Неизвестно";
@@ -25,7 +28,7 @@ export default function BinaryCheck() {
     const getBinary = async () => {
         const token = localStorage.getItem('authToken');
         try {
-            const response = await axios.get(`${API}/api/v1/participants/binar&cheque/?page=${currentPage}&page_size=${pageCount}`, {
+            const response = await axios.get(`${API}/api/v1/participants/binar&cheque/?page=${currentPage}&page_size=${pageCountRef.current}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -33,71 +36,74 @@ export default function BinaryCheck() {
             setBinary(response.data.participants);
             setTotalPages(response.data.total_pages);
         } catch (error) {
-            console.error("Ошибка загрузки данных:", error);
         }
     };
 
     const handleOpenDetail = async (personalNumber) => {
-        const cachedDetail = localStorage.getItem(`participantInvite_${personalNumber}`);
-        if (cachedDetail) {
-            setParticipantDetail(JSON.parse(cachedDetail));
-            setIsDetailOpen(true);
-            return;
-        }
-
         const token = localStorage.getItem('authToken');
+        toast.loading("Загрузка...", { duration: 1000 })
         try {
             const response = await axios.get(`${API}/api/v1/participants/${personalNumber}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
-            localStorage.setItem(`participantInvite_${personalNumber}`, JSON.stringify(response.data)); // Запись в localStorage
             setParticipantDetail(response.data);
             setIsDetailOpen(true);
         } catch (error) {
-            console.error("Ошибка загрузки деталей участника:", error);
         }
     };
 
     const handleOpenHistory = async (personalNumber) => {
-        const cachedHistory = localStorage.getItem(`participantInvite_${personalNumber}`); // Чтение из localStorage
-        if (cachedHistory) {
-            setParticipantHistory(JSON.parse(cachedHistory));
-            setIsDetailOpenHistory(true);
-            return;
-        }
-
         const token = localStorage.getItem('authToken');
+        toast.loading("Загрузка...", { duration: 1000 })
         try {
             const response = await axios.get(`${API}/api/v1/participants/bonuses/history/${personalNumber}/binary_cheque_bonuses`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
-            localStorage.setItem(`participantInvite_${personalNumber}`, JSON.stringify(response.data.bonuses)); // Запись в localStorage
             setParticipantHistory(response.data.bonuses);
             setIsDetailOpenHistory(true);
         } catch (error) {
-            console.error("Ошибка загрузки истории бонусов:", error);
         }
     };
 
-    const handlePageChange = (page) => {
-        setCurrentPage(page);
+    const handlePageCountChange = (event) => {
+        pageCountRef.current = Number(event.target.value);
+        setCurrentPage(1);
+        getBinary();
     };
 
-    const handlePageCountChange = (count) => {
-        setPageCount(count);
-        setCurrentPage(1);
-    };
+    const getCalculate = async () => {
+        const token = localStorage.getItem('authToken')
+        toast.loading("Загрузка...", { duration: 1000 })
+        try {
+            const response = await axios.get(`${API}/task/binar/calculate`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            if (response.status === 200) {
+                setMessage(response.data.message)
+                setIsDetailOpenCalculate(true)
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     useEffect(() => {
         getBinary();
-    }, [currentPage, pageCount]);
+    }, [currentPage]);
 
     return (
         <div>
+            <div className={styles.btnsWrapperAdd}>
+                <button className={styles.addBtn} onClick={() => getCalculate()}>
+                    Рассчитать бинар
+                </button>
+            </div>
             {isDetailOpen && <div className={styles.detailModal} onClick={() => setIsDetailOpen(false)}>
                 <div className={styles.detailModalContent} onClick={(e) => e.stopPropagation()}>
                     <div className={styles.detailModalHeader}>
@@ -142,6 +148,20 @@ export default function BinaryCheck() {
                     </div>
                 </div>
             </div>}
+            {isDetailOpenCalculate && <div className={styles.detailModal} onClick={() => setIsDetailOpenCalculate(false)}>
+                <div className={styles.detailModalContent} onClick={(e) => e.stopPropagation()}>
+                    <div className={styles.detailModalHeader}>
+                        <h2>Рассчитать бинар</h2>
+                    </div>
+                    <div className={styles.detailModalBody}>
+                        <p style={{ fontSize: '14px' }}>Расчет бонуса займет некоторое время, пожалуйста, подождите.</p>
+                        <p style={{ fontSize: '14px', color: 'green' }}>{message}</p>
+                    </div>
+                    <div className={styles.detailModalFooter}>
+                        <button className={styles.closeDetailBtn} onClick={() => setIsDetailOpenCalculate(false)}>Закрыть</button>
+                    </div>
+                </div>
+            </div>}
             <table className={styles.table}>
                 <thead>
                     <tr>
@@ -158,33 +178,98 @@ export default function BinaryCheck() {
                     </tr>
                 </thead>
                 <tbody>
-                    {binaty.map((item, index) => (
-                        <tr key={index}>
-                            <td scope="row">{item.branch?.name || "Неизвестно"}</td>
-                            <td className={styles.openDetailBtn} onClick={() => handleOpenDetail(item.id)}>{item.personal_number || "Неизвестно"}</td>
-                            <td>
-                                {item.name || "Неизвестно"} {item.lastname || "Неизвестно"} {item.patronymic || "Неизвестно"}
-                            </td>
-                            <td>{item.passport_id || "Неизвестно"}</td>
-                            <td>{formatDate(item.register_at)}</td>
-                            <td>{item.bonus_binar || "Неизвестно"}</td>
-                            <td>{item.bonus_chek || "Неизвестно"}</td>
-                            <td>{item.total || "Неизвестно"}</td>
-                            <td>{item.ip_inn ? "да" : "нет"}</td>
-                            <td>{item.pensioner ? "да" : "нет"}</td>
-                            <td className={styles.openDetailBtn} onClick={() => handleOpenHistory(item.id)}>История</td>
+                    {binary && binary.length > 0 ? (
+                        binary.map((item, index) => (
+                            <tr key={index}>
+                                <td scope="row">{item.branch?.name || "Неизвестно"}</td>
+                                <td className={styles.openDetailBtn} onClick={() => handleOpenDetail(item.id)}>{item.personal_number || "Неизвестно"}</td>
+                                <td>
+                                    {item.name || "Неизвестно"} {item.lastname || "Неизвестно"} {item.patronymic || "Неизвестно"}
+                                </td>
+                                <td>{item.passport_id || "Неизвестно"}</td>
+                                <td>{formatDate(item.register_at)}</td>
+                                <td>{item.bonus_binar || "Неизвестно"}</td>
+                                <td>{item.bonus_chek || "Неизвестно"}</td>
+                                <td>{item.total || "Неизвестно"}</td>
+                                <td>{item.ip_inn ? "да" : "нет"}</td>
+                                <td>{item.pensioner ? "да" : "нет"}</td>
+                                <td className={styles.openDetailBtn} onClick={() => handleOpenHistory(item.id)}>История</td>
+                            </tr>
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan="11" style={{ textAlign: 'center' }}>Нет данных</td>
                         </tr>
-                    ))}
+                    )}
                 </tbody>
             </table>
             <div className={styles.pagination}>
-                {Array.from({ length: totalPages }, (_, index) => (
-                    <button key={index} onClick={() => handlePageChange(index + 1)} disabled={currentPage === index + 1}>
-                        {index + 1}
-                    </button>
-                ))}
+                <div className={styles.paginate}>
+                    {(() => {
+                        const pages = [];
+                        const isStart = currentPage <= 4;
+                        const isEnd = currentPage >= totalPages - 3;
+
+                        // Добавляем первую страницу
+                        if (totalPages >= 1) {
+                            pages.push(
+                                <button
+                                    key="pagination_page_1"
+                                    onClick={() => setCurrentPage(1)}
+                                    className={currentPage === 1 ? styles.activePage : ''}
+                                >
+                                    1
+                                </button>
+                            );
+                        }
+
+                        // Добавляем многоточие перед диапазоном страниц
+                        if (!isStart && totalPages > 6) {
+                            pages.push(<span key="start_ellipsis">...</span>);
+                        }
+
+                        // Рассчитываем диапазон страниц (средние кнопки)
+                        const startPage = Math.max(2, currentPage - 2); // Страницы начиная с 2
+                        const endPage = Math.min(totalPages - 1, currentPage + 2); // Заканчивается на предпоследней странице
+
+                        for (let page = startPage; page <= endPage; page++) {
+                            // Исключаем возможные дубликаты с первой или последней страницей
+                            if (page > 1 && page < totalPages) {
+                                pages.push(
+                                    <button
+                                        key={`pagination_page_${page}`}
+                                        onClick={() => setCurrentPage(page)}
+                                        className={currentPage === page ? styles.activePage : ''}
+                                    >
+                                        {page}
+                                    </button>
+                                );
+                            }
+                        }
+
+                        // Добавляем многоточие после диапазона страниц
+                        if (!isEnd && totalPages > 3) {
+                            pages.push(<span key="end_ellipsis">...</span>);
+                        }
+
+                        // Добавляем последнюю страницу
+                        if (totalPages > 1) {
+                            pages.push(
+                                <button
+                                    key={`pagination_page_${totalPages}`}
+                                    onClick={() => setCurrentPage(totalPages)}
+                                    className={currentPage === totalPages ? styles.activePage : ''}
+                                >
+                                    {totalPages}
+                                </button>
+                            );
+                        }
+
+                        return pages;
+                    })()}
+                </div>
                 <div className={styles.selectPage}>
-                    <select onChange={(e) => handlePageCountChange(Number(e.target.value))} value={pageCount}>
+                    <select defaultValue={pageCountRef.current} onChange={handlePageCountChange}>
                         <option value={20}>20</option>
                         <option value={50}>50</option>
                         <option value={100}>100</option>

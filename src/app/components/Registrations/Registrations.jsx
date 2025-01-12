@@ -12,7 +12,7 @@ import bonus from '@/assets/currency.svg';
 import edit from '@/assets/edit.svg';
 import arrowFilter from '@/assets/arrowdown.webp';
 import agreement from '@/assets/agreement.svg';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 
 function Registrations({ setActiveComponent }) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -24,6 +24,7 @@ function Registrations({ setActiveComponent }) {
   const searchInputRef = useRef('');
 
   const handleSelectChange = (option) => {
+    toast.loading("Загрузка...", { duration: 1000 })
     setSelectedOption(option);
     setIsFilterOpen(false);
     setCurrentPage(1);
@@ -71,19 +72,12 @@ function Registrations({ setActiveComponent }) {
 
   const handleOpenDetail = async (personalNumber) => {
     const token = localStorage.getItem('authToken');
-    const cachedDetail = localStorage.getItem(`participantInvite_${personalNumber}`);
-    if (cachedDetail) {
-      setParticipantDetail(JSON.parse(cachedDetail));
-      setIsDetailOpen(true);
-      return;
-    }
-
+    toast.loading("Загрузка...", { duration: 1000 })
     const response = await axios.get(`${API}/api/v1/participants/${personalNumber}`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
     });
-    localStorage.setItem(`participantInvite_${personalNumber}`, JSON.stringify(response.data));
     setParticipantDetail(response.data);
     setIsDetailOpen(true);
   };
@@ -111,10 +105,6 @@ function Registrations({ setActiveComponent }) {
 
   return (
     <div className={styles.registrationsContainer}>
-      <Toaster
-        position="top-center"
-        reverseOrder={false}
-      />
       <div className={styles.tableSection}>
         <div className={styles.tableIn}>
           {isDetailOpen && <div className={styles.detailModal} onClick={() => setIsDetailOpen(false)}>

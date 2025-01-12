@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import styles from '../Registrations.module.css'
 import axios from 'axios';
 import { API } from '@/constants/constants';
+import toast from 'react-hot-toast';
 
 export default function AddStructure({ setActiveComponent, participantId, sponsorId, paketId }) {
     const [errorMessage, setErrorMessage] = useState('')
@@ -11,7 +12,6 @@ export default function AddStructure({ setActiveComponent, participantId, sponso
     const [filteredPositions, setFilteredPositions] = useState([]);
     const [selectedSponsor, setSelectedSponsor] = useState(null);
     const [isActiveSelect, setIsActiveSelect] = useState()
-    console.log(sponsorId);
 
     const [data, setData] = useState({
         mentor_id: '',
@@ -20,8 +20,6 @@ export default function AddStructure({ setActiveComponent, participantId, sponso
         position: '',
         sponsor_id: ''
     })
-
-    console.log(data);
 
     const filterPositions = (term) => {
         if (!Array.isArray(freePositions)) {
@@ -38,7 +36,6 @@ export default function AddStructure({ setActiveComponent, participantId, sponso
     };
 
     const handleChange = (field, value, position) => {
-        console.log(value);
         switch (field) {
             case 'search':
                 setSearchTerm(value);
@@ -60,7 +57,6 @@ export default function AddStructure({ setActiveComponent, participantId, sponso
                     ...prevData,
                     [field]: value,
                 }));
-                console.log('Выбранная позиция:', value);
                 break;
 
             default:
@@ -77,8 +73,6 @@ export default function AddStructure({ setActiveComponent, participantId, sponso
                     'Authorization': `Bearer ${token}`
                 }
             });
-            console.log(response);
-
             setFreePositions(response.data.available_positions);
             setFilteredPositions(response.data.available_positions);
         } catch (error) {
@@ -94,14 +88,13 @@ export default function AddStructure({ setActiveComponent, participantId, sponso
                     'Authorization': `Bearer ${token}`
                 }
             });
-            console.log(response);
-            console.log(data);
+
             if (response.status === 200) {
-                handleBack('Регистрации', true);
+                toast.success("Данные успешно обновлены");
+                handleBack('Регистрации');
             }
         } catch (error) {
             setErrorMessage('Данные уже существуют или не все поля заполнены корректно.')
-            console.log(data);
         }
     };
 
@@ -127,9 +120,6 @@ export default function AddStructure({ setActiveComponent, participantId, sponso
         getFreePositions();
     }, []);
 
-    console.log(filteredPositions);
-
-
     return (
         <div>
             <div className={styles.participantsContainer}>
@@ -139,6 +129,7 @@ export default function AddStructure({ setActiveComponent, participantId, sponso
                 >
                     <h3>Добавить в структуру</h3>
                     <div className={styles.formBlock}>
+                        
                         <div className={styles.formRow}>
                             <label>Пакет</label>
                             <select
@@ -151,6 +142,7 @@ export default function AddStructure({ setActiveComponent, participantId, sponso
                                 ))}
                             </select>
                         </div>
+
                         <div className={styles.formRow}>
                             <label>Поиск наставника</label>
                             <input
@@ -159,6 +151,7 @@ export default function AddStructure({ setActiveComponent, participantId, sponso
                                 onChange={(e) => handleChange('search', e.target.value)}
                             />
                         </div>
+
                         <div className={styles.selectWrapper}>
                             {filteredPositions.map((item) => (
                                 <div className={styles.select} key={item.id}>
@@ -172,6 +165,7 @@ export default function AddStructure({ setActiveComponent, participantId, sponso
                                 </div>
                             ))}
                         </div>
+                        
                         <div className={styles.formRow}>
                             <label>Выберите сторону</label>
                             <select

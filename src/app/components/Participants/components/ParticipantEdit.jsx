@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { API } from '@/constants/constants';
 import styles from '../Participants.module.css';
+import toast from 'react-hot-toast';
 
 export default function ParticipantEdit({ participantId, setActiveComponent }) {
     const [participant, setParticipant] = useState({
@@ -23,209 +24,90 @@ export default function ParticipantEdit({ participantId, setActiveComponent }) {
         number: '',
         branch: { id: '' },
         paket: { id: '' },
-        sponsor: null
+        sponsor: null,
     });
-    console.log(participant);
 
     const [branches, setBranches] = useState([]);
-
     const [searchResults, setSearchResults] = useState([]);
     const searchInputRef = useRef();
+
+    const formatDate = (date) => (date ? new Date(date).toISOString().split('T')[0] : '');
+
+    const handleChange = (field, value) => {
+        setParticipant((prev) => ({
+            ...prev,
+            [field]: value,
+        }));
+    };
+
+    const handleDateChange = (field, value) => {
+        handleChange(field, value ? new Date(value).toISOString() : '');
+    };
 
     const handleSearch = async () => {
         const token = localStorage.getItem('authToken');
         const query = searchInputRef.current?.value;
         if (!query) return;
-
         try {
             const response = await axios.get(`${API}/api/v1/search/participants?query=${query}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+                headers: { Authorization: `Bearer ${token}` },
             });
-            console.log(response.data.participants || []);
             setSearchResults(response.data.participants || []);
         } catch (error) {
-            console.error('Ошибка поиска:', error);
+            console.error(error);
         }
-    };
-
-    const selectSponsor = (sponsor) => {
-        setParticipant((prev) => ({
-            ...prev,
-            sponsor
-        }));
-        if (searchInputRef.current) {
-            searchInputRef.current.value = `${sponsor.name || ''} ${sponsor.lastname || ''} ${sponsor.patronymic || ''} (${sponsor.personal_number || ''})`.trim();
-        }
-        setSearchResults([]);
     };
 
     const handleEditParticipant = async () => {
         const token = localStorage.getItem('authToken');
         try {
             const response = await axios.get(`${API}/api/v1/participants/${participantId}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+                headers: { Authorization: `Bearer ${token}` },
             });
             const participantData = response.data;
-            setParticipant(participantData);
-
+            setParticipant({
+                ...participantData,
+                birth_date: formatDate(participantData.birth_date),
+                passport_issue_date: formatDate(participantData.passport_issue_date),
+            });
             if (participantData.sponsor && searchInputRef.current) {
-                searchInputRef.current.value = `${participantData.sponsor.name || ''} ${participantData.sponsor.lastname || ''} ${participantData.sponsor.patronymic || ''} (${participantData.sponsor.personal_number || ''})`.trim();
+                searchInputRef.current.value = `${participantData.sponsor.name || ''} ${participantData.sponsor.lastname || ''
+                    } ${participantData.sponsor.patronymic || ''} (${participantData.sponsor.personal_number || ''})`.trim();
             }
         } catch (error) {
-            console.error('Ошибка загрузки участника:', error);
+            console.error(error);
         }
-    };
-
-    const handleChange = (field, value) => {
-        if (field === 'branch_id') {
-            setParticipant(prev => ({
-                ...prev,
-                branch: { id: value }
-            }));
-        } else if (field === 'paket_id') {
-            setParticipant(prev => ({
-                ...prev,
-                paket: { id: value }
-            }));
-        } else {
-            setParticipant(prev => ({
-                ...prev,
-                [field]: value
-            }));
-        }
-    };
-
-    const handleDateChange = (field, part, value) => {
-        const date = participant[field] ? new Date(participant[field]) : new Date();
-
-        switch (part) {
-            case 'month':
-                date.setMonth(value - 1);
-                break;
-            case 'day':
-                date.setDate(value);
-                break;
-            case 'year':
-                date.setFullYear(value);
-                break;
-        }
-
-        handleChange(field, date.toISOString());
-    };
-
-    const getBranches = async () => {
-        const token = localStorage.getItem('authToken');
-        try {
-            const response = await axios.get(`${API}/api/v1/branches`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            setBranches(response.data);
-        } catch (error) {
-        }
-    };
-
-    const validateForm = () => {
-        const requiredFields = [
-            'name',
-            'lastname',
-            'email',
-            'phone_number',
-            'birth_date',
-            'pin',
-            'passport_id',
-            'passport_issue_date',
-            'passport_issuer',
-            'branch_id',
-            'paket_id'
-        ];
-
-        const missingFields = requiredFields.filter(field => {
-            if (field === 'branch_id') return !participant.branch?.id;
-            if (field === 'paket_id') return !participant.paket?.id;
-            return !participant[field];
-        });
-
-        if (missingFields.length > 0) {
-            return false;
-        }
-        return true;
     };
 
     const handleSubmit = async (event) => {
         event.preventDefault();
         const token = localStorage.getItem('authToken');
-        if (!validateForm()) {
-            console.error('Форма не прошла валидацию.');
-            return;
-        }
 
         try {
-            const formatDate = (dateString) => {
-                if (!dateString) return null;
-                const date = new Date(dateString);
-                return date.toISOString().split('T')[0];
-            };
-
-            const booleanValue = (value) => {
-                if (value === true || value === 'true' || value === 1) return true;
-                return false;
-            };
-
             const submitData = {
-                name: participant.name,
-                lastname: participant.lastname,
-                patronymic: participant.patronymic || null,
-                login: participant.email,
-                email: participant.email,
-                phone_number: participant.phone_number,
-                address: participant.address || null,
-                birth_date: formatDate(participant.birth_date),
-                pin: participant.pin,
-                passport_id: participant.passport_id,
-                passport_issuer: participant.passport_issuer,
-                passport_issue_date: formatDate(participant.passport_issue_date),
-                bank: participant.bank || null,
-                ip_inn: booleanValue(participant.ip_inn),
-                pensioner: booleanValue(participant.pensioner),
+                ...participant,
+                birth_date: participant.birth_date,
+                passport_issue_date: participant.passport_issue_date,
                 paket_id: parseInt(participant.paket?.id),
                 branch_id: parseInt(participant.branch?.id),
-                code: participant.code || null,
-                sponsor_id: participant.sponsor?.id // Отправляем ID спонсора
+                ip_inn: Boolean(participant.ip_inn),
+                pensioner: Boolean(participant.pensioner),
             };
 
-            if (participant.password) {
-                submitData.password = participant.password;
-                submitData.password_confirmation = participant.password_confirmation;
-            }
-
-            const response = await axios.put(
-                `${API}/api/v1/participants/${participantId}`,
-                submitData,
-                {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                }
-            );
+            const response = await axios.put(`${API}/api/v1/participants/${participantId}`, submitData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
 
             if (response.status === 200) {
-                handleBack('Участники', true);
+                setActiveComponent({ name: 'Участники' });
+                toast.success('Данные успешно обновлены');
             }
         } catch (error) {
-            console.log(error);
-
+            console.error('Ошибка отправки данных:', error);
         }
-    };
-
-    const handleBack = (name, id) => {
-        setActiveComponent({ name, id });
     };
 
     useEffect(() => {
@@ -233,9 +115,19 @@ export default function ParticipantEdit({ participantId, setActiveComponent }) {
             handleEditParticipant();
             getBranches();
         }
-
     }, [participantId]);
 
+    const getBranches = async () => {
+        const token = localStorage.getItem('authToken');
+        try {
+            const response = await axios.get(`${API}/api/v1/branches`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setBranches(response.data);
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
     return (
         <div className={styles.participantsContainer}>
@@ -250,7 +142,7 @@ export default function ParticipantEdit({ participantId, setActiveComponent }) {
                         <input
                             type="text"
                             ref={searchInputRef}
-                            placeholder="Введите имя, фамилию или номер"
+                            placeholder="Поиск"
                             onChange={handleSearch}
                         />
                     </div>
@@ -380,35 +272,15 @@ export default function ParticipantEdit({ participantId, setActiveComponent }) {
                     </div>
                 </div>
 
+
                 <div className={styles.formBlock}>
-                    <label>Дата рждения</label>
+                    <label>Дата рождения</label>
                     <div className={styles.dateInputs}>
                         <input
-                            type="number"
-                            placeholder="Месяц"
-                            value={participant?.birth_date ? new Date(participant.birth_date).getMonth() + 1 : ''}
-                            onChange={(e) => handleDateChange('birth_date', 'month', e.target.value)}
-                            required
-                            min="1"
-                            max="12"
-                        />
-                        <input
-                            type="number"
-                            placeholder="День"
-                            value={participant?.birth_date ? new Date(participant.birth_date).getDate() : ''}
-                            onChange={(e) => handleDateChange('birth_date', 'day', e.target.value)}
-                            required
-                            min="1"
-                            max="31"
-                        />
-                        <input
-                            type="number"
-                            placeholder="Год"
-                            value={participant?.birth_date ? new Date(participant.birth_date).getFullYear() : ''}
-                            onChange={(e) => handleDateChange('birth_date', 'year', e.target.value)}
-                            required
-                            min="1900"
-                            max="2100"
+                            style={{ width: '100%' }}
+                            type="date"
+                            value={participant.birth_date ? participant.birth_date.split('T')[0] : ''}
+                            onChange={(e) => handleDateChange('birth_date', e.target.value)}
                         />
                     </div>
                 </div>
@@ -440,28 +312,10 @@ export default function ParticipantEdit({ participantId, setActiveComponent }) {
                     <label>Дата выдачи документа</label>
                     <div className={styles.dateInputs}>
                         <input
-                            type="number"
-                            placeholder="Месяц"
-                            value={participant?.passport_issue_date ? new Date(participant.passport_issue_date).getMonth() + 1 : ''}
-                            onChange={(e) => handleDateChange('passport_issue_date', 'month', e.target.value)}
-                        />
-                        <input
-                            type="number"
-                            placeholder="День"
-                            value={participant?.passport_issue_date ? new Date(participant.passport_issue_date).getDate() : ''}
-                            onChange={(e) => handleDateChange('passport_issue_date', 'day', e.target.value)}
-                            required
-                            min="1"
-                            max="31"
-                        />
-                        <input
-                            type="number"
-                            placeholder="Год"
-                            value={participant?.passport_issue_date ? new Date(participant.passport_issue_date).getFullYear() : ''}
-                            onChange={(e) => handleDateChange('passport_issue_date', 'year', e.target.value)}
-                            required
-                            min="1900"
-                            max="2100"
+                            style={{ width: '100%' }}
+                            type="date"
+                            value={participant.passport_issue_date ? participant.passport_issue_date.split('T')[0] : ''}
+                            onChange={(e) => handleDateChange('passport_issue_date', e.target.value)}
                         />
                     </div>
                 </div>

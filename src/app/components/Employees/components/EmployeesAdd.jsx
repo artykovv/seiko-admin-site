@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styles from '../../Registrations/Registrations.module.css';
 import axios from 'axios';
 import { API } from '@/constants/constants';
+import toast from 'react-hot-toast';
 
 export default function EmployeesAdd({ setActiveComponent }) {
     const [data, setData] = useState({
@@ -34,7 +35,6 @@ export default function EmployeesAdd({ setActiveComponent }) {
         setError(null);
         setPasswordError(null);
 
-        // Проверка совпадения паролей
         if (data.password !== data.repeatPassword) {
             setPasswordError('Пароли не совпадают');
             setLoading(false);
@@ -42,8 +42,9 @@ export default function EmployeesAdd({ setActiveComponent }) {
         }
 
         try {
-            const response = await axios.post(`${API}/auth/register`, data);
+            await axios.post(`${API}/auth/register`, data);
             handleBack('Сотрудники');
+            toast.success('Данные успешно добавлены')
         } catch (error) {
             setError(error.response?.data?.message || 'Произошла ошибка при регистрации');
         } finally {
@@ -179,9 +180,10 @@ export default function EmployeesAdd({ setActiveComponent }) {
                     </div>
                 </div>
 
-                {error && <p className={styles.error}>{error}</p>}
+
 
                 <footer className={styles.formButtons}>
+                    <span>{error}</span>
                     <button type="button" onClick={() => handleBack('Сотрудники')} disabled={loading}>
                         Назад
                     </button>

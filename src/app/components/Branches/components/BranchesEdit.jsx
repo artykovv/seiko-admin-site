@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styles from '../Branches.module.css';
 import axios from 'axios';
 import { API } from '@/constants/constants';
+import toast from 'react-hot-toast';
 
 export default function BranchesEdit({ setActiveComponent, participantId }) {
     const [dates, setDates] = useState({
@@ -44,6 +45,7 @@ export default function BranchesEdit({ setActiveComponent, participantId }) {
                     },
                 }
             );
+            toast.success('Данные успешно обновлены!')
             setActiveComponent({ name: 'Филиалы', id: null });
         } catch (error) {
             setErrorMessage('Данные уже существуют или не все поля заполнены корректно.');

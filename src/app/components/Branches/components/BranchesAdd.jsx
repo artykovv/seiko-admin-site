@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styles from '../Branches.module.css';
 import axios from 'axios';
 import { API } from '@/constants/constants';
+import toast from 'react-hot-toast';
 
 export default function BranchesAdd({ setActiveComponent }) {
     const [dates, setDates] = useState({
@@ -24,16 +25,15 @@ export default function BranchesAdd({ setActiveComponent }) {
         const token = localStorage.getItem('authToken');
         event.preventDefault();
         try {
-            const response = await axios.post(`${API}/api/v1/branches`, dates,
+            await axios.post(`${API}/api/v1/branches`, dates,
                 {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                     },
                 }
             );
-            console.log(response);
-
             setActiveComponent({ name: 'Филиалы', id: null });
+            toast.success('Данные успешно добавлены!')
         } catch (error) {
             setErrorMessage('Данные уже существуют или не все поля заполнены корректно.');
         }
@@ -55,6 +55,7 @@ export default function BranchesAdd({ setActiveComponent }) {
                             name="code"
                             value={dates.code || ''}
                             onChange={handleChange}
+                            required
                         />
                     </div>
                     <div className={styles.formRow}>
@@ -64,6 +65,7 @@ export default function BranchesAdd({ setActiveComponent }) {
                             name="name"
                             value={dates.name || ''}
                             onChange={handleChange}
+                            required
                         />
                     </div>
                     <div className={styles.formRow}>
@@ -73,6 +75,7 @@ export default function BranchesAdd({ setActiveComponent }) {
                             name="address"
                             value={dates.address || ''}
                             onChange={handleChange}
+                            required
                         />
                     </div>
                     <div className={styles.formRow}>
@@ -82,6 +85,7 @@ export default function BranchesAdd({ setActiveComponent }) {
                             name="phone_number"
                             value={dates.phone_number || ''}
                             onChange={handleChange}
+                            required
                         />
                     </div>
                     <footer className={styles.formButtons}>

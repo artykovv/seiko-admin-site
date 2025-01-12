@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { API } from '@/constants/constants';
 import styles from '../../Participants/Participants.module.css';
+import toast from 'react-hot-toast';
 
 export default function RegistrationsEdit({ participantId, setActiveComponent }) {
     const [participant, setParticipant] = useState({
@@ -154,7 +155,6 @@ export default function RegistrationsEdit({ participantId, setActiveComponent })
                 return date.toISOString().split('T')[0];
             };
 
-            // Преобразуем значения в строгие булевы значения
             const booleanValue = (value) => {
                 if (value === true || value === 'true' || value === 1) return true;
                 return false;
@@ -199,6 +199,7 @@ export default function RegistrationsEdit({ participantId, setActiveComponent })
 
             if (response.status === 200) {
                 handleBack('Регистрации');
+                toast.success("Данные успешно обновлены");
             }
         } catch (error) {
         }

@@ -4,6 +4,7 @@ import axios from 'axios';
 import { API } from '@/constants/constants';
 
 import styles from '../../Participants/Participants.module.css';
+import toast from 'react-hot-toast';
 
 export default function RegistrationsInvite({ participantId, setActiveComponent }) {
     const [isDetailOpen, setIsDetailOpen] = useState(false);
@@ -12,18 +13,12 @@ export default function RegistrationsInvite({ participantId, setActiveComponent 
 
     const getSponsored = async () => {
         const token = localStorage.getItem('authToken');
-        const cachedSponsored = localStorage.getItem(`participantSponsored_${participantId}`);
-        if (cachedSponsored) {
-            setSponsored(JSON.parse(cachedSponsored));
-        } else {
-            const response = await axios.get(`${API}/api/v1/participant/${participantId}/sponsored`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            localStorage.setItem(`participantSponsored_${participantId}`, JSON.stringify(response.data));
-            setSponsored(response.data);
-        }
+        const response = await axios.get(`${API}/api/v1/participant/${participantId}/sponsored`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        setSponsored(response.data);
     };
 
     const handleBack = (name, id) => {
@@ -32,19 +27,12 @@ export default function RegistrationsInvite({ participantId, setActiveComponent 
 
     const handleOpenDetail = async (personalNumber) => {
         const token = localStorage.getItem('authToken');
-        const cachedDetail = localStorage.getItem(`participantInvite_${personalNumber}`);
-        if (cachedDetail) {
-            setParticipantDetail(JSON.parse(cachedDetail));
-            setIsDetailOpen(true);
-            return;
-        }
-
+        toast.loading("Загрузка...", { duration: 1000 })
         const response = await axios.get(`${API}/api/v1/participants/${personalNumber}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         });
-        localStorage.setItem(`participantInvite_${personalNumber}`, JSON.stringify(response.data));
         setParticipantDetail(response.data);
         setIsDetailOpen(true);
     }
@@ -101,20 +89,25 @@ export default function RegistrationsInvite({ participantId, setActiveComponent 
                                 </tr>
                             </thead>
                             <tbody>
-                                {sponsored.length > 0 && sponsored.map((item) => (
-                                    <tr key={item.id}>
-
-                                        <td scope="row">{item.branch.name}</td>
-                                        <td>
-                                            <button className={styles.openDetailBtn} onClick={() => handleOpenDetail(item.id)}>{item.personal_number}</button>
-                                        </td>
-                                        <td>{item.name} {item.lastname} {item.patronymic}</td>
-                                        <td>{item.paket.name}</td>
-                                        <td>{item.register_at ? new Date(item.register_at).toLocaleDateString() : 'Не указано'}</td>
-                                        <td>{item.volumes.big_volume}</td>
-                                        <td>{item.volumes.small_volume}</td>
+                                {sponsored && sponsored.length > 0 ? (
+                                    sponsored.map((item, index) => (
+                                        <tr key={item.id}>
+                                            <td scope="row">{item.branch.name}</td>
+                                            <td>
+                                                <button className={styles.openDetailBtn} onClick={() => handleOpenDetail(item.id)}>{item.personal_number}</button>
+                                            </td>
+                                            <td>{item.name} {item.lastname} {item.patronymic}</td>
+                                            <td>{item.paket.name}</td>
+                                            <td>{item.register_at ? new Date(item.register_at).toLocaleDateString() : 'Не указано'}</td>
+                                            <td>{item.volumes.big_volume}</td>
+                                            <td>{item.volumes.small_volume}</td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan="7" style={{ textAlign: 'center' }}>Нет данных</td>
                                     </tr>
-                                ))}
+                                )}
                             </tbody>
                         </table>
                     </div>

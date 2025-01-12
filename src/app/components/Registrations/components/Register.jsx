@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react'
 import styles from '../Registrations.module.css'
 import axios from 'axios';
 import { API } from '@/constants/constants';
+import toast from 'react-hot-toast';
 
 export default function Register({ setActiveComponent }) {
     const [personalNumber, setPersonalNumber] = useState('')
@@ -58,22 +59,8 @@ export default function Register({ setActiveComponent }) {
         }
     };
 
-    const handleDateChange = (field, part, value) => {
-        const date = participant[field] ? new Date(participant[field]) : new Date();
-
-        switch (part) {
-            case 'month':
-                date.setMonth(value - 1);
-                break;
-            case 'day':
-                date.setDate(value);
-                break;
-            case 'year':
-                date.setFullYear(value);
-                break;
-        }
-
-        handleChange(field, date.toISOString());
+    const handleDateChange = (field, value) => {
+        handleChange(field, value ? new Date(value).toISOString() : '');
     };
 
     const getBranches = async () => {
@@ -111,6 +98,11 @@ export default function Register({ setActiveComponent }) {
                 }
             });
             setSponsor(response.data);
+            setSponsor({
+                ...response.data,
+                birth_date: formatDate(response.data.birth_date),
+                passport_issue_date: formatDate(response.data.passport_issue_date),
+            });
         } catch (error) {
         }
     };
@@ -144,8 +136,6 @@ export default function Register({ setActiveComponent }) {
             'password',
             'sponsor_id',
         ];
-
-
 
         const missingFields = requiredFields.filter(field => {
             if (field === 'branch_id') return !participant.branch?.id;
@@ -216,6 +206,7 @@ export default function Register({ setActiveComponent }) {
             );
 
             if (response.status === 200) {
+                toast.success("Данные успешно обновлены");
                 handleBack('Регистрации');
             }
         } catch (error) {
@@ -380,31 +371,10 @@ export default function Register({ setActiveComponent }) {
                         <label>Дата рождения</label>
                         <div className={styles.dateInputs}>
                             <input
-                                type="number"
-                                placeholder="Месяц"
-                                value={participant?.birth_date ? new Date(participant.birth_date).getMonth() + 1 : ''}
-                                onChange={(e) => handleDateChange('birth_date', 'month', e.target.value)}
-                                required
-                                min="1"
-                                max="12"
-                            />
-                            <input
-                                type="number"
-                                placeholder="День"
-                                value={participant?.birth_date ? new Date(participant.birth_date).getDate() : ''}
-                                onChange={(e) => handleDateChange('birth_date', 'day', e.target.value)}
-                                required
-                                min="1"
-                                max="31"
-                            />
-                            <input
-                                type="number"
-                                placeholder="Год"
-                                value={participant?.birth_date ? new Date(participant.birth_date).getFullYear() : ''}
-                                onChange={(e) => handleDateChange('birth_date', 'year', e.target.value)}
-                                required
-                                min="1900"
-                                max="2100"
+                                style={{ width: '100%' }}
+                                type="date"
+                                value={participant.birth_date ? participant.birth_date.split('T')[0] : ''}
+                                onChange={(e) => handleDateChange('birth_date', e.target.value)}
                             />
                         </div>
                     </div>
@@ -436,28 +406,10 @@ export default function Register({ setActiveComponent }) {
                         <label>Дата выдачи документа</label>
                         <div className={styles.dateInputs}>
                             <input
-                                type="number"
-                                placeholder="Месяц"
-                                value={participant?.passport_issue_date ? new Date(participant.passport_issue_date).getMonth() + 1 : ''}
-                                onChange={(e) => handleDateChange('passport_issue_date', 'month', e.target.value)}
-                            />
-                            <input
-                                type="number"
-                                placeholder="День"
-                                value={participant?.passport_issue_date ? new Date(participant.passport_issue_date).getDate() : ''}
-                                onChange={(e) => handleDateChange('passport_issue_date', 'day', e.target.value)}
-                                required
-                                min="1"
-                                max="31"
-                            />
-                            <input
-                                type="number"
-                                placeholder="Год"
-                                value={participant?.passport_issue_date ? new Date(participant.passport_issue_date).getFullYear() : ''}
-                                onChange={(e) => handleDateChange('passport_issue_date', 'year', e.target.value)}
-                                required
-                                min="1900"
-                                max="2100"
+                                style={{ width: '100%' }}
+                                type="date"
+                                value={participant.passport_issue_date ? participant.passport_issue_date.split('T')[0] : ''}
+                                onChange={(e) => handleDateChange('passport_issue_date', e.target.value)}
                             />
                         </div>
                     </div>

@@ -33,6 +33,8 @@ import EmployeesPermissionsEdit from '../components/Employees/components/Employe
 import EmployeesEdit from '../components/Employees/components/EmployeesEdit';
 import EmployeesAdd from '../components/Employees/components/EmployeesAdd';
 import toast, { Toaster } from 'react-hot-toast';
+import Rebate from '../components/Rebate/Rebate';
+import RebateAdd from '../components/Rebate/components/RebateAdd';
 
 
 function Page() {
@@ -92,19 +94,18 @@ function Page() {
         getUser();
     }, [updatedPermissions, getUser], permissions);
 
-    useEffect(() => {
-        switch (activeComponent.name) {
-            case 'Участники':
-            case 'Регистрации':
-                if (activeComponent.id === true) {
-                    toast.success("Данные успешно обновлены");
-                }
-                console.log(1);
-                break;
-            default:
-                break;
-        }
-    }, [activeComponent.name]);
+    // useEffect(() => {
+    //     switch (activeComponent.name) {
+    //         // case 'Участники':
+    //         case 'Регистрации':
+    //             if (activeComponent.id === true) {
+    //                 toast.success("Данные успешно обновлены");
+    //             }
+    //             break;
+    //         default:
+    //             break;
+    //     }
+    // }, [activeComponent.name]);
 
     const renderComponent = () => {
         switch (activeComponent.name) {
@@ -122,6 +123,8 @@ function Page() {
                 return <Bonuses />;
             case "Подарочные":
                 return <Gifts />;
+            case "Cкидка":
+                return <Rebate setActiveComponent={setActiveComponent} />;
             case 'participantEdit':
                 return <ParticipantEdit participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
             case 'ParticipantInvite':
@@ -152,6 +155,8 @@ function Page() {
                 return <EmployeesAdd participantId={activeComponent.id} setActiveComponent={setActiveComponent} />
             case 'EmployeesPermissionsEdit':
                 return <EmployeesPermissionsEdit participantId={activeComponent.id} setActiveComponent={setActiveComponent} setUpdatePermissions={setUpdatePermissions} />
+            case 'RebateAdd':
+                return <RebateAdd participantId={activeComponent.id} setActiveComponent={setActiveComponent} setUpdatePermissions={setUpdatePermissions} />
             default:
                 return <Home />;
         }
@@ -162,7 +167,10 @@ function Page() {
             <div>
                 <Header />
                 <main className={styles.main}>
-                    <Toaster />
+                    <Toaster
+                        position="top-center"
+                        reverseOrder={false}
+                    />
                     <div className={styles.sidebar}>
                         {permissions
                             .slice()
@@ -186,6 +194,7 @@ function Page() {
                                             'branches': 'Филиалы',
                                             'bonuses': 'Бонусы',
                                             'gift': 'Подарочные',
+                                            'rebate': 'Cкидка',
                                         };
                                         return permissionLabels[permission.permission_name] || permission.permission_name;
                                     })()}

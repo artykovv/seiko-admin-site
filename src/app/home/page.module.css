@@ -3,7 +3,7 @@
 }
 
 .sidebar {
-  width: 200px;
+  min-width: 200px;
   height: max-content;
   padding: 10px;
   margin-block: 20px;

@@ -1,58 +1,43 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styles from '../Gifts.module.css';
 import axios from 'axios';
 import { API } from '@/constants/constants';
 import Image from 'next/image';
 import deletePng from "@/assets/delete.svg";
 import add from '@/assets/add.webp';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 
 export default function SurpriseBonus({ setActiveComponentGift }) {
     const [binary, setBinary] = useState([]);
     const [isDetailOpen, setIsDetailOpen] = useState(false);
     const [participantDetail, setParticipantDetail] = useState(null);
-    const [pageCount, setPageCount] = useState(20);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
-    console.log(binary);
+    const pageCountRef = useRef(20);
 
     const getBinary = async () => {
         const token = localStorage.getItem('authToken');
-        try {
-            const response = await axios.get(`${API}/api/v1/surprise/bonuses?page=${currentPage}&page_size=${pageCount}`, {
+            const response = await axios.get(`${API}/api/v1/surprise/bonuses?page=${currentPage}&page_size=${pageCountRef.current}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-
-            if (response.data && response.data.participants) {
-                setTotalPages(response.data.total_pages);
-                setBinary(response.data.participants);
-            } else {
-            }
-        } catch (error) {
-        }
+            setTotalPages(response.data.total_pages);
+            setBinary(response.data.participants);
     };
 
 
     const handleOpenDetail = async (personalNumber) => {
         const token = localStorage.getItem('authToken');
-        const cachedDetail = localStorage.getItem(`participantInvite_${personalNumber}`);
-        if (cachedDetail) {
-            setParticipantDetail(JSON.parse(cachedDetail));
-            setIsDetailOpen(true);
-            return;
-        }
+        toast.loading("Загрузка...", { duration: 1000 })
         try {
             const response = await axios.get(`${API}/api/v1/participants/${personalNumber}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setParticipantDetail(response.data);
             setIsDetailOpen(true);
-            localStorage.setItem(`participantInvite_${personalNumber}`, JSON.stringify(response.data));
         } catch (error) {
             console.error(error);
         }
     };
-
 
     const formatDate = (dateString) => {
         if (!dateString) return "Неизвестно";
@@ -76,29 +61,19 @@ export default function SurpriseBonus({ setActiveComponentGift }) {
         }
     };
 
-    const handlePageCountChange = (count) => {
-        setPageCount(count);
+    const handlePageCountChange = (event) => {
+        pageCountRef.current = Number(event.target.value);
         setCurrentPage(1);
-        getBinary();
-    };
-
-
-    const handlePageChange = (page) => {
-        setCurrentPage(page);
         getBinary();
     };
 
     useEffect(() => {
         getBinary();
-    }, [currentPage, pageCount]);
+    }, [currentPage]);
 
 
     return (
         <div>
-            <Toaster
-                position="top-center"
-                reverseOrder={false}
-            />
             <div className={styles.btnsWrapperAdd}>
                 <button className={styles.addBtn} onClick={() => setActiveComponentGift('SurpriseBonusAdd')}>
                     <Image src={add} alt="add" />
@@ -130,6 +105,7 @@ export default function SurpriseBonus({ setActiveComponentGift }) {
                     </div>
                 </div>
             </div>}
+
             <table className={styles.table}>
                 <thead>
                     <tr>
@@ -167,16 +143,75 @@ export default function SurpriseBonus({ setActiveComponentGift }) {
                 </tbody>
             </table>
             <div className={styles.pagination}>
-                {Array.from({ length: totalPages }, (_, index) => (
-                    <button key={index} onClick={() => handlePageChange(index + 1)} disabled={currentPage === index + 1}>
-                        {index + 1}
-                    </button>
-                ))}
+                <div className={styles.paginate}>
+                    {(() => {
+                        const pages = [];
+                        const isStart = currentPage <= 4;
+                        const isEnd = currentPage >= totalPages - 3;
+
+                        // Добавляем первую страницу
+                        if (totalPages >= 1) {
+                            pages.push(
+                                <button
+                                    key="pagination_page_1"
+                                    onClick={() => setCurrentPage(1)}
+                                    className={currentPage === 1 ? styles.activePage : ''}
+                                >
+                                    1
+                                </button>
+                            );
+                        }
+
+                        // Добавляем многоточие перед диапазоном страниц
+                        if (!isStart && totalPages > 6) {
+                            pages.push(<span key="start_ellipsis">...</span>);
+                        }
+
+                        // Рассчитываем диапазон страниц (средние кнопки)
+                        const startPage = Math.max(2, currentPage - 2); // Страницы начиная с 2
+                        const endPage = Math.min(totalPages - 1, currentPage + 2); // Заканчивается на предпоследней странице
+
+                        for (let page = startPage; page <= endPage; page++) {
+                            // Исключаем возможные дубликаты с первой или последней страницей
+                            if (page > 1 && page < totalPages) {
+                                pages.push(
+                                    <button
+                                        key={`pagination_page_${page}`}
+                                        onClick={() => setCurrentPage(page)}
+                                        className={currentPage === page ? styles.activePage : ''}
+                                    >
+                                        {page}
+                                    </button>
+                                );
+                            }
+                        }
+
+                        // Добавляем многоточие после диапазона страниц
+                        if (!isEnd && totalPages > 3) {
+                            pages.push(<span key="end_ellipsis">...</span>);
+                        }
+
+                        // Добавляем последнюю страницу
+                        if (totalPages > 1) {
+                            pages.push(
+                                <button
+                                    key={`pagination_page_${totalPages}`}
+                                    onClick={() => setCurrentPage(totalPages)}
+                                    className={currentPage === totalPages ? styles.activePage : ''}
+                                >
+                                    {totalPages}
+                                </button>
+                            );
+                        }
+
+                        return pages;
+                    })()}
+                </div>
                 <div className={styles.selectPage}>
-                    <select onChange={(e) => handlePageCountChange(Number(e.target.value))}>
-                        <option value={20} style={pageCount === 20 ? { backgroundColor: '#007BFF' } : {}}>20</option>
-                        <option value={50} style={pageCount === 50 ? { backgroundColor: '#007BFF' } : {}}>50</option>
-                        <option value={100} style={pageCount === 100 ? { backgroundColor: '#007BFF' } : {}}>100</option>
+                    <select defaultValue={pageCountRef.current} onChange={handlePageCountChange}>
+                        <option value={20}>20</option>
+                        <option value={50}>50</option>
+                        <option value={100}>100</option>
                     </select>
                 </div>
             </div>

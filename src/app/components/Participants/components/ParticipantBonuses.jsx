@@ -4,6 +4,7 @@ import axios from 'axios';
 import { API } from '@/constants/constants';
 import styles from '../Participants.module.css';
 import Loading from '@/components/Loading';
+import toast from 'react-hot-toast';
 
 export default function ParticipantBonuses({ participantId, setActiveComponent }) {
     const [bonuses, setBonuses] = useState(null);
@@ -11,38 +12,25 @@ export default function ParticipantBonuses({ participantId, setActiveComponent }
 
     const getBonuses = async () => {
         const token = localStorage.getItem('authToken');
-        const cachedBonuses = localStorage.getItem(`bonuses_${participantId}`);
-        if (cachedBonuses) {
-            setBonuses(JSON.parse(cachedBonuses));
-        } else {
-            const response = await axios.get(`${API}/api/v1/${participantId}/bonuses_summary`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
 
-            setBonuses(response.data);
-            localStorage.setItem(`bonuses_${participantId}`, JSON.stringify(response.data));
-        }
+        const response = await axios.get(`${API}/api/v1/${participantId}/bonuses_summary`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        setBonuses(response.data);
     };
 
     const getBonusHistory = async () => {
         const token = localStorage.getItem('authToken');
-        const cachedHistory = localStorage.getItem(`bonusHistory_${participantId}`);
-        if (cachedHistory) {
-            setBonusHistory(JSON.parse(cachedHistory));
-            setIsHistoryOpen(true);
-        } else {
-            const response = await axios.get(`${API}/api/v1/participants/bonuses/history/${participantId}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            setBonusHistory(response.data.bonuses);
-            localStorage.setItem(`bonusHistory_${participantId}`, JSON.stringify(response.data.bonuses));
-            setIsHistoryOpen(true);
-        }
+        toast.loading('Загрузка...', { duration: 1000, });
+        const response = await axios.get(`${API}/api/v1/participants/bonuses/history/${participantId}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        setBonusHistory(response.data.bonuses);
+        setIsHistoryOpen(true);
     };
 
     const handleBack = (name, id) => {
@@ -75,7 +63,7 @@ export default function ParticipantBonuses({ participantId, setActiveComponent }
                                             </tr>
                                         </thead>
                                         <tbody className={styles.tableBody} style={{ height: '300px', overflowY: 'auto', display: 'block' }}>
-                                            {Array.isArray(bonusHistory) ? (
+                                            {Array.isArray(bonusHistory) && bonusHistory.length > 0 ? (
                                                 bonusHistory.map((item, index) => (
                                                     <tr key={index}>
                                                         <td>{item.created_at ? new Date(item.created_at).toLocaleDateString() : 'Не указано'}</td>
@@ -83,7 +71,11 @@ export default function ParticipantBonuses({ participantId, setActiveComponent }
                                                         <td>{item.bonus_amount}</td>
                                                     </tr>
                                                 ))
-                                            ) : null}
+                                            ) : (
+                                                <tr>
+                                                    <td colSpan="3" style={{ textAlign: 'center' }}>Нет данных</td>
+                                                </tr>
+                                            )}
                                         </tbody>
                                     </table>
                                 </div>
@@ -109,10 +101,9 @@ export default function ParticipantBonuses({ participantId, setActiveComponent }
                                 </button>
                             </div>
                         </footer>
-
                         {bonuses ? (
                             <>
-                                <h3 style={{ marginTop: '20px', backgroundColor: '#dee2e6', padding: '5px' }}>Вознаграждение Реферал</h3>
+                                <h3 style={{ marginTop: '20px', padding: '5px' }}>Вознаграждение Реферал</h3>
                                 <table className={styles.table}>
                                     <thead>
                                         <tr>
@@ -130,7 +121,7 @@ export default function ParticipantBonuses({ participantId, setActiveComponent }
                                     </tbody>
                                 </table>
 
-                                <h3 style={{ marginTop: '20px', backgroundColor: '#dee2e6', padding: '5px' }}>Бинар</h3>
+                                <h3 style={{ marginTop: '20px', padding: '5px' }}>Бинар</h3>
                                 <table className={styles.table}>
                                     <thead>
                                         <tr>
@@ -148,7 +139,7 @@ export default function ParticipantBonuses({ participantId, setActiveComponent }
                                     </tbody>
                                 </table>
 
-                                <h3 style={{ marginTop: '20px', backgroundColor: '#dee2e6', padding: '5px' }}>Чек от чека</h3>
+                                <h3 style={{ marginTop: '20px', padding: '5px' }}>Чек от чека</h3>
                                 <table className={styles.table}>
                                     <thead>
                                         <tr>
@@ -166,7 +157,7 @@ export default function ParticipantBonuses({ participantId, setActiveComponent }
                                     </tbody>
                                 </table>
 
-                                <h3 style={{ marginTop: '20px', backgroundColor: '#dee2e6', padding: '5px' }}>Статусные бонусы</h3>
+                                <h3 style={{ marginTop: '20px', padding: '5px' }}>Статусные бонусы</h3>
                                 <table className={styles.table}>
                                     <thead>
                                         <tr>
@@ -184,7 +175,7 @@ export default function ParticipantBonuses({ participantId, setActiveComponent }
                                     </tbody>
                                 </table>
 
-                                <h3 style={{ marginTop: '20px', backgroundColor: '#dee2e6', padding: '5px' }}>Спонсорский бонус</h3>
+                                <h3 style={{ marginTop: '20px', padding: '5px' }}>Спонсорский бонус</h3>
                                 <table className={styles.table}>
                                     <thead>
                                         <tr>
@@ -202,7 +193,7 @@ export default function ParticipantBonuses({ participantId, setActiveComponent }
                                     </tbody>
                                 </table>
 
-                                <h3 style={{ marginTop: '20px', backgroundColor: '#dee2e6', padding: '5px' }}>Итого бонусов</h3>
+                                <h3 style={{ marginTop: '20px', padding: '5px' }}>Итого бонусов</h3>
                                 <table className={styles.table}>
                                     <thead>
                                         <tr>

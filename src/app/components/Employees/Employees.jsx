@@ -23,7 +23,6 @@ function Employees({ setActiveComponent }) {
       });
       setUsers(response.data);
     } catch (error) {
-      console.error('Ошибка при загрузке сотрудников:', error);
     }
   };
 
@@ -41,6 +40,7 @@ function Employees({ setActiveComponent }) {
       await axios.delete(`${API}/users/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      toast.success('Успешно удалено!')
       setUsers((prevUsers) => prevUsers.filter((user) => user.id !== id));
     } catch (error) {
       handleOpenDetail();
@@ -98,29 +98,35 @@ function Employees({ setActiveComponent }) {
                 </tr>
               </thead>
               <tbody>
-                {users.map((item, index) => (
-                  <tr key={index}>
-                    <td scope="row">{item.lastname} {item.userName} {item.patronymic}</td>
-                    <td>{item.email}</td>
-                    <td>{item.branch}</td>
-                    <td>{item.branches.map(branch => branch.name).join(', ')}</td>
-                    <td>{item.is_active ? 'Действует' : 'Не действует'}</td>
-                    <td className={styles.actions}>
-                      <button className={styles.btn}>
-                        <Image src={usersetting} alt="usersetting" onClick={() => handleParticipantPage('EmployeesPermissionsEdit', item.id)} />
-                      </button>
-                      <button className={styles.btn}>
-                        <Image src={geo} alt="geo" onClick={() => handleParticipantPage('EmployeesBranchesEdit', item.id)} />
-                      </button>
-                      <button className={styles.btn}>
-                        <Image src={edit} alt="edit" onClick={() => handleParticipantPage('EmployeesEdit', item.id)} />
-                      </button>
-                      <button className={styles.btn}>
-                        <Image src={deletePng} alt="delete" onClick={() => handleDelete(item.id)} />
-                      </button>
-                    </td>
+                {users && users.length > 0 ? (
+                  users.map((item, index) => (
+                    <tr key={index}>
+                      <td scope="row">{item.lastname} {item.userName} {item.patronymic}</td>
+                      <td>{item.email}</td>
+                      <td>{item.branch}</td>
+                      <td style={{ width: '30%' }}>{item.branches.map(branch => branch.name).join(', ')}</td>
+                      <td>{item.is_active ? 'Действует' : 'Не действует'}</td>
+                      <td className={styles.actions}>
+                        <button className={styles.btn}>
+                          <Image src={usersetting} alt="usersetting" onClick={() => handleParticipantPage('EmployeesPermissionsEdit', item.id)} />
+                        </button>
+                        <button className={styles.btn}>
+                          <Image src={geo} alt="geo" onClick={() => handleParticipantPage('EmployeesBranchesEdit', item.id)} />
+                        </button>
+                        <button className={styles.btn}>
+                          <Image src={edit} alt="edit" onClick={() => handleParticipantPage('EmployeesEdit', item.id)} />
+                        </button>
+                        <button className={styles.btn}>
+                          <Image src={deletePng} alt="delete" onClick={() => handleDelete(item.id)} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="6" style={{ textAlign: 'center' }}>Нет данных</td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>

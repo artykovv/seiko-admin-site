@@ -12,6 +12,7 @@ import agreement from '@/assets/agreement.svg';
 import Image from 'next/image';
 import axios from 'axios';
 import { API } from '@/constants/constants';
+import toast from 'react-hot-toast';
 
 function Participants({ setActiveComponent }) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -23,6 +24,7 @@ function Participants({ setActiveComponent }) {
   const searchInputRef = useRef('');
 
   const handleSelectChange = (option) => {
+    toast.loading("Загрузка...", { duration: 1000 })
     setSelectedOption(option);
     setIsFilterOpen(false);
     setCurrentPage(1);
@@ -64,7 +66,6 @@ function Participants({ setActiveComponent }) {
 
       setParticipants(response.data.participants || []);
       setTotalPages(response.data.total_pages);
-
     } catch (error) {
     }
   }, [currentPage]);
@@ -79,6 +80,7 @@ function Participants({ setActiveComponent }) {
 
   const handleOpenDetail = async (personalNumber) => {
     const token = localStorage.getItem('authToken');
+    toast.loading("Загрузка...", { duration: 1000 })
     const response = await axios.get(`${API}/api/v1/participants/${personalNumber}`, {
       headers: {
         'Authorization': `Bearer ${token}`,

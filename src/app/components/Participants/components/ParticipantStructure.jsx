@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { API } from '@/constants/constants';
 import styles from "../Participants.module.css";
-import toast, { Toaster } from 'react-hot-toast';
+import toast  from 'react-hot-toast';
 
 const ParticipantStructure = ({ participantId, setActiveComponent }) => {
     const [state, setState] = useState(null);
@@ -115,10 +115,6 @@ const ParticipantStructure = ({ participantId, setActiveComponent }) => {
 
     return (
         <div className={styles.participantsContainer}>
-            <Toaster
-                position="top-center"
-                reverseOrder={false}
-            />
             <div className={styles.tableSection}>
                 <div className={styles.tableIn}>
                     {isDetailOpen && (

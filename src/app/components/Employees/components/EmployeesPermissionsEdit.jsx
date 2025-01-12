@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import styles from "../Employees.module.css";
 import axios from 'axios';
 import { API } from '@/constants/constants';
+import toast from 'react-hot-toast';
 
 export default function EmployeesPermissionsEdit({ participantId, setActiveComponent, setUpdatePermissions }) {
     const [userInfo, setUserInfo] = useState({});
@@ -58,14 +59,18 @@ export default function EmployeesPermissionsEdit({ participantId, setActiveCompo
                         'Authorization': `Bearer ${token}`,
                     },
                 });
+                toast.success('Данные успешно добавлены')
             } else {
                 await axios.delete(url, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                     },
                 });
+                toast.success('Данные успешно добавлены')
             }
         } catch (error) {
+            toast.error('Ошибка', { duration: 1000 })
+            getPermissions();
         }
     };
 

@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styles from '../Bonuses.module.css';
 import axios from 'axios';
 import { API } from '@/constants/constants';
+import toast from 'react-hot-toast';
 
 export default function StatusAndSponsorship() {
     const [binary, setBinary] = useState([]);
@@ -9,18 +10,23 @@ export default function StatusAndSponsorship() {
     const [isDetailOpenHistory, setIsDetailOpenHistory] = useState(false);
     const [participantDetail, setParticipantDetail] = useState(null);
     const [participantHistory, setParticipantHistory] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(0);
+    const pageCountRef = useRef(20);
 
-
-    console.log(binary);
     const getStatusAndSponsor = async () => {
         const token = localStorage.getItem('authToken');
         try {
-            const response = await axios.get(`${API}/api/v1/participants/status&sponsor/?page=1&page_size=20`, {
+            const response = await axios.get(`${API}/api/v1/participants/status&sponsor/?page=${currentPage}&page_size=${pageCountRef.current}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            setBinary(response.data.participants);
+            if (response.data && response.data.participants) {
+                setTotalPages(response.data.total_pages);
+                setBinary(response.data.participants);
+            } else {
+            }
         } catch (error) {
             console.error('Ошибка загрузки данных:', error);
         }
@@ -37,21 +43,14 @@ export default function StatusAndSponsorship() {
     };
 
     const handleOpenDetail = async (personalNumber) => {
-        const cachedDetail = getLocalStorage(`participantDetail_${personalNumber}`, 7 * 24 * 60 * 60 * 1000);
-        if (cachedDetail) {
-            setParticipantDetail(cachedDetail);
-            setIsDetailOpen(true);
-            return;
-        }
-
         const token = localStorage.getItem('authToken');
+        toast.loading("Загрузка...", { duration: 1000 })
         try {
             const response = await axios.get(`${API}/api/v1/participants/${personalNumber}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            setLocalStorage(`participantDetail_${personalNumber}`, response.data);
             setParticipantDetail(response.data);
             setIsDetailOpen(true);
         } catch (error) {
@@ -60,14 +59,8 @@ export default function StatusAndSponsorship() {
     };
 
     const handleOpenHistory = async (personalNumber) => {
-        const cachedHistory = getLocalStorage(`participantHistory_${personalNumber}`, 7 * 24 * 60 * 60 * 1000);
-        if (cachedHistory) {
-            setParticipantHistory(cachedHistory);
-            setIsDetailOpenHistory(true);
-            return;
-        }
-
         const token = localStorage.getItem('authToken');
+        toast.loading("Загрузка...", { duration: 1000 })
         try {
             const response = await axios.get(
                 `${API}/api/v1/participants/bonuses/history/${personalNumber}/ref_bonus`,
@@ -77,17 +70,21 @@ export default function StatusAndSponsorship() {
                     },
                 }
             );
-            setLocalStorage(`participantHistory_${personalNumber}`, response.data.bonuses);
             setParticipantHistory(response.data.bonuses);
             setIsDetailOpenHistory(true);
         } catch (error) {
-            console.error('Ошибка загрузки истории бонусов:', error);
         }
+    };
+
+    const handlePageCountChange = (event) => {
+        pageCountRef.current = Number(event.target.value);
+        setCurrentPage(1);
+        getStatusAndSponsor();
     };
 
     useEffect(() => {
         getStatusAndSponsor();
-    }, []);
+    }, [currentPage]);
 
     return (
         <div>
@@ -151,25 +148,104 @@ export default function StatusAndSponsorship() {
                     </tr>
                 </thead>
                 <tbody>
-                    {binary.map((item, index) => (
-                        <tr key={index}>
-                            <td scope="row">{item.branch?.name || "Неизвестно"}</td>
-                            <td className={styles.openDetailBtn} onClick={() => handleOpenDetail(item.id)}>{item.personal_number || "Неизвестно"}</td>
-                            <td>
-                                {item.name || "Неизвестно"} {item.lastname || "Неизвестно"} {item.patronymic || "Неизвестно"}
-                            </td>
-                            <td>{item.passport_id || "Неизвестно"}</td>
-                            <td>{formatDate(item.register_at)}</td>
-                            <td>{item.bonus_status}</td>
-                            <td>{item.bonus_sponsor}</td>
-                            <td>{item.total}</td>
-                            <td>{item.ip_inn ? "да" : "нет"}</td>
-                            <td>{item.pensioner ? "да" : "нет"}</td>
-                            <td className={styles.openDetailBtn} onClick={() => handleOpenHistory(item.id)}>История</td>
+                    {binary && binary.length > 0 ? (
+                        binary.map((item, index) => (
+                            <tr key={index}>
+                                <td scope="row">{item.branch?.name || "Неизвестно"}</td>
+                                <td className={styles.openDetailBtn} onClick={() => handleOpenDetail(item.id)}>{item.personal_number || "Неизвестно"}</td>
+                                <td>
+                                    {item.name || "Неизвестно"} {item.lastname || "Неизвестно"} {item.patronymic || "Неизвестно"}
+                                </td>
+                                <td>{item.passport_id || "Неизвестно"}</td>
+                                <td>{formatDate(item.register_at)}</td>
+                                <td>{item.bonus_status}</td>
+                                <td>{item.bonus_sponsor}</td>
+                                <td>{item.total}</td>
+                                <td>{item.ip_inn ? "да" : "нет"}</td>
+                                <td>{item.pensioner ? "да" : "нет"}</td>
+                                <td className={styles.openDetailBtn} onClick={() => handleOpenHistory(item.id)}>История</td>
+                            </tr>
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan="11" style={{ textAlign: 'center' }}>Нет данных</td>
                         </tr>
-                    ))}
+                    )}
                 </tbody>
             </table>
+            <div className={styles.pagination}>
+                <div className={styles.paginate}>
+                    {(() => {
+                        const pages = [];
+                        const isStart = currentPage <= 4;
+                        const isEnd = currentPage >= totalPages - 3;
+
+                        // Добавляем первую страницу
+                        if (totalPages >= 1) {
+                            pages.push(
+                                <button
+                                    key="pagination_page_1"
+                                    onClick={() => setCurrentPage(1)}
+                                    className={currentPage === 1 ? styles.activePage : ''}
+                                >
+                                    1
+                                </button>
+                            );
+                        }
+
+                        // Добавляем многоточие перед диапазоном страниц
+                        if (!isStart && totalPages > 6) {
+                            pages.push(<span key="start_ellipsis">...</span>);
+                        }
+
+                        // Рассчитываем диапазон страниц (средние кнопки)
+                        const startPage = Math.max(2, currentPage - 2); // Страницы начиная с 2
+                        const endPage = Math.min(totalPages - 1, currentPage + 2); // Заканчивается на предпоследней странице
+
+                        for (let page = startPage; page <= endPage; page++) {
+                            // Исключаем возможные дубликаты с первой или последней страницей
+                            if (page > 1 && page < totalPages) {
+                                pages.push(
+                                    <button
+                                        key={`pagination_page_${page}`}
+                                        onClick={() => setCurrentPage(page)}
+                                        className={currentPage === page ? styles.activePage : ''}
+                                    >
+                                        {page}
+                                    </button>
+                                );
+                            }
+                        }
+
+                        // Добавляем многоточие после диапазона страниц
+                        if (!isEnd && totalPages > 3) {
+                            pages.push(<span key="end_ellipsis">...</span>);
+                        }
+
+                        // Добавляем последнюю страницу
+                        if (totalPages > 1) {
+                            pages.push(
+                                <button
+                                    key={`pagination_page_${totalPages}`}
+                                    onClick={() => setCurrentPage(totalPages)}
+                                    className={currentPage === totalPages ? styles.activePage : ''}
+                                >
+                                    {totalPages}
+                                </button>
+                            );
+                        }
+
+                        return pages;
+                    })()}
+                </div>
+                <div className={styles.selectPage}>
+                    <select defaultValue={pageCountRef.current} onChange={handlePageCountChange}>
+                        <option value={20}>20</option>
+                        <option value={50}>50</option>
+                        <option value={100}>100</option>
+                    </select>
+                </div>
+            </div>
         </div>
     );
 }
