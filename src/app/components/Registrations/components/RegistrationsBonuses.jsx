@@ -10,38 +10,26 @@ export default function RegistrationsBonuses({ participantId, setActiveComponent
 
     const getBonuses = async () => {
         const token = localStorage.getItem('authToken');
-        const cachedBonuses = localStorage.getItem(`participantInvite_${participantId}`);
-        if (cachedBonuses) {
-            setBonuses(JSON.parse(cachedBonuses));
-        } else {
-            const response = await axios.get(`${API}/api/v1/${participantId}/bonuses_summary`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
+        toast.loading("Загрузка...", { duration: 1000 })
+        const response = await axios.get(`${API}/api/v1/${participantId}/bonuses_summary`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
 
-            setBonuses(response.data);
-            localStorage.setItem(`participantInvite_${participantId}`, JSON.stringify(response.data));
-        }
+        setBonuses(response.data);
     };
 
     const getBonusHistory = async () => {
         const token = localStorage.getItem('authToken');
-        const cachedHistory = localStorage.getItem(`bonusHistory_${participantId}`);
-        if (cachedHistory) {
-            setBonusHistory(JSON.parse(cachedHistory));
-            setIsHistoryOpen(true);
-        } else {
-            const response = await axios.get(`${API}/api/v1/participants/bonuses/history/${participantId}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            setBonusHistory(response.data.bonuses);
-            localStorage.setItem(`bonusHistory_${participantId}`, JSON.stringify(response.data.bonuses));
-            setIsHistoryOpen(true);
-        }
+        toast.loading("Загрузка...", { duration: 1000 })
+        const response = await axios.get(`${API}/api/v1/participants/bonuses/history/${participantId}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        setBonusHistory(response.data.bonuses);
+        setIsHistoryOpen(true);
     };
 
     const handleBack = (name, id) => {

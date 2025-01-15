@@ -94,19 +94,6 @@ function Page() {
         getUser();
     }, [updatedPermissions, getUser], permissions);
 
-    // useEffect(() => {
-    //     switch (activeComponent.name) {
-    //         // case 'Участники':
-    //         case 'Регистрации':
-    //             if (activeComponent.id === true) {
-    //                 toast.success("Данные успешно обновлены");
-    //             }
-    //             break;
-    //         default:
-    //             break;
-    //     }
-    // }, [activeComponent.name]);
-
     const renderComponent = () => {
         switch (activeComponent.name) {
             case 'Главная':

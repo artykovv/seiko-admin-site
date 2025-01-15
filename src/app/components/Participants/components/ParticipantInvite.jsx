@@ -86,7 +86,7 @@ export default function ParticipantInvite({ participantId, setActiveComponent })
                             </thead>
                             <tbody>
                                 {sponsored && sponsored.length > 0 ? (
-                                    sponsored.map((item) => (
+                                    sponsored.map((item, index) => (
                                         <tr key={index}>
                                             <td scope="row">{item.branch.name}</td>
                                             <td>
