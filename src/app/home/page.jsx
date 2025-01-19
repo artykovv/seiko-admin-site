@@ -96,8 +96,6 @@ function Page() {
         getUser();
     }, [updatedPermissions, getUser], permissions);
 
-    console.log(activeComponent);
-
     const renderComponent = () => {
         switch (activeComponent.name) {
             case 'Главная':
