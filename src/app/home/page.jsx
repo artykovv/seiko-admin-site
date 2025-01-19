@@ -35,6 +35,8 @@ import EmployeesAdd from '../components/Employees/components/EmployeesAdd';
 import toast, { Toaster } from 'react-hot-toast';
 import Rebate from '../components/Rebate/Rebate';
 import RebateAdd from '../components/Rebate/components/RebateAdd';
+import SurpriseBonusAdd from '../components/Gifts/components/SurpriseBonusAdd';
+import SurpriseBonus from '../components/Gifts/components/SurpriseBonus';
 
 
 function Page() {
@@ -94,6 +96,8 @@ function Page() {
         getUser();
     }, [updatedPermissions, getUser], permissions);
 
+    console.log(activeComponent);
+
     const renderComponent = () => {
         switch (activeComponent.name) {
             case 'Главная':
@@ -109,7 +113,7 @@ function Page() {
             case "Бонусы":
                 return <Bonuses />;
             case "Подарочные":
-                return <Gifts />;
+                return <Gifts setActiveComponent={setActiveComponent} />;
             case "Cкидка":
                 return <Rebate setActiveComponent={setActiveComponent} />;
             case 'participantEdit':
@@ -144,6 +148,8 @@ function Page() {
                 return <EmployeesPermissionsEdit participantId={activeComponent.id} setActiveComponent={setActiveComponent} setUpdatePermissions={setUpdatePermissions} />
             case 'RebateAdd':
                 return <RebateAdd participantId={activeComponent.id} setActiveComponent={setActiveComponent} setUpdatePermissions={setUpdatePermissions} />
+            case 'SurpriseBonusAdd':
+                return <SurpriseBonusAdd setActiveComponent={setActiveComponent} />
             default:
                 return <Home />;
         }

@@ -132,7 +132,7 @@ export default function BinaryCheck() {
             {isDetailOpenHistory && <div className={styles.detailModal} onClick={() => setIsDetailOpenHistory(false)}>
                 <div className={styles.detailModalContent} onClick={(e) => e.stopPropagation()}>
                     <div className={styles.detailModalHeader}>
-                        <h2>Детали участника</h2>
+                        <h2>История бонусов</h2>
                     </div>
                     <div className={styles.detailModalBodyBinar}>
                         {participantHistory.map((item, index) => (

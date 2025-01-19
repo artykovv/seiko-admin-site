@@ -1,9 +1,9 @@
-'use client'
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
 import { API } from '@/constants/constants';
 import styles from '../Participants.module.css';
 import toast from 'react-hot-toast';
+import { debounce, set } from 'lodash';
 
 export default function ParticipantEdit({ participantId, setActiveComponent }) {
     const [participant, setParticipant] = useState({
@@ -30,32 +30,64 @@ export default function ParticipantEdit({ participantId, setActiveComponent }) {
     const [branches, setBranches] = useState([]);
     const [searchResults, setSearchResults] = useState([]);
     const searchInputRef = useRef();
+    const [searchValue, setSearchValue] = useState('');
+    const [isSponsorListVisible, setIsSponsorListVisible] = useState(false);
+
+    const getBranches = async () => {
+        const token = localStorage.getItem('authToken');
+        try {
+            const response = await axios.get(`${API}/api/v1/branches`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setBranches(response.data);
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
     const formatDate = (date) => (date ? new Date(date).toISOString().split('T')[0] : '');
 
     const handleChange = (field, value) => {
-        setParticipant((prev) => ({
+        setParticipant(prev => ({
             ...prev,
-            [field]: value,
+            [field]: value
         }));
+        if (field === 'branch') {
+            console.log(value);
+
+            setParticipant(prev => ({
+                ...prev,
+                branch: { id: value },
+                address: value
+            }));
+        }
     };
 
     const handleDateChange = (field, value) => {
         handleChange(field, value ? new Date(value).toISOString() : '');
     };
 
-    const handleSearch = async () => {
-        const token = localStorage.getItem('authToken');
-        const query = searchInputRef.current?.value;
-        if (!query) return;
-        try {
-            const response = await axios.get(`${API}/api/v1/search/participants?query=${query}`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            setSearchResults(response.data.participants || []);
-        } catch (error) {
-            console.error(error);
-        }
+    const debouncedHandleSearch = useMemo(() =>
+        debounce(async (query) => {
+            const token = localStorage.getItem('authToken');
+            if (!query) return;
+
+            try {
+                const response = await axios.get(`${API}/api/v1/search/participants?query=${query}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                setSearchResults(response.data.participants || []);
+            } catch (error) {
+                console.error(error);
+            }
+        }, 300), []);
+
+    const handleSearchInputChange = (e) => {
+        const query = e.target.value;
+        searchInputRef.current = query;
+        setSearchValue(query);
+        debouncedHandleSearch(query);
+        setIsSponsorListVisible(true);
     };
 
     const handleEditParticipant = async () => {
@@ -69,13 +101,29 @@ export default function ParticipantEdit({ participantId, setActiveComponent }) {
                 ...participantData,
                 birth_date: formatDate(participantData.birth_date),
                 passport_issue_date: formatDate(participantData.passport_issue_date),
+                sponsor: participantData.sponsor.id
             });
-            if (participantData.sponsor && searchInputRef.current) {
-                searchInputRef.current.value = `${participantData.sponsor.name || ''} ${participantData.sponsor.lastname || ''
-                    } ${participantData.sponsor.patronymic || ''} (${participantData.sponsor.personal_number || ''})`.trim();
-            }
+            const sponsor = `${participantData.sponsor.name} ${participantData.sponsor.lastname} ${participantData.sponsor.patronymic} ${participantData.sponsor.personal_number}`;
+            setSearchValue(sponsor);
+            // if (participantData.sponsor && searchInputRef.current) {
+            //     searchInputRef.current.value = `${participantData.sponsor.name || ''} ${participantData.sponsor.lastname || ''
+            //         } ${participantData.sponsor.patronymic || ''} (${participantData.sponsor.personal_number || ''})`.trim();
+            // }
         } catch (error) {
             console.error(error);
+        }
+    };
+
+    const handleSelectSponsor = (value) => {
+        setParticipant(prev => ({
+            ...prev,
+            sponsor: value,
+        }));
+        const selected = searchResults.find((item) => item.id === value);
+        if (selected) {
+            const sponsorDetails = `${selected.name} ${selected.lastname} ${selected.patronymic} ${selected.personal_number}`;
+            setSearchValue(sponsorDetails);
+            setIsSponsorListVisible(false);
         }
     };
 
@@ -89,7 +137,7 @@ export default function ParticipantEdit({ participantId, setActiveComponent }) {
                 birth_date: participant.birth_date,
                 passport_issue_date: participant.passport_issue_date,
                 paket_id: parseInt(participant.paket?.id),
-                branch_id: parseInt(participant.branch?.id),
+                branch: parseInt(participant.branch?.id),
                 ip_inn: Boolean(participant.ip_inn),
                 pensioner: Boolean(participant.pensioner),
             };
@@ -110,6 +158,10 @@ export default function ParticipantEdit({ participantId, setActiveComponent }) {
         }
     };
 
+    const handleBack = (name, id) => {
+        setActiveComponent({ name, id });
+    };
+
     useEffect(() => {
         if (participantId) {
             handleEditParticipant();
@@ -117,17 +169,6 @@ export default function ParticipantEdit({ participantId, setActiveComponent }) {
         }
     }, [participantId]);
 
-    const getBranches = async () => {
-        const token = localStorage.getItem('authToken');
-        try {
-            const response = await axios.get(`${API}/api/v1/branches`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            setBranches(response.data);
-        } catch (error) {
-            console.error(error);
-        }
-    };
 
     return (
         <div className={styles.participantsContainer}>
@@ -141,20 +182,24 @@ export default function ParticipantEdit({ participantId, setActiveComponent }) {
                         <label>Поиск спонсора</label>
                         <input
                             type="text"
-                            ref={searchInputRef}
+                            value={searchValue}
                             placeholder="Поиск"
-                            onChange={handleSearch}
+                            onChange={(e) => {
+                                setSearchValue(e.target.value);
+                                handleSearchInputChange(e);
+                            }}
                         />
                     </div>
-                    {searchResults.length > 0 && (
+
+                    {isSponsorListVisible && searchResults.length > 0 && (
                         <div className={styles.searchResults}>
                             {searchResults.map((item) => (
                                 <div
                                     key={item.id}
                                     className={styles.searchResultItem}
-                                    onClick={() => selectSponsor(item)}
+                                    onClick={() => handleSelectSponsor(item.id)}
                                 >
-                                    <span> {`${item.name || ''} ${item.lastname || ''}  ${item.patronymic || ''}  (${item.personal_number || ''})`}</span>
+                                    <span>{`${item.name || ''} ${item.lastname || ''} ${item.patronymic || ''} (${item.personal_number || ''})`}</span>
                                 </div>
                             ))}
                         </div>
@@ -164,12 +209,12 @@ export default function ParticipantEdit({ participantId, setActiveComponent }) {
                         <label>Филиал</label>
                         <select
                             value={participant?.branch?.id || ''}
-                            onChange={(e) => handleChange('branch_id', e.target.value)}
+                            onChange={(e) => handleChange('branch', e.target.value)}
                             required
                         >
                             <option value="">Выберите филиал</option>
                             {branches.map(branch => (
-                                <option key={branch.id} value={branch.id}>{branch.name}</option>
+                                <option key={branch.id} value={branch.id}>{branch.code} {branch.name}</option>
                             ))}
                         </select>
                     </div>

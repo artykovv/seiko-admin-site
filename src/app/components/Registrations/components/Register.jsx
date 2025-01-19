@@ -1,22 +1,27 @@
 'use client'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo, useRef } from 'react'
 import styles from '../Registrations.module.css'
 import axios from 'axios';
 import { API } from '@/constants/constants';
 import toast from 'react-hot-toast';
+import { debounce } from 'lodash';
 
 export default function Register({ setActiveComponent }) {
     const [personalNumber, setPersonalNumber] = useState('')
     const [errorMessage, setErrorMessage] = useState('')
     const [branches, setBranches] = useState([]);
     const [pakets, setPakets] = useState([]);
-    const [sponsor, setSponsor] = useState([])
+    const [isSponsorListVisible, setIsSponsorListVisible] = useState(false);
+    const [searchValue, setSearchValue] = useState('');
+    const searchInputRef = useRef();
+    const [searchResults, setSearchResults] = useState([]);
+
 
     const [participant, setParticipant] = useState({
-        address: { id: '' },
+        address: null,
         bank: '',
         birth_date: '',
-        branch_id: { id: '' },
+        branch_id: null,
         code: personalNumber,
         email: '',
         ip_inn: null,
@@ -31,20 +36,23 @@ export default function Register({ setActiveComponent }) {
         personal_info: '',
         pensioner: null,
         paket_id: { id: '' },
-        sponsor_id: { id: '' },
+        sponsor_id: null,
         password: ''
     });
 
+    console.log(participant);
+
     const handleChange = (field, value) => {
-        if (field === 'branch_id') {
+        if (field === 'branch') {
             setParticipant(prev => ({
                 ...prev,
-                branch: { id: value }
+                branch_id: { id: value },
+                address: { id: value }
             }));
-        } else if (field === 'paket_id') {
+        } else if (field === 'paket') {
             setParticipant(prev => ({
                 ...prev,
-                paket: { id: value }
+                paket_id: { id: value }
             }));
         } else if (field === 'sponsor') {
             setParticipant(prev => ({
@@ -97,13 +105,48 @@ export default function Register({ setActiveComponent }) {
                     'Authorization': `Bearer ${token}`
                 }
             });
-            setSponsor(response.data);
-            setSponsor({
-                ...response.data,
-                birth_date: formatDate(response.data.birth_date),
-                passport_issue_date: formatDate(response.data.passport_issue_date),
-            });
+            const participantData = response.data
+            const sponsor = `${participantData.sponsor.name} ${participantData.sponsor.lastname} ${participantData.sponsor.patronymic} ${participantData.sponsor.personal_number}`;
+            setSearchValue(sponsor);
+
         } catch (error) {
+        }
+    };
+
+    const debouncedHandleSearch = useMemo(() =>
+        debounce(async (query) => {
+            const token = localStorage.getItem('authToken');
+            if (!query) return;
+            toast.loading('Загрузка...', { duration: 1000 })
+
+            try {
+                const response = await axios.get(`${API}/api/v1/search/participants?query=${query}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                setSearchResults(response.data.participants || []);
+            } catch (error) {
+                console.error(error);
+            }
+        }, 300), []);
+
+    const handleSearchInputChange = (e) => {
+        const query = e.target.value;
+        searchInputRef.current = query;
+        setSearchValue(query);
+        debouncedHandleSearch(query);
+        setIsSponsorListVisible(true);
+    };
+
+    const handleSelectSponsor = (value) => {
+        setParticipant(prev => ({
+            ...prev,
+            sponsor_id: value,
+        }));
+        const selected = searchResults.find((item) => item.id === value);
+        if (selected) {
+            const sponsorDetails = `${selected.name} ${selected.lastname} ${selected.patronymic} ${selected.personal_number}`;
+            setSearchValue(sponsorDetails);
+            setIsSponsorListVisible(false);
         }
     };
 
@@ -138,8 +181,8 @@ export default function Register({ setActiveComponent }) {
         ];
 
         const missingFields = requiredFields.filter(field => {
-            if (field === 'branch_id') return !participant.branch?.id;
-            if (field === 'paket_id') return !participant.paket?.id;
+            if (field === 'branch_id') return !participant.branch_id?.id;
+            if (field === 'paket_id') return !participant.paket_id?.id;
             return !participant[field];
         });
 
@@ -152,7 +195,9 @@ export default function Register({ setActiveComponent }) {
     const handleSubmit = async (event) => {
         event.preventDefault();
         const token = localStorage.getItem('authToken');
+        console.log(1);
         if (!validateForm()) return;
+        console.log(1);
 
         try {
             const formatDate = (dateString) => {
@@ -180,13 +225,13 @@ export default function Register({ setActiveComponent }) {
                 bank: participant.bank,
                 ip_inn: booleanValue(participant.ip_inn),
                 pensioner: booleanValue(participant.pensioner),
-                paket_id: participant.paket?.id,
-                branch_id: participant.branch?.id,
+                paket_id: participant.paket_id?.id,
+                branch_id: participant.branch_id?.id,
                 code: personalNumber,
                 password: participant.password || "string",
                 sponsor_id: participant.sponsor_id || 0,
                 personal_info: participant.personal_info || '',
-                address: participant.branch?.id,
+                address: participant.address?.id,
             };
 
             if (participant.password) {
@@ -236,13 +281,13 @@ export default function Register({ setActiveComponent }) {
                         <div className={styles.formRow}>
                             <label>Филиал</label>
                             <select
-                                value={participant?.branch?.id || ''}
-                                onChange={(e) => handleChange('branch_id', e.target.value)}
+                                value={participant?.branch_id?.id || ''}
+                                onChange={(e) => handleChange('branch', e.target.value)}
                                 required
                             >
                                 <option value="">Выберите филиал</option>
                                 {branches.map(branch => (
-                                    <option key={branch.id} value={branch.id}>{branch.name}</option>
+                                    <option key={branch.id} value={branch.id}>{branch.code} {branch.name}</option>
                                 ))}
                             </select>
                         </div>
@@ -257,26 +302,37 @@ export default function Register({ setActiveComponent }) {
                         </div>
 
                         <div className={styles.formRow}>
-                            <label>Спонсор</label>
-                            <select
-                                value={participant?.sponsor_id || ''}
-                                onChange={(e) => handleChange('sponsor', e.target.value)}
-                                required
-                            >
-                                <option value="">Выберите спонсора</option>
-                                {sponsor.map(item => (
-                                    <option key={item.id} value={item.id}>
-                                        {item.personal_number} {item.name} {item.lastname}
-                                    </option>
-                                ))}
-                            </select>
+                            <label>Поиск спонсора</label>
+                            <input
+                                type="text"
+                                value={searchValue}
+                                placeholder="Поиск"
+                                onChange={(e) => {
+                                    setSearchValue(e.target.value);
+                                    handleSearchInputChange(e);
+                                }}
+                            />
                         </div>
+
+                        {isSponsorListVisible && searchResults.length > 0 && (
+                            <div className={styles.searchResults}>
+                                {searchResults.map((item) => (
+                                    <div
+                                        key={item.id}
+                                        className={styles.searchResultItem}
+                                        onClick={() => handleSelectSponsor(item.id)}
+                                    >
+                                        <span>{`${item.name || ''} ${item.lastname || ''} ${item.patronymic || ''} (${item.personal_number || ''})`}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
 
                         <div className={styles.formRow}>
                             <label>Пакет</label>
                             <select
-                                value={participant?.paket?.id || ''}
-                                onChange={(e) => handleChange('paket_id', e.target.value)}
+                                value={participant?.paket_id?.id || ''}
+                                onChange={(e) => handleChange('paket', e.target.value)}
                             >
                                 <option value="">Выберите пакет</option>
                                 {pakets.map(paket => (

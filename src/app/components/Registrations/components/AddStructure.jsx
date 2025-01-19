@@ -10,8 +10,8 @@ export default function AddStructure({ setActiveComponent, participantId, sponso
     const [freePositions, setFreePositions] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredPositions, setFilteredPositions] = useState([]);
-    const [selectedSponsor, setSelectedSponsor] = useState(null);
     const [isActiveSelect, setIsActiveSelect] = useState()
+    const [isSponsorListVisible, setIsSponsorListVisible] = useState(false);
 
     const [data, setData] = useState({
         mentor_id: '',
@@ -35,23 +35,47 @@ export default function AddStructure({ setActiveComponent, participantId, sponso
         setFilteredPositions(filtered);
     };
 
-    const handleChange = (field, value, position) => {
+    const handleSelectSponsor = (field, value, position) => {
+        if (field === 'sponsor_id') {
+            setIsActiveSelect(position);
+
+            const selected = freePositions.find((item) => item.id === value);
+            if (selected) {
+                let positionText;
+                switch (position) {
+                    case 'left':
+                        positionText = 'левая';
+                        break;
+                    case 'right':
+                        positionText = 'правая';
+                        break;
+                    case 'both':
+                        positionText = 'оба';
+                        break;
+                    default:
+                        positionText = 'неизвестно';
+                }
+
+                const sponsorDetails = `${selected.name} ${selected.lastname} ${selected.patronymic} ${selected.personal_number} ${positionText}`;
+                setSearchTerm(sponsorDetails);
+                setIsSponsorListVisible(false);
+            }
+
+            setData(prevData => ({
+                ...prevData,
+                [field]: value,
+                mentor_id: value,
+            }));
+        }
+    };
+
+    const handleChange = (field, value) => {
         switch (field) {
             case 'search':
                 setSearchTerm(value);
                 filterPositions(value);
+                setIsSponsorListVisible(true);
                 break;
-
-            case 'sponsor_id':
-                setData(prevData => ({
-                    ...prevData,
-                    [field]: value,
-                    mentor_id: value,
-                }));
-                setIsActiveSelect(position);
-                setSelectedSponsor(value);
-                break;
-
             case 'position':
                 setData(prevData => ({
                     ...prevData,
@@ -129,7 +153,7 @@ export default function AddStructure({ setActiveComponent, participantId, sponso
                 >
                     <h3>Добавить в структуру</h3>
                     <div className={styles.formBlock}>
-                        
+
                         <div className={styles.formRow}>
                             <label>Пакет</label>
                             <select
@@ -153,19 +177,39 @@ export default function AddStructure({ setActiveComponent, participantId, sponso
                         </div>
 
                         <div className={styles.selectWrapper}>
-                            {filteredPositions.map((item) => (
-                                <div className={styles.select} key={item.id}>
-                                    <button
-                                        onClick={() => handleChange('sponsor_id', item.id, item.position)}
-                                        type="button"
-                                        style={{ backgroundColor: selectedSponsor === item.id && 'lightblue' }}
-                                    >
-                                        Наставник: {item.name} {item.lastname} {item.patronymic} {item.personal_number}  {item.position}
-                                    </button>
+                            {isSponsorListVisible && filteredPositions.length > 0 && (
+                                <div className={styles.searchResults}>
+                                    {filteredPositions.map((item) => {
+                                        let positionText;
+                                        switch (item.position) {
+                                            case 'left':
+                                                positionText = 'левая';
+                                                break;
+                                            case 'right':
+                                                positionText = 'правая';
+                                                break;
+                                            case 'both':
+                                                positionText = 'оба';
+                                                break;
+                                            default:
+                                                positionText = 'неизвестно';
+                                        }
+
+                                        return (
+                                            <div className={styles.select} key={item.id}>
+                                                <button
+                                                    onClick={() => handleSelectSponsor('sponsor_id', item.id, item.position)}
+                                                    type="button"
+                                                >
+                                                    Наставник: {item.name} {item.lastname} {item.patronymic} {item.personal_number} {positionText}
+                                                </button>
+                                            </div>
+                                        );
+                                    })}
                                 </div>
-                            ))}
+                            )}
                         </div>
-                        
+
                         <div className={styles.formRow}>
                             <label>Выберите сторону</label>
                             <select

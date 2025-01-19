@@ -63,7 +63,7 @@ export default function StatusAndSponsorship() {
         toast.loading("Загрузка...", { duration: 1000 })
         try {
             const response = await axios.get(
-                `${API}/api/v1/participants/bonuses/history/${personalNumber}/ref_bonus`,
+                `${API}/api/v1/participants/bonuses/history/${personalNumber}/status_sponsor`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,

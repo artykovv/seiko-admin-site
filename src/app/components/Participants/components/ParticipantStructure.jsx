@@ -1,10 +1,9 @@
-
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { API } from '@/constants/constants';
 import styles from "../Participants.module.css";
-import toast  from 'react-hot-toast';
+import toast from 'react-hot-toast';
+import { debounce } from 'lodash';
 
 const ParticipantStructure = ({ participantId, setActiveComponent }) => {
     const [state, setState] = useState(null);
@@ -13,29 +12,54 @@ const ParticipantStructure = ({ participantId, setActiveComponent }) => {
     const [isDetailOpenTwo, setIsDetailOpenTwo] = useState(false);
     const [participantDetailTwo, setParticipantDetailTwo] = useState(null);
     const [resultBinary, setResultBinary] = useState(null);
-    console.log(resultBinary);
+    const searchInputRef = useRef('');
+    const [participants, setParticipants] = useState([]);
+    const formRef = useRef()
 
     const getStructure = async () => {
         const token = localStorage.getItem('authToken');
-        try {
-            const { data } = await axios.get(
-                `${API}/api/v1/participants/${participantId}/children`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    }
+        const { data } = await axios.get(
+            `${API}/api/v1/participants/${participantId}/children`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
                 }
-            );
-            setState(data);
-        } catch (error) {
-        }
+            }
+        );
+        setState(data);
     };
 
     useEffect(() => {
         getStructure();
     }, [participantId]);
 
+    const getParticipants = async () => {
+        toast.loading('Загрузка...', { duration: 1000 })
+        const token = localStorage.getItem('authToken');
+        const searchUrl = `${API}/api/v1/search/participants?query=${searchInputRef.current}`;
+        const response = await axios.get(searchUrl, { headers: { Authorization: `Bearer ${token}` } })
+        setParticipants(response.data.participants || []);
+    };
 
+
+    const debouncedGetParticipants = useCallback(
+        debounce(() => {
+            if (searchInputRef.current) {
+                getParticipants();
+            }
+        }, 300),
+        []
+    );
+
+    const handleSearchChange = (event) => {
+        searchInputRef.current = event.target.value.trim();
+        if (searchInputRef.current === '') {
+            getStructure();
+            setParticipants([]);
+        } else {
+            debouncedGetParticipants();
+        }
+    };
 
     const handleDetailOne = async (detailStructureId) => {
         const token = localStorage.getItem("authToken");
@@ -77,9 +101,10 @@ const ParticipantStructure = ({ participantId, setActiveComponent }) => {
     };
 
     const handleParticipantPage = (name, id) => {
+        searchInputRef.current = ''
         setActiveComponent({ name, id });
+        setParticipants([])
     };
-
 
     const renderNode = (node) => (
         <div className={styles.node}>
@@ -130,20 +155,19 @@ const ParticipantStructure = ({ participantId, setActiveComponent }) => {
                                     <h2>Детали участника</h2>
                                 </div>
                                 <div className={styles.detailModalBody}>
-                                    <p>{participantDetail.name} {participantDetail.lastname} {participantDetail.patronymic}</p>
-                                    <p>{participantDetail.personal_number}</p>
-                                    <p><strong>Пакет</strong> : {participantDetail.paket.name}</p>
-                                    <p><strong>Статус</strong> : {participantDetail.status.name}</p>
+                                    <p> <strong>Персональный номер</strong>: {participantDetail.personal_number}</p>
+                                    <p> {participantDetail.name} {participantDetail.lastname} {participantDetail.patronymic}</p>
+                                    <p> <strong>Пакет</strong>: {participantDetail.paket.name} (${participantDetail.paket.price})</p>
                                     <p> <strong>Спонсор</strong>: {participantDetail.sponsor ? participantDetail.sponsor.name : 'Не указано'} {participantDetail.sponsor ? participantDetail.sponsor.lastname : 'не указано'}</p>
                                     <p> <strong>Наставник</strong>: {participantDetail.mentor ? participantDetail.mentor.name : 'Не указано'} {participantDetail.mentor ? participantDetail.mentor.lastname : 'не указано'}</p>
-                                    <p><strong>Логин</strong> : {participantDetail.email}</p>
-                                    <p><strong>Личная информация</strong> : {participantDetail.personal_info}</p>
-                                    <p><strong>Дата рождения</strong> : {participantDetail.birth_date}</p>
-                                    <p><strong>Телефон</strong> : {participantDetail.phone_number}</p>
-                                    <p><strong>Филиал</strong> : {participantDetail.branch.name}</p>
-                                    <p><strong>Банк. Номер (Мбанк)</strong> : {participantDetail.bank}</p>
-                                    <p><strong>Левый ТО</strong> : {participantDetail.left_volume}</p>
-                                    <p><strong>Парвый ТО</strong> : {participantDetail.right_volume}</p>
+                                    <p> <strong>Логин</strong>: {participantDetail.email}</p>
+                                    <p> <strong>Личная информация</strong>: {participantDetail.personal_info}</p>
+                                    <p> <strong>Дата рождения</strong>: {participantDetail.birth_date ? new Date(participantDetail.birth_date).toLocaleDateString() : 'Не указано'}</p>
+                                    <p> <strong>Телефон</strong>: {participantDetail.phone_number}</p>
+                                    <p> <strong>Филиал</strong>: {participantDetail.branch.name}</p>
+                                    <p> <strong>Банк. Номер (Мбанк)</strong>: {participantDetail.bank}</p>
+                                    <p> <strong>Левый ТО</strong>: {participantDetail.left_volume}</p>
+                                    <p> <strong>Парвый ТО</strong>: {participantDetail.right_volume}</p>
                                 </div>
                                 <div className={styles.detailModalFooter}>
                                     <button
@@ -191,6 +215,32 @@ const ParticipantStructure = ({ participantId, setActiveComponent }) => {
                             </div>
                         </div>
                     )}
+                    <div className={styles.formBlock}>
+                        <div className={styles.formRow}>
+                            <label>Поиск</label>
+                            <input
+                                placeholder="Поиск"
+                                type="text"
+                                defaultValue={searchInputRef.current}
+                                name='search'
+                                onChange={handleSearchChange}
+                                required
+                            />
+                            {participants.length > 0 && (
+                                <div className={styles.searchResults}>
+                                    {participants.map((item) => (
+                                        <div
+                                            key={item.id}
+                                            className={styles.searchResultItem}
+                                            onClick={() => handleParticipantPage('participantStructure', item.id)}
+                                        >
+                                            <span> {`${item.name || ''} ${item.lastname || ''}  ${item.patronymic || ''}  (${item.personal_number || ''})`}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
                     <div className={styles.genealogyBody}>
                         <div className={styles.genealogyTree}>
                             <ul>

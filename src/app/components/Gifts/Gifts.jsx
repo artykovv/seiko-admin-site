@@ -8,13 +8,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 import styles from './Gifts.module.css';
 
-function Gifts() {
+function Gifts({ setActiveComponent }) {
   const [activeComponent, setActiveComponentGift] = useState('SurpriseBonus');
 
   const renderComponent = () => {
     switch (activeComponent) {
       case 'SurpriseBonus':
-        return <SurpriseBonus setActiveComponentGift={setActiveComponentGift} />;
+        return <SurpriseBonus setActiveComponentGift={setActiveComponentGift} setActiveComponent={setActiveComponent} />;
       case 'AutoProgram':
         return <AutoProgram />;
       case 'TouristBonus':
@@ -25,6 +25,7 @@ function Gifts() {
         return <SurpriseBonus setActiveComponentGift={setActiveComponentGift} />;
     }
   };
+
 
 
   return (

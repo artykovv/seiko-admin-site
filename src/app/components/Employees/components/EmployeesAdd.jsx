@@ -8,7 +8,7 @@ export default function EmployeesAdd({ setActiveComponent }) {
     const [data, setData] = useState({
         email: '',
         password: '',
-        repeatPassword: '',  // добавлено поле для повторного пароля
+        repeatPassword: '', 
         is_active: false,
         is_superuser: false,
         is_verified: false,
@@ -20,7 +20,7 @@ export default function EmployeesAdd({ setActiveComponent }) {
     });
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
-    const [passwordError, setPasswordError] = useState(null);  // для ошибки при несоответствии паролей
+    const [passwordError, setPasswordError] = useState(null);  
 
     const handleChange = (field, value) => {
         setData(prevData => ({

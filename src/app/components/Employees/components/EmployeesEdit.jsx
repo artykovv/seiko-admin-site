@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { API } from '@/constants/constants';
 import styles from '../../Participants/Participants.module.css';
+import toast from 'react-hot-toast';
 
 export default function EmployeesEdit({ participantId, setActiveComponent }) {
     const [participant, setParticipant] = useState({
@@ -81,9 +82,7 @@ export default function EmployeesEdit({ participantId, setActiveComponent }) {
                 handleBack('Сотрудники');
             }
         } catch (error) {
-            error('Ошибка при обновлении участника:', error.response?.data || error);
-        } finally {
-            setLoading(false); // Stop loading after request
+            console.log(error);
         }
     };
 

@@ -7,7 +7,7 @@ import deletePng from "@/assets/delete.svg";
 import add from '@/assets/add.webp';
 import toast from 'react-hot-toast';
 
-export default function SurpriseBonus({ setActiveComponentGift }) {
+export default function SurpriseBonus({ setActiveComponent }) {
     const [binary, setBinary] = useState([]);
     const [isDetailOpen, setIsDetailOpen] = useState(false);
     const [participantDetail, setParticipantDetail] = useState(null);
@@ -17,11 +17,11 @@ export default function SurpriseBonus({ setActiveComponentGift }) {
 
     const getBinary = async () => {
         const token = localStorage.getItem('authToken');
-            const response = await axios.get(`${API}/api/v1/surprise/bonuses?page=${currentPage}&page_size=${pageCountRef.current}`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            setTotalPages(response.data.total_pages);
-            setBinary(response.data.participants);
+        const response = await axios.get(`${API}/api/v1/surprise/bonuses?page=${currentPage}&page_size=${pageCountRef.current}`, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        setTotalPages(response.data.total_pages);
+        setBinary(response.data.participants);
     };
 
 
@@ -71,11 +71,14 @@ export default function SurpriseBonus({ setActiveComponentGift }) {
         getBinary();
     }, [currentPage]);
 
+    const handleParticipantPage = (name) => {
+        setActiveComponent({ name });
 
+    };
     return (
         <div>
             <div className={styles.btnsWrapperAdd}>
-                <button className={styles.addBtn} onClick={() => setActiveComponentGift('SurpriseBonusAdd')}>
+                <button className={styles.addBtn} onClick={() => handleParticipantPage('SurpriseBonusAdd')}>
                     <Image src={add} alt="add" />
                     Добавить
                 </button>
@@ -86,19 +89,19 @@ export default function SurpriseBonus({ setActiveComponentGift }) {
                         <h2>Детали участника</h2>
                     </div>
                     <div className={styles.detailModalBody}>
-                        <p><strong>Персональный номер:</strong> {participantDetail?.personal_number}</p>
-                        <p>{participantDetail?.name} {participantDetail?.lastname} {participantDetail?.patronymic}</p>
-                        <p><strong>Пакет:</strong> {participantDetail?.paket?.name} (${participantDetail?.paket?.price})</p>
-                        <p><strong>Спонсор:</strong> {participantDetail?.sponsor?.name || 'Не указано'} {participantDetail?.sponsor?.lastname || ''}</p>
-                        <p><strong>Наставник:</strong> {participantDetail?.mentor?.name || 'Не указано'} {participantDetail?.mentor?.lastname || ''}</p>
-                        <p><strong>Логин:</strong> {participantDetail?.email}</p>
-                        <p><strong>Личная информация:</strong> {participantDetail?.personal_info}</p>
-                        <p><strong>Дата рождения:</strong> {participantDetail?.birth_date ? formatDate(participantDetail.birth_date) : 'Не указано'}</p>
-                        <p><strong>Телефон:</strong> {participantDetail?.phone_number}</p>
-                        <p><strong>Филиал:</strong> {participantDetail?.branch?.name}</p>
-                        <p><strong>Банк. Номер (Мбанк):</strong> {participantDetail?.bank}</p>
-                        <p><strong>Левый ТО:</strong> {participantDetail?.left_volume}</p>
-                        <p><strong>Правый ТО:</strong> {participantDetail?.right_volume}</p>
+                        <p> <strong>Персональный номер</strong>: {participantDetail.personal_number}</p>
+                        <p> {participantDetail.name} {participantDetail.lastname} {participantDetail.patronymic}</p>
+                        <p> <strong>Пакет</strong>: {participantDetail.paket.name} (${participantDetail.paket.price})</p>
+                        <p> <strong>Спонсор</strong>: {participantDetail.sponsor ? participantDetail.sponsor.name : 'Не указано'} {participantDetail.sponsor ? participantDetail.sponsor.lastname : 'не указано'}</p>
+                        <p> <strong>Наставник</strong>: {participantDetail.mentor ? participantDetail.mentor.name : 'Не указано'} {participantDetail.mentor ? participantDetail.mentor.lastname : 'не указано'}</p>
+                        <p> <strong>Логин</strong>: {participantDetail.email}</p>
+                        <p> <strong>Личная информация</strong>: {participantDetail.personal_info}</p>
+                        <p> <strong>Дата рождения</strong>: {participantDetail.birth_date ? new Date(participantDetail.birth_date).toLocaleDateString() : 'Не указано'}</p>
+                        <p> <strong>Телефон</strong>: {participantDetail.phone_number}</p>
+                        <p> <strong>Филиал</strong>: {participantDetail.branch.name}</p>
+                        <p> <strong>Банк. Номер (Мбанк)</strong>: {participantDetail.bank}</p>
+                        <p> <strong>Левый ТО</strong>: {participantDetail.left_volume}</p>
+                        <p> <strong>Парвый ТО</strong>: {participantDetail.right_volume}</p>
                     </div>
                     <div className={styles.detailModalFooter}>
                         <button className={styles.closeDetailBtn} onClick={() => setIsDetailOpen(false)}>Закрыть</button>
