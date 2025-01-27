@@ -113,19 +113,20 @@ function Registrations({ setActiveComponent }) {
                 <h2>Детали участника</h2>
               </div>
               <div className={styles.detailModalBody}>
-                <p><strong>Персональный номер</strong>: {participantDetail.personal_number}</p>
-                <p>{participantDetail.name} {participantDetail.lastname} {participantDetail.patronymic}</p>
-                <p><strong>Пакет</strong>: {participantDetail.paket.name} (${participantDetail.paket.price})</p>
-                <p><strong>Спонсор</strong>: {participantDetail.sponsor ? participantDetail.sponsor.name : 'Не указано'} {participantDetail.sponsor ? participantDetail.sponsor.lastname : 'не указано'}</p>
-                <p><strong>Наставник</strong>: {participantDetail.mentor ? participantDetail.mentor.name : 'Не указано'} {participantDetail.mentor ? participantDetail.mentor.lastname : 'не указано'}</p>
-                <p><strong>Логин</strong>: {participantDetail.email}</p>
-                <p><strong>Личная информация</strong>: {participantDetail.personal_info}</p>
-                <p><strong>Дата рождения</strong>: {participantDetail.birth_date ? new Date(participantDetail.birth_date).toLocaleDateString() : 'Не указано'}</p>
-                <p><strong>Телефон</strong>: {participantDetail.phone_number}</p>
-                <p><strong>Филиал</strong>: {participantDetail.branch.name}</p>
-                <p><strong>Банк. Номер (Мбанк)</strong>: {participantDetail.bank}</p>
-                <p><strong>Левый ТО</strong>: {participantDetail.left_volume}</p>
-                <p><strong>Правый ТО</strong>: {participantDetail.right_volume}</p>
+                <p> <strong>Персональный номер</strong>: {participantDetail.personal_number}</p>
+                <p> {participantDetail.name} {participantDetail.lastname} {participantDetail.patronymic}</p>
+                <p> <strong>Пакет</strong>: {participantDetail.paket?.name} (${participantDetail.paket?.price})</p>
+                <p> <strong>Статус</strong>: {participantDetail.status.name}</p>
+                <p> <strong>Спонсор</strong>: {participantDetail.sponsor ? participantDetail.sponsor.name : 'Не указано'} {participantDetail.sponsor ? participantDetail.sponsor.lastname : 'не указано'}  {participantDetail.sponsor ? participantDetail.sponsor.patronymic : 'не указано'}  {participantDetail.sponsor ? participantDetail.sponsor.personal_number : 'не указано'}</p>
+                <p> <strong>Наставник</strong>: {participantDetail.mentor ? participantDetail.mentor.name : 'Не указано'} {participantDetail.mentor ? participantDetail.mentor.lastname : 'не указано'}  {participantDetail.mentor ? participantDetail.mentor.patronymic : 'не указано'}  {participantDetail.mentor ? participantDetail.mentor.personal_number : 'не указано'}</p>
+                <p> <strong>Логин</strong>: {participantDetail.email}</p>
+                <p> <strong>Личная информация</strong>: {participantDetail.personal_info}</p>
+                <p> <strong>Дата рождения</strong>: {participantDetail.birth_date ? new Date(participantDetail.birth_date).toLocaleDateString() : 'Не указано'}</p>
+                <p> <strong>Телефон</strong>: {participantDetail.phone_number}</p>
+                <p> <strong>Филиал</strong>: {participantDetail.branch.name}</p>
+                <p> <strong>Банк. Номер (Мбанк)</strong>: {participantDetail.bank}</p>
+                <p> <strong>Левый ТО</strong>: {participantDetail.left_volume}</p>
+                <p> <strong>Парвый ТО</strong>: {participantDetail.right_volume}</p>
               </div>
               <div className={styles.detailModalFooter}>
                 <button className={styles.closeDetailBtn} onClick={() => setIsDetailOpen(false)}>Закрыть</button>
@@ -176,9 +177,9 @@ function Registrations({ setActiveComponent }) {
                   <tr key={index}>
                     <td scope="row">{item.branch.name}</td>
                     <td><button className={styles.openDetailBtn} onClick={() => handleOpenDetail(item.id)}>{item.personal_number}</button></td>
-                    <td>{item.name} {item.patronymic} {item.lastname}</td>
+                    <td>{item.name} {item.lastname} {item.patronymic}</td>
                     <td>{item.paket.name}</td>
-                    <td>{item.register_at ? new Date(item.register_at).toLocaleDateString() : 'Не указано'}</td>
+                    <td>{item.created_at ? new Date(item.created_at).toLocaleDateString() : 'Не указано'}</td>
                     <td className={styles.actions}>
                       <button onClick={() => handleOpenDetail(item.id)} className={styles.btn}>
                         <Image src={agreement} alt='agreement' />

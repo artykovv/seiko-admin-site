@@ -11,10 +11,10 @@ const ParticipantStructure = ({ participantId, setActiveComponent }) => {
     const [isDetailOpen, setIsDetailOpen] = useState(false);
     const [isDetailOpenTwo, setIsDetailOpenTwo] = useState(false);
     const [participantDetailTwo, setParticipantDetailTwo] = useState(null);
-    const [resultBinary, setResultBinary] = useState(null);
+    // const [resultBinary, setResultBinary] = useState(null);
     const searchInputRef = useRef('');
     const [participants, setParticipants] = useState([]);
-    const formRef = useRef()
+    // const formRef = useRef()
 
     const getStructure = async () => {
         const token = localStorage.getItem('authToken');
@@ -82,17 +82,17 @@ const ParticipantStructure = ({ participantId, setActiveComponent }) => {
         const token = localStorage.getItem("authToken");
         toast.loading('Загрузка...', { duration: 1000, });
         try {
-            const result = await axios.get(`${API}/api/v1/binar-bonuse/calculate/${detailStructureId}`,
-                {
-                    headers: { Authorization: `Bearer ${token}` },
-                })
+            // const result = await axios.get(`${API}participant/2028/turnover/details/${detailStructureId}`,
+            //     {
+            //         headers: { Authorization: `Bearer ${token}` },
+            //     })
             const response = await axios.get(
                 `${API}/api/v1/participant/${detailStructureId}/turnover/details`,
                 {
                     headers: { Authorization: `Bearer ${token}` },
                 }
             );
-            setResultBinary(result.data)
+            // setResultBinary(result.data)
             setParticipantDetailTwo(response.data);
             setIsDetailOpenTwo(true);
         } catch (error) {
@@ -157,9 +157,10 @@ const ParticipantStructure = ({ participantId, setActiveComponent }) => {
                                 <div className={styles.detailModalBody}>
                                     <p> <strong>Персональный номер</strong>: {participantDetail.personal_number}</p>
                                     <p> {participantDetail.name} {participantDetail.lastname} {participantDetail.patronymic}</p>
-                                    <p> <strong>Пакет</strong>: {participantDetail.paket.name} (${participantDetail.paket.price})</p>
-                                    <p> <strong>Спонсор</strong>: {participantDetail.sponsor ? participantDetail.sponsor.name : 'Не указано'} {participantDetail.sponsor ? participantDetail.sponsor.lastname : 'не указано'}</p>
-                                    <p> <strong>Наставник</strong>: {participantDetail.mentor ? participantDetail.mentor.name : 'Не указано'} {participantDetail.mentor ? participantDetail.mentor.lastname : 'не указано'}</p>
+                                    <p> <strong>Пакет</strong>: {participantDetail.paket?.name} (${participantDetail.paket?.price})</p>
+                                    <p> <strong>Статус</strong>: {participantDetail.status.name}</p>
+                                    <p> <strong>Спонсор</strong>: {participantDetail.sponsor ? participantDetail.sponsor.name : 'Не указано'} {participantDetail.sponsor ? participantDetail.sponsor.lastname : 'не указано'}  {participantDetail.sponsor ? participantDetail.sponsor.patronymic : 'не указано'}  {participantDetail.sponsor ? participantDetail.sponsor.personal_number : 'не указано'}</p>
+                                    <p> <strong>Наставник</strong>: {participantDetail.mentor ? participantDetail.mentor.name : 'Не указано'} {participantDetail.mentor ? participantDetail.mentor.lastname : 'не указано'}  {participantDetail.mentor ? participantDetail.mentor.patronymic : 'не указано'}  {participantDetail.mentor ? participantDetail.mentor.personal_number : 'не указано'}</p>
                                     <p> <strong>Логин</strong>: {participantDetail.email}</p>
                                     <p> <strong>Личная информация</strong>: {participantDetail.personal_info}</p>
                                     <p> <strong>Дата рождения</strong>: {participantDetail.birth_date ? new Date(participantDetail.birth_date).toLocaleDateString() : 'Не указано'}</p>
@@ -201,8 +202,8 @@ const ParticipantStructure = ({ participantId, setActiveComponent }) => {
                                     <p><strong>Левый ветка</strong> : {participantDetailTwo.left_volume}</p>
                                     <p><strong>Парвый ветка</strong> : {participantDetailTwo.right_volume}</p>
                                     <p><strong>Количество личников</strong> : {participantDetailTwo.sponsored}</p>
-                                    <p><strong>Бонус за бинар на данный момент</strong> : {resultBinary.binar.bonus}</p>
-                                    <p><strong>Бонус за чек от чека на данный момент</strong> : {resultBinary.cheque.total_bonus}</p>
+                                    {/* <p><strong>Бонус за бинар на данный момент</strong> : {resultBinary.binar.bonus}</p> */}
+                                    {/* <p><strong>Бонус за чек от чека на данный момент</strong> : {resultBinary.cheque.total_bonus}</p> */}
                                 </div>
                                 <div className={styles.detailModalFooter}>
                                     <button

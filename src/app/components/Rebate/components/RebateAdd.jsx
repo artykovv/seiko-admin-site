@@ -8,7 +8,7 @@ export default function RebateAdd({ setActiveComponent }) {
     const [errorMessage, setErrorMessage] = useState('')
     const [selectedSponsor, setSelectedSponsor] = useState(null);
     const [participants, setParticipants] = useState([]);
-    const searchInputRef = useRef('');
+    const [searchValue, setSearchValue] = useState('');
 
     const [data, setData] = useState({
         participant_id: selectedSponsor,
@@ -25,27 +25,34 @@ export default function RebateAdd({ setActiveComponent }) {
         setData({ ...data, register_at: formattedDate });
     };
 
-    const handleSearchChange = (event) => {
-        searchInputRef.current = event.target.value;
-        if (searchInputRef.current === '') {
-            getParticipants();
-        } else if (searchInputRef.current.length > 0) {
-            getParticipants(searchInputRef);
+    const handleSearch = async (value) => {
+        setSearchValue(value);
+        if (value.length >= 1) {
+            try {
+                const response = await axios.get(`${API}/api/v1/search/participants?query=${value}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    }
+                });
+                setParticipants(response.data.participants);
+            } catch (error) {
+                console.error('Error fetching participants:', error);
+            }
+        } else {
+            setParticipants([]);
         }
     };
 
-    const getParticipants = useCallback(async () => {
-        const token = localStorage.getItem('authToken');
-        const searchUrl = `${API}/api/v1/search/participants?query=${searchInputRef.current}`;
-        const response = await axios.get(searchUrl, { headers: { Authorization: `Bearer ${token}` } })
-        setParticipants(response.data.participants || []);
-    }, []);
-
+    const handleSponsorSelect = (id, name, lastname, patronymic, personal_number) => {
+        setSelectedSponsor(id);
+        setData({ ...data, participant_id: id, amount: '' });
+        setSearchValue(`${name} ${lastname} ${patronymic} ${personal_number}`);
+        setParticipants([]);
+    };
 
     const handleSubmit = async (event) => {
         const token = localStorage.getItem('authToken');
         event.preventDefault();
-
         const requestData = {
             participant_id: selectedSponsor,
             amount: data.amount,
@@ -85,20 +92,20 @@ export default function RebateAdd({ setActiveComponent }) {
                             <input
                                 className={styles.searchInput}
                                 type="text"
-                                placeholder="Поиск"
-                                defaultValue={searchInputRef.current}
-                                onChange={handleSearchChange}
+                                placeholder="Поиск спонсора"
+                                value={searchValue}
+                                onChange={(e) => handleSearch(e.target.value)}
                             />
                         </div>
                         <div className={styles.selectWrapper}>
-                            {participants.map((item) => (
+                            {participants && participants.map((item) => (
                                 <div className={styles.select} key={item.id}>
                                     <button
-                                        onClick={() => setSelectedSponsor(item.id)}
+                                        onClick={() => handleSponsorSelect(item.id, item.name, item.lastname, item.patronymic, item.personal_number)}
                                         type="button"
                                         style={{ backgroundColor: selectedSponsor === item.id && 'lightblue' }}
                                     >
-                                        {item.name} {item.lastname} {item.patronymic} {item.personal_number}  {item.position}
+                                        {item.name} {item.lastname} {item.patronymic} {item.personal_number} {item.position}
                                     </button>
                                 </div>
                             ))}
@@ -131,7 +138,7 @@ export default function RebateAdd({ setActiveComponent }) {
                         </button>
                     </footer>
                 </form>
-            </div>
-        </div>
+            </div >
+        </div >
     )
 }

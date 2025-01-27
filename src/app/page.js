@@ -5,6 +5,8 @@ import axios from 'axios';
 
 import styles from './page.module.css'
 import { API } from '@/constants/constants';
+import logo from '@/assets/logoblue.svg'
+import Image from 'next/image';
 
 export default function Page() {
   const router = useRouter()
@@ -73,8 +75,9 @@ export default function Page() {
   };
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
       <form className={styles.form} onSubmit={handleSubmit}>
+        <Image src={logo} alt="logo" width={130} height={0} />
         <h1>Авторизация</h1>
         <div className={styles.form_container}>
           <input
