@@ -32,11 +32,10 @@ import EmployeesBranchesEdit from '../components/Employees/components/EmployeesB
 import EmployeesPermissionsEdit from '../components/Employees/components/EmployeesPermissionsEdit';
 import EmployeesEdit from '../components/Employees/components/EmployeesEdit';
 import EmployeesAdd from '../components/Employees/components/EmployeesAdd';
-import toast, { Toaster } from 'react-hot-toast';
+import { Toaster } from 'react-hot-toast';
 import Rebate from '../components/Rebate/Rebate';
 import RebateAdd from '../components/Rebate/components/RebateAdd';
 import SurpriseBonusAdd from '../components/Gifts/components/SurpriseBonusAdd';
-import SurpriseBonus from '../components/Gifts/components/SurpriseBonus';
 
 
 function Page() {
@@ -96,61 +95,36 @@ function Page() {
         getUser();
     }, [updatedPermissions, getUser], permissions);
 
+    const components = {
+        'Главная': <Home />,
+        'Участники': <Participants setActiveComponent={setActiveComponent} />,
+        'Регистрации': <Registrations participantId={activeComponent.id} setActiveComponent={setActiveComponent} />,
+        "Сотрудники": <Employees setActiveComponent={setActiveComponent} />,
+        "Филиалы": <Branches participantId={activeComponent.id} setActiveComponent={setActiveComponent} />,
+        "Бонусы": <Bonuses />,
+        "Подарочные": <Gifts setActiveComponent={setActiveComponent} />,
+        "Cкидка": <Rebate setActiveComponent={setActiveComponent} />,
+        'participantEdit': <ParticipantEdit participantId={activeComponent.id} setActiveComponent={setActiveComponent} />,
+        'ParticipantInvite': <ParticipantInvite participantId={activeComponent.id} setActiveComponent={setActiveComponent} />,
+        'participantBonuses': <ParticipantBonuses participantId={activeComponent.id} setActiveComponent={setActiveComponent} />,
+        'participantStructure': <ParticipantStructure participantId={activeComponent.id} setActiveComponent={setActiveComponent} />,
+        'registerStructure': <Register participantId={activeComponent.id} setActiveComponent={setActiveComponent} />,
+        'participantStructureAdd': <AddStructure participantId={activeComponent.id} setActiveComponent={setActiveComponent} sponsorId={activeComponent.sponsorId} paketId={activeComponent.paketId} />,
+        'RegistrationsInvite': <RegistrationsInvite participantId={activeComponent.id} setActiveComponent={setActiveComponent} />,
+        'RegistrationsBonuses': <RegistrationsBonuses participantId={activeComponent.id} setActiveComponent={setActiveComponent} />,
+        'RegistrationsEdit': <RegistrationsEdit participantId={activeComponent.id} setActiveComponent={setActiveComponent} />,
+        'BranchesEdit': <BranchesEdit participantId={activeComponent.id} setActiveComponent={setActiveComponent} />,
+        'BranchesAdd': <BranchesAdd participantId={activeComponent.id} setActiveComponent={setActiveComponent} />,
+        'EmployeesBranchesEdit': <EmployeesBranchesEdit participantId={activeComponent.id} setActiveComponent={setActiveComponent} />,
+        'EmployeesEdit': <EmployeesEdit participantId={activeComponent.id} setActiveComponent={setActiveComponent} />,
+        'EmployeesAdd': <EmployeesAdd participantId={activeComponent.id} setActiveComponent={setActiveComponent} />,
+        'EmployeesPermissionsEdit': <EmployeesPermissionsEdit participantId={activeComponent.id} setActiveComponent={setActiveComponent} setUpdatePermissions={setUpdatePermissions} />,
+        'RebateAdd': <RebateAdd participantId={activeComponent.id} setActiveComponent={setActiveComponent} setUpdatePermissions={setUpdatePermissions} />,
+        'SurpriseBonusAdd': <SurpriseBonusAdd setActiveComponent={setActiveComponent} />
+    };
+
     const renderComponent = () => {
-        switch (activeComponent.name) {
-            case 'Главная':
-                return <Home />;
-            case 'Участники':
-                return <Participants setActiveComponent={setActiveComponent} />;
-            case 'Регистрации':
-                return <Registrations participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
-            case "Сотрудники":
-                return <Employees setActiveComponent={setActiveComponent} />;
-            case "Филиалы":
-                return <Branches participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
-            case "Бонусы":
-                return <Bonuses />;
-            case "Подарочные":
-                return <Gifts setActiveComponent={setActiveComponent} />;
-            case "Cкидка":
-                return <Rebate setActiveComponent={setActiveComponent} />;
-            case 'participantEdit':
-                return <ParticipantEdit participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
-            case 'ParticipantInvite':
-                return <ParticipantInvite participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
-            case 'participantBonuses':
-                return <ParticipantBonuses participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
-            case 'participantStructure':
-                return <ParticipantStructure participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
-            case 'registerStructure':
-                return <Register participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
-            case 'participantStructureAdd':
-                return <AddStructure participantId={activeComponent.id} setActiveComponent={setActiveComponent} sponsorId={activeComponent.sponsorId} paketId={activeComponent.paketId} />;
-            case 'RegistrationsInvite':
-                return <RegistrationsInvite participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
-            case 'RegistrationsBonuses':
-                return <RegistrationsBonuses participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
-            case 'RegistrationsEdit':
-                return <RegistrationsEdit participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
-            case 'BranchesEdit':
-                return <BranchesEdit participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
-            case 'BranchesAdd':
-                return <BranchesAdd participantId={activeComponent.id} setActiveComponent={setActiveComponent} />;
-            case 'EmployeesBranchesEdit':
-                return <EmployeesBranchesEdit participantId={activeComponent.id} setActiveComponent={setActiveComponent} />
-            case 'EmployeesEdit':
-                return <EmployeesEdit participantId={activeComponent.id} setActiveComponent={setActiveComponent} />
-            case 'EmployeesAdd':
-                return <EmployeesAdd participantId={activeComponent.id} setActiveComponent={setActiveComponent} />
-            case 'EmployeesPermissionsEdit':
-                return <EmployeesPermissionsEdit participantId={activeComponent.id} setActiveComponent={setActiveComponent} setUpdatePermissions={setUpdatePermissions} />
-            case 'RebateAdd':
-                return <RebateAdd participantId={activeComponent.id} setActiveComponent={setActiveComponent} setUpdatePermissions={setUpdatePermissions} />
-            case 'SurpriseBonusAdd':
-                return <SurpriseBonusAdd setActiveComponent={setActiveComponent} />
-            default:
-                return <Home />;
-        }
+        return components[activeComponent.name] || <Home />;
     };
 
     return (

@@ -5,12 +5,12 @@ import { API } from '@/constants/constants';
 import toast from 'react-hot-toast';
 
 export default function AddStructure({ setActiveComponent, participantId, sponsorId, paketId }) {
-    const [errorMessage, setErrorMessage] = useState('')
+    const [errorMessage, setErrorMessage] = useState('');
     const [pakets, setPakets] = useState([]);
     const [freePositions, setFreePositions] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredPositions, setFilteredPositions] = useState([]);
-    const [isActiveSelect, setIsActiveSelect] = useState()
+    const [isActiveSelect, setIsActiveSelect] = useState(); //
     const [isSponsorListVisible, setIsSponsorListVisible] = useState(false);
 
     const [data, setData] = useState({
@@ -21,25 +21,34 @@ export default function AddStructure({ setActiveComponent, participantId, sponso
         sponsor_id: ''
     })
 
-    const filterPositions = (term) => {
-        if (!Array.isArray(freePositions)) {
-            return;
-        }
+    const filterPositions = async (term) => {
+        console.log(term, 'term');
         const lowerCaseTerm = term.toLowerCase();
-        const filtered = freePositions.filter(position =>
-            position.name.toLowerCase().includes(lowerCaseTerm) ||
-            position.lastname.toLowerCase().includes(lowerCaseTerm) ||
-            position.patronymic.toLowerCase().includes(lowerCaseTerm) ||
-            position.personal_number.toLowerCase().includes(lowerCaseTerm)
-        );
+        const filtered = await new Promise((resolve) => {
+            const result = freePositions.filter(position =>
+                position.name.toLowerCase().includes(lowerCaseTerm) ||
+                position.lastname.toLowerCase().includes(lowerCaseTerm) ||
+                position.patronymic.toLowerCase().includes(lowerCaseTerm) ||
+                position.personal_number.toLowerCase().includes(lowerCaseTerm)
+            );
+            console.log(result, 'result');
+
+            resolve(result);
+        });
+        console.log(filtered, 'filtered');
+
         setFilteredPositions(filtered);
     };
 
     const handleSelectSponsor = (field, value, position) => {
         if (field === 'sponsor_id') {
             setIsActiveSelect(position);
+            console.log(value, 'value');
+            console.log(freePositions, 'freePositions');
 
             const selected = freePositions.find((item) => item.id === value);
+            console.log(selected, 'selected');
+
             if (selected) {
                 let positionText;
                 switch (position) {
@@ -91,16 +100,24 @@ export default function AddStructure({ setActiveComponent, participantId, sponso
 
     const getFreePositions = async () => {
         const token = localStorage.getItem('authToken');
-        try {
-            const response = await axios.get(`${API}/api/v1/participants/find_free_positions/${sponsorId}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            setFreePositions(response.data.available_positions);
-            setFilteredPositions(response.data.available_positions);
-        } catch (error) {
-        }
+        const response = await axios.get(`${API}/api/v1/participants/find_free_positions/${sponsorId}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        setFreePositions(response.data.available_positions);
+        setFilteredPositions(response.data.available_positions);
+    };
+
+    const getParticipant = async () => {
+        const token = localStorage.getItem('authToken');
+        const response = await axios.get(`${API}/api/v1/participants/${participantId}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        handleSelectSponsor('sponsor_id', response.data.mentor.id);
+        filterPositions(response.data.mentor.name);
     };
 
     const handleSubmit = async (event) => {
@@ -142,7 +159,9 @@ export default function AddStructure({ setActiveComponent, participantId, sponso
     useEffect(() => {
         getPakets();
         getFreePositions();
+        getParticipant();
     }, []);
+
 
     return (
         <div>
