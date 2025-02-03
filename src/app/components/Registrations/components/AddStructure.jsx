@@ -10,8 +10,9 @@ export default function AddStructure({ setActiveComponent, participantId, sponso
     const [freePositions, setFreePositions] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredPositions, setFilteredPositions] = useState([]);
-    const [isActiveSelect, setIsActiveSelect] = useState(); //
+    const [isActiveSelect, setIsActiveSelect] = useState();
     const [isSponsorListVisible, setIsSponsorListVisible] = useState(false);
+    const [participant, setParticipant] = useState();
 
     const [data, setData] = useState({
         mentor_id: '',
@@ -21,89 +22,61 @@ export default function AddStructure({ setActiveComponent, participantId, sponso
         sponsor_id: ''
     })
 
+    console.log(data);
+
     const filterPositions = async (term) => {
-        console.log(term, 'term');
         const lowerCaseTerm = term.toLowerCase();
-        const filtered = await new Promise((resolve) => {
-            const result = freePositions.filter(position =>
-                position.name.toLowerCase().includes(lowerCaseTerm) ||
-                position.lastname.toLowerCase().includes(lowerCaseTerm) ||
-                position.patronymic.toLowerCase().includes(lowerCaseTerm) ||
-                position.personal_number.toLowerCase().includes(lowerCaseTerm)
-            );
-            console.log(result, 'result');
-
-            resolve(result);
-        });
-        console.log(filtered, 'filtered');
-
+        const filtered = freePositions.filter(position =>
+            [position.name, position.lastname, position.patronymic, position.personal_number]
+                .some(field => field.toLowerCase().includes(lowerCaseTerm))
+        );
         setFilteredPositions(filtered);
     };
 
     const handleSelectSponsor = (field, value, position) => {
-        if (field === 'sponsor_id') {
-            setIsActiveSelect(position);
-            console.log(value, 'value');
-            console.log(freePositions, 'freePositions');
 
-            const selected = freePositions.find((item) => item.id === value);
-            console.log(selected, 'selected');
+        if (field === 'sponsor_id') {
+            const selected = freePositions.find(item => item.id === value);
+            if (position === undefined) {
+                position = selected.position;
+            }
 
             if (selected) {
-                let positionText;
-                switch (position) {
-                    case 'left':
-                        positionText = 'левая';
-                        break;
-                    case 'right':
-                        positionText = 'правая';
-                        break;
-                    case 'both':
-                        positionText = 'оба';
-                        break;
-                    default:
-                        positionText = 'неизвестно';
-                }
+                setIsActiveSelect(position);
+
+                const positionText = {
+                    left: 'левая',
+                    right: 'правая',
+                    both: 'оба'
+                }[position] || 'неизвестно';
 
                 const sponsorDetails = `${selected.name} ${selected.lastname} ${selected.patronymic} ${selected.personal_number} ${positionText}`;
                 setSearchTerm(sponsorDetails);
                 setIsSponsorListVisible(false);
-            }
 
-            setData(prevData => ({
-                ...prevData,
-                [field]: value,
-                mentor_id: value,
-            }));
+                setData(prevData => ({
+                    ...prevData,
+                    [field]: value,
+                    mentor_id: value,
+                }));
+            }
         }
     };
 
     const handleChange = (field, value) => {
-        switch (field) {
-            case 'search':
-                setSearchTerm(value);
-                filterPositions(value);
-                setIsSponsorListVisible(true);
-                break;
-            case 'position':
-                setData(prevData => ({
-                    ...prevData,
-                    [field]: value,
-                }));
-                break;
-
-            default:
-                setData(prevData => ({ ...prevData, [field]: value }));
-                break;
+        if (field === 'search') {
+            setSearchTerm(value);
+            filterPositions(value);
+            setIsSponsorListVisible(true);
+        } else {
+            setData(prevData => ({ ...prevData, [field]: value }));
         }
     };
 
     const getFreePositions = async () => {
         const token = localStorage.getItem('authToken');
         const response = await axios.get(`${API}/api/v1/participants/find_free_positions/${sponsorId}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
+            headers: { 'Authorization': `Bearer ${token}` }
         });
         setFreePositions(response.data.available_positions);
         setFilteredPositions(response.data.available_positions);
@@ -111,23 +84,18 @@ export default function AddStructure({ setActiveComponent, participantId, sponso
 
     const getParticipant = async () => {
         const token = localStorage.getItem('authToken');
-        const response = await axios.get(`${API}/api/v1/participants/${participantId}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
+        const data = await axios.get(`${API}/api/v1/participants/${participantId}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
         });
-        handleSelectSponsor('sponsor_id', response.data.mentor.id);
-        filterPositions(response.data.mentor.name);
+        setParticipant(data.data?.mentor?.id);
     };
 
     const handleSubmit = async (event) => {
-        const token = localStorage.getItem('authToken');
         event.preventDefault();
+        const token = localStorage.getItem('authToken');
         try {
             const response = await axios.put(`${API}/api/v1/participant/add/structure`, data, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+                headers: { 'Authorization': `Bearer ${token}` }
             });
 
             if (response.status === 200) {
@@ -135,7 +103,7 @@ export default function AddStructure({ setActiveComponent, participantId, sponso
                 handleBack('Регистрации');
             }
         } catch (error) {
-            setErrorMessage('Данные уже существуют или не все поля заполнены корректно.')
+            setErrorMessage('Данные уже существуют или не все поля заполнены корректно.');
         }
     };
 
@@ -146,22 +114,27 @@ export default function AddStructure({ setActiveComponent, participantId, sponso
     const getPakets = async () => {
         const token = localStorage.getItem('authToken');
         try {
-            const response = await axios.get(`${API}/api/v1/pakets`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+            const data = await axios.get(`${API}/api/v1/pakets`, {
+                headers: { 'Authorization': `Bearer ${token}` }
             });
-            setPakets(response.data);
+            setPakets(data.data);
         } catch (error) {
+            console.error("Ошибка при получении пакетов:", error);
         }
     };
 
     useEffect(() => {
+        toast.loading('Загрузка...', { duration: 1000 });
         getPakets();
         getFreePositions();
         getParticipant();
     }, []);
 
+    useEffect(() => {
+        if (participant) {
+            handleSelectSponsor('sponsor_id', participant);
+        }
+    }, [participant]);
 
     return (
         <div>
@@ -199,20 +172,11 @@ export default function AddStructure({ setActiveComponent, participantId, sponso
                             {isSponsorListVisible && filteredPositions.length > 0 && (
                                 <div className={styles.searchResults}>
                                     {filteredPositions.map((item) => {
-                                        let positionText;
-                                        switch (item.position) {
-                                            case 'left':
-                                                positionText = 'левая';
-                                                break;
-                                            case 'right':
-                                                positionText = 'правая';
-                                                break;
-                                            case 'both':
-                                                positionText = 'оба';
-                                                break;
-                                            default:
-                                                positionText = 'неизвестно';
-                                        }
+                                        const positionText = {
+                                            left: 'левая',
+                                            right: 'правая',
+                                            both: 'оба'
+                                        }[item.position] || 'неизвестно';
 
                                         return (
                                             <div className={styles.select} key={item.id}>
