@@ -36,29 +36,28 @@
   border-radius: 5px;
   width: 100%;
   outline: none;
-  transition: all 0.3s ease;
 }
 
 .input:focus {
-  border-color: #007bff;
   outline: none;
-  transform: scale(1.01);
 }
 
 
 .button {
   margin: 10px;
   padding: 10px;
-  background-color: #007bff;
+  background-color: #000080;
   color: #fff;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   width: 100%;
+  transition: all 0.3s ease;
 }
 
 .button:hover {
-  background-color: #0056b3;
+  transition: all 0.3s ease;
+  background-color: #054a94;
 }
 
 .message {

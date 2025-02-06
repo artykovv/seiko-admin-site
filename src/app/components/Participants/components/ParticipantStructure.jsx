@@ -123,13 +123,17 @@ const ParticipantStructure = ({ participantId, setActiveComponent }) => {
     const renderTree = (node) => {
         if (!node) return null;
 
+        const hasChildren = node.left_child || node.right_child;
+
         return (
             <li>
                 {renderNode(node)}
-                <ul className={styles.active}>
-                    {node.left_child && <>{renderTree(node.left_child)}</>}
-                    {node.right_child && <>{renderTree(node.right_child)}</>}
-                </ul>
+                {hasChildren && (
+                    <ul className={styles.active}>
+                        {node.left_child && renderTree(node.left_child)}
+                        {node.right_child && renderTree(node.right_child)}
+                    </ul>
+                )}
             </li>
         );
     };
@@ -249,6 +253,7 @@ const ParticipantStructure = ({ participantId, setActiveComponent }) => {
                             </ul>
                         </div>
                     </div>
+
                     <footer className={styles.formButtons}>
                         <button type="button" onClick={() => handleBack('Участники')}>
                             Назад
